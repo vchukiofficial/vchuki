@@ -1,0 +1,13 @@
+{
+  "name": "VCHUKI — Premium Shirts",
+  "short_name": "VCHUKI",
+  "description": "India's premium shirt brand. Shop formal, casual & linen shirts online.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#C9A96E",
+  "icons": [
+    { "src": "/favicon.ico", "sizes": "64x64", "type": "image/x-icon" },
+    { "src": "/logo.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}
