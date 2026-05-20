@@ -8,18 +8,21 @@ declare global {
 function getClientPromise(): Promise<MongoClient> {
   const uri = process.env.MONGODB_URI
   if (!uri) {
-    // Return a never-resolving promise during build when env is not set
     return new Promise(() => {})
   }
 
+  const options = {}
+
   if (process.env.NODE_ENV === 'development') {
     if (!global._mongoClientPromise) {
-      global._mongoClientPromise = new MongoClient(uri).connect()
+      const client = new MongoClient(uri, options)
+      global._mongoClientPromise = client.connect()
     }
     return global._mongoClientPromise
   }
 
-  return new MongoClient(uri).connect()
+  const client = new MongoClient(uri, options)
+  return client.connect()
 }
 
 const clientPromise = getClientPromise()

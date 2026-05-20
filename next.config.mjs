@@ -11,11 +11,11 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'lh3.googleusercontent.com',
+        hostname: '*.public.blob.vercel-storage.com',
       },
       {
         protocol: 'https',
-        hostname: '*.razorpay.com',
+        hostname: 'lh3.googleusercontent.com',
       },
     ],
   },

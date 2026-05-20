@@ -1,11 +1,10 @@
 import CredentialsProvider from 'next-auth/providers/credentials'
-import { MongoDBAdapter } from '@auth/mongodb-adapter'
-import clientPromise from './mongoClient'
 import bcrypt from 'bcryptjs'
 import type { NextAuthOptions } from 'next-auth'
+import connectDB from './mongodb'
+import User from '@/models/User'
 
 export const authOptions: NextAuthOptions = {
-  adapter: MongoDBAdapter(clientPromise) as NextAuthOptions['adapter'],
   providers: [
     CredentialsProvider({
       name: 'credentials',
@@ -16,16 +15,20 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null
 
-        const client = await clientPromise
-        const db = client.db()
-        const user = await db.collection('users').findOne({ email: credentials.email })
+        await connectDB()
+        const user = await User.findOne({ email: credentials.email })
 
         if (!user || !user.password) return null
 
-        const isValid = await bcrypt.compare(credentials.password as string, user.password as string)
+        const isValid = await bcrypt.compare(credentials.password, user.password)
         if (!isValid) return null
 
-        return { id: user._id.toString(), email: user.email as string, name: user.name as string, role: user.role as string }
+        return {
+          id: user._id.toString(),
+          email: user.email,
+          name: user.name,
+          role: user.role,
+        }
       }
     }),
   ],
@@ -38,16 +41,18 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.role = (user as { role?: string }).role
+        token.role = (user as any).role
+        token.id = user.id
       }
       return token
     },
     async session({ session, token }) {
       if (token) {
-        session.user.id = token.sub
-        session.user.role = token.role as string | undefined
+        session.user.id = token.id as string
+        session.user.role = token.role as string
       }
       return session
     },
   },
+  secret: process.env.NEXTAUTH_SECRET,
 }
