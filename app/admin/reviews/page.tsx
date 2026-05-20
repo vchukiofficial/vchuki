@@ -1,79 +1,39 @@
 "use client"
-
 import { useEffect, useState } from "react"
 import { Star, Trash2 } from "lucide-react"
-import { Button } from "@/components/ui/button"
-
-interface Review {
-  _id: string
-  rating: number
-  comment?: string
-  verifiedPurchase: boolean
-  createdAt: string
-  user: { name: string } | null
-  product: { name: string; slug: string } | null
-}
 
 export default function AdminReviewsPage() {
-  const [reviews, setReviews] = useState<Review[]>([])
+  const [reviews, setReviews] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    fetch("/api/reviews")
-      .then((r) => r.json())
-      .then((data) => { setReviews(data.reviews || []); setLoading(false) })
-  }, [])
+  useEffect(() => { fetch("/api/reviews").then(r => r.json()).then(d => { setReviews(d.reviews || []); setLoading(false) }) }, [])
 
   async function handleDelete(id: string) {
-    if (!confirm("Delete this review?")) return
-    const res = await fetch(`/api/reviews/${id}`, { method: "DELETE" })
-    if (res.ok) {
-      setReviews(reviews.filter((r) => r._id !== id))
-    }
+    await fetch(`/api/reviews/${id}`, { method: "DELETE" })
+    setReviews(reviews.filter(r => r._id !== id))
   }
 
-  if (loading) return <div className="text-muted-foreground">Loading reviews...</div>
+  if (loading) return <div className="text-sm text-muted-foreground">Loading...</div>
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-6">Reviews ({reviews.length})</h1>
-
-      {reviews.length === 0 ? (
-        <p className="text-muted-foreground">No reviews yet.</p>
-      ) : (
-        <div className="space-y-3">
-          {reviews.map((review) => (
-            <div key={review._id} className="p-4 rounded-lg border border-border/50 bg-card/50">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <div className="flex">
-                      {Array.from({ length: 5 }, (_, i) => (
-                        <Star key={i} className={`h-3 w-3 ${i < review.rating ? "fill-primary text-primary" : "text-muted-foreground/30"}`} />
-                      ))}
-                    </div>
-                    <span className="text-sm font-medium">{review.user?.name || "Unknown"}</span>
-                    {review.verifiedPurchase && (
-                      <span className="text-[10px] bg-green-500/10 text-green-500 px-2 py-0.5 rounded">Verified</span>
-                    )}
-                  </div>
-                  <p className="text-xs text-primary mt-1">Product: {review.product?.name || "Unknown"}</p>
-                  {review.comment && <p className="text-sm text-muted-foreground mt-2">{review.comment}</p>}
-                  <p className="text-[10px] text-muted-foreground mt-2">{new Date(review.createdAt).toLocaleDateString()}</p>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-muted-foreground hover:text-destructive h-8 w-8"
-                  onClick={() => handleDelete(review._id)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
+    <div className="space-y-4">
+      <div><h1 className="text-xl font-semibold tracking-tight">Reviews</h1><p className="text-xs text-muted-foreground mt-0.5">{reviews.length} customer reviews</p></div>
+      <div className="space-y-2">
+        {reviews.map(r => (
+          <div key={r._id} className="p-4 rounded-lg border bg-card flex items-start justify-between gap-3">
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                <div className="flex">{Array.from({length:5},(_,i) => <Star key={i} className={`h-3 w-3 ${i < r.rating ? "fill-accent text-accent" : "text-muted-foreground/20"}`} />)}</div>
+                <span className="text-xs font-medium">{r.user?.name || "User"}</span>
+                {r.verifiedPurchase && <span className="text-[9px] bg-green-500/10 text-green-600 px-1.5 py-0.5 rounded">Verified</span>}
               </div>
+              <p className="text-[11px] text-accent mt-0.5">{r.product?.name || "Product"}</p>
+              {r.comment && <p className="text-xs text-muted-foreground mt-1.5">{r.comment}</p>}
             </div>
-          ))}
-        </div>
-      )}
+            <button onClick={() => handleDelete(r._id)} className="text-muted-foreground hover:text-red-500 transition-colors"><Trash2 className="h-3.5 w-3.5" /></button>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
