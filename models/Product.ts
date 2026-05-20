@@ -22,6 +22,8 @@ const ProductSchema: Schema = new Schema({
   images: [String],
   isFeatured: { type: Boolean, default: false },
   isActive: { type: Boolean, default: true },
+  rating: { type: Number, default: 0 },
+  reviewCount: { type: Number, default: 0 },
 }, { timestamps: true })
 
 export default mongoose.models.Product || mongoose.model<IProduct>('Product', ProductSchema)
