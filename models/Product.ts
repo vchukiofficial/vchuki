@@ -24,4 +24,4 @@ const ProductSchema: Schema = new Schema({
   isActive: { type: Boolean, default: true },
 }, { timestamps: true })
 
-export default mongoose.model<IProduct>('Product', ProductSchema)
+export default mongoose.models.Product || mongoose.model<IProduct>('Product', ProductSchema)

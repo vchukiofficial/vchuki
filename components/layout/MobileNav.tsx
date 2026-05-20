@@ -13,7 +13,7 @@ export default function MobileNav() {
 
   const tabs = [
     { href: "/", icon: Home, label: "Home" },
-    { href: "/products", icon: Grid, label: "Shop" },
+    { href: "/shirts", icon: Grid, label: "Shop" },
     { href: "/account/wishlist", icon: Heart, label: "Wishlist" },
     { href: "/account", icon: User, label: "Account" },
   ]

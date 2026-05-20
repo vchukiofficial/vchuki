@@ -20,4 +20,4 @@ const ReviewSchema: Schema = new Schema({
 
 ReviewSchema.index({ product: 1, user: 1 }, { unique: true })
 
-export default mongoose.model<IReview>('Review', ReviewSchema)
+export default mongoose.models.Review || mongoose.model<IReview>('Review', ReviewSchema)

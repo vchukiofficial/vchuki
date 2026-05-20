@@ -30,4 +30,4 @@ const ProductVariantSchema: Schema = new Schema({
   images: [String],
 }, { timestamps: true })
 
-export default mongoose.model<IProductVariant>('ProductVariant', ProductVariantSchema)
+export default mongoose.models.ProductVariant || mongoose.model<IProductVariant>('ProductVariant', ProductVariantSchema)

@@ -40,10 +40,11 @@ export default function Navbar() {
 
         {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-6">
-          <Link href="/products" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Shop All</Link>
-          <Link href="/products?category=formal" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Formal</Link>
-          <Link href="/products?category=casual" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Casual</Link>
-          <Link href="/products?category=ethnic" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Ethnic</Link>
+          <Link href="/shirts" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Shop All</Link>
+          <Link href="/shirts/formal" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Formal</Link>
+          <Link href="/shirts/casual" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Casual</Link>
+          <Link href="/shirts/linen" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Linen</Link>
+          <Link href="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Blog</Link>
         </div>
 
         <div className="flex items-center gap-1">
@@ -112,10 +113,11 @@ export default function Navbar() {
       {/* Mobile menu */}
       {showMobileMenu && (
         <div className="md:hidden border-t bg-background px-4 py-3 space-y-1">
-          <Link href="/products" onClick={() => setShowMobileMenu(false)} className="block py-2.5 text-sm font-medium">Shop All</Link>
-          <Link href="/products?category=formal" onClick={() => setShowMobileMenu(false)} className="block py-2.5 text-sm text-muted-foreground">Formal</Link>
-          <Link href="/products?category=casual" onClick={() => setShowMobileMenu(false)} className="block py-2.5 text-sm text-muted-foreground">Casual</Link>
-          <Link href="/products?category=ethnic" onClick={() => setShowMobileMenu(false)} className="block py-2.5 text-sm text-muted-foreground">Ethnic</Link>
+          <Link href="/shirts" onClick={() => setShowMobileMenu(false)} className="block py-2.5 text-sm font-medium">Shop All</Link>
+          <Link href="/shirts/formal" onClick={() => setShowMobileMenu(false)} className="block py-2.5 text-sm text-muted-foreground">Formal</Link>
+          <Link href="/shirts/casual" onClick={() => setShowMobileMenu(false)} className="block py-2.5 text-sm text-muted-foreground">Casual</Link>
+          <Link href="/shirts/linen" onClick={() => setShowMobileMenu(false)} className="block py-2.5 text-sm text-muted-foreground">Linen</Link>
+          <Link href="/blog" onClick={() => setShowMobileMenu(false)} className="block py-2.5 text-sm text-muted-foreground">Blog</Link>
           {isAdmin && (
             <Link href="/admin" onClick={() => setShowMobileMenu(false)} className="block py-2.5 text-sm text-primary font-medium">Admin Panel</Link>
           )}
