@@ -15,10 +15,11 @@
 
 # production
 /build
+/dist
 
 # misc
 .DS_Store
-*.pem
+*.pnp.js
 
 # debug
 npm-debug.log*
@@ -34,3 +35,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# mongoose
+mongoose.log
+
+# logs
+*.log
