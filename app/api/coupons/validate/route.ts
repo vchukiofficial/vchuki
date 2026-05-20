@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server"
 import connectDB from "@/lib/mongodb"
 import Coupon from "@/models/Coupon"
 
+export const dynamic = "force-dynamic"
+
 export async function GET(request: NextRequest) {
   await connectDB()
   const { searchParams } = new URL(request.url)

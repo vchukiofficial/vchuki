@@ -1,5 +1,4 @@
 import CredentialsProvider from 'next-auth/providers/credentials'
-import GoogleProvider from 'next-auth/providers/google'
 import { MongoDBAdapter } from '@auth/mongodb-adapter'
 import clientPromise from './mongoClient'
 import bcrypt from 'bcryptjs'
@@ -29,10 +28,6 @@ export const authOptions: NextAuthOptions = {
         return { id: user._id.toString(), email: user.email as string, name: user.name as string, role: user.role as string }
       }
     }),
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-    })
   ],
   session: {
     strategy: 'jwt',

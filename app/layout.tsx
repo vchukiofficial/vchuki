@@ -17,17 +17,14 @@ const geistMono = localFont({
 export const metadata: Metadata = {
   title: "VCHUKI — Premium Fashion",
   description: "Discover premium shirts crafted for style, comfort, and every occasion.",
-  keywords: ["shirts", "fashion", "premium", "vchuki", "menswear"],
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${geistSans.variable} ${geistMono.variable} font-sans`}>
         <Providers>{children}</Providers>
       </body>
     </html>
