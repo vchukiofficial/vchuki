@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import { Providers } from "@/components/Providers";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -14,11 +15,10 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Shirt Store - Premium Shirts",
-  description: "Discover premium shirts for every occasion. Fast shipping, easy returns.",
+  title: "VCHUKI — Premium Fashion",
+  description: "Discover premium shirts crafted for style, comfort, and every occasion.",
+  keywords: ["shirts", "fashion", "premium", "vchuki", "menswear"],
 };
-
-import MobileNav from '@/components/layout/MobileNav'
 
 export default function RootLayout({
   children,
@@ -26,11 +26,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased duration-200`}>
-        {children}
-        <MobileNav />
+    <html lang="en" className="dark" suppressHydrationWarning>
+      <body className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}>
+        <Providers>{children}</Providers>
       </body>
     </html>
-  )
+  );
 }

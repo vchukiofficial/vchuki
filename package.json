@@ -6,11 +6,13 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "seed": "npx tsx scripts/seed.ts"
   },
   "dependencies": {
     "@auth/mongodb-adapter": "^3.11.2",
     "@radix-ui/react-select": "^2.2.6",
+    "@vercel/blob": "^2.4.0",
     "bcryptjs": "^2.4.3",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
@@ -18,7 +20,7 @@
     "framer-motion": "^11.3.30",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.451.0",
-    "mongodb": "^7.2.0",
+    "mongodb": "^6.10.0",
     "mongoose": "^8.6.1",
     "next": "14.2.15",
     "next-auth": "^4.24.7",
