@@ -1,0 +1,33 @@
+export const BUSINESS = {
+  name: "VCHUKI",
+  legalName: "Vchuki Fashion Private Limited",
+  gstin: "27AABCV1234F1Z5",
+  cin: "U18101MH2024PTC123456",
+  address: {
+    street: "123, Fashion Street, Andheri West",
+    city: "Mumbai",
+    state: "Maharashtra",
+    zip: "400058",
+    country: "India",
+  },
+  fullAddress: "123, Fashion Street, Andheri West, Mumbai, Maharashtra 400058, India",
+  email: {
+    support: "support@vchuki.com",
+    hello: "hello@vchuki.com",
+    care: "care@vchuki.com",
+    business: "business@vchuki.com",
+    returns: "returns@vchuki.com",
+  },
+  phone: "+91 98765 43210",
+  hours: "Monday to Saturday, 10:00 AM - 7:00 PM IST",
+  social: {
+    instagram: "https://instagram.com/vchuki",
+    twitter: "https://twitter.com/vchuki",
+    facebook: "https://facebook.com/vchuki",
+    youtube: "https://youtube.com/@vchuki",
+    pinterest: "https://pinterest.com/vchuki",
+  },
+  domain: "https://vchuki.com",
+  founded: "2024",
+  tagline: "Premium Fashion for the Modern Man",
+}

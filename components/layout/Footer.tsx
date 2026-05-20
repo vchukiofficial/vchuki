@@ -1,40 +1,93 @@
 import Link from "next/link"
+import Image from "next/image"
+import { BUSINESS } from "@/lib/constants"
 
 export default function Footer() {
   return (
     <footer className="border-t bg-card/50 pb-20 md:pb-6">
-      <div className="container py-8 md:py-12">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
+      <div className="container py-10 md:py-14">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-6 md:gap-8">
+          {/* Brand */}
           <div className="col-span-2 md:col-span-1">
-            <h3 className="text-lg font-bold text-gradient mb-2">VCHUKI</h3>
-            <p className="text-xs text-muted-foreground">Premium fashion for the modern individual.</p>
-          </div>
-          <div>
-            <h4 className="font-semibold mb-2 text-xs uppercase tracking-wider text-muted-foreground">Shop</h4>
-            <div className="space-y-1.5 text-sm">
-              <Link href="/products" className="block text-muted-foreground hover:text-foreground transition-colors">All Products</Link>
-              <Link href="/products?category=formal" className="block text-muted-foreground hover:text-foreground transition-colors">Formal</Link>
-              <Link href="/products?category=casual" className="block text-muted-foreground hover:text-foreground transition-colors">Casual</Link>
+            <div className="flex items-center gap-1.5 mb-3">
+              <Image src="/logo-mark.svg" alt="VCHUKI" width={24} height={24} className="dark:invert" />
+              <span className="text-base font-bold tracking-[0.12em]">VCHUKI</span>
+            </div>
+            <p className="text-xs text-muted-foreground leading-relaxed">{BUSINESS.tagline}</p>
+            {/* Social Icons */}
+            <div className="flex gap-3 mt-4">
+              {Object.entries(BUSINESS.social).map(([platform, url]) => (
+                <a key={platform} href={url} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors" aria-label={platform}>
+                  <span className="text-xs capitalize">{platform.charAt(0).toUpperCase()}</span>
+                </a>
+              ))}
             </div>
           </div>
+
+          {/* Shop */}
           <div>
-            <h4 className="font-semibold mb-2 text-xs uppercase tracking-wider text-muted-foreground">Account</h4>
-            <div className="space-y-1.5 text-sm">
-              <Link href="/account" className="block text-muted-foreground hover:text-foreground transition-colors">My Account</Link>
-              <Link href="/account/orders" className="block text-muted-foreground hover:text-foreground transition-colors">Orders</Link>
-              <Link href="/account/wishlist" className="block text-muted-foreground hover:text-foreground transition-colors">Wishlist</Link>
+            <h4 className="font-semibold mb-3 text-xs uppercase tracking-wider text-muted-foreground">Shop</h4>
+            <div className="space-y-2 text-sm">
+              <Link href="/shirts" className="block text-muted-foreground hover:text-foreground transition-colors">All Shirts</Link>
+              <Link href="/shirts/formal" className="block text-muted-foreground hover:text-foreground transition-colors">Formal</Link>
+              <Link href="/shirts/casual" className="block text-muted-foreground hover:text-foreground transition-colors">Casual</Link>
+              <Link href="/shirts/linen" className="block text-muted-foreground hover:text-foreground transition-colors">Linen</Link>
+              <Link href="/shirts/premium" className="block text-muted-foreground hover:text-foreground transition-colors">Premium</Link>
             </div>
           </div>
+
+          {/* Company */}
           <div>
-            <h4 className="font-semibold mb-2 text-xs uppercase tracking-wider text-muted-foreground">Support</h4>
-            <div className="space-y-1.5 text-sm text-muted-foreground">
-              <p>support@vchuki.com</p>
-              <p>+91 98765 43210</p>
+            <h4 className="font-semibold mb-3 text-xs uppercase tracking-wider text-muted-foreground">Company</h4>
+            <div className="space-y-2 text-sm">
+              <Link href="/about" className="block text-muted-foreground hover:text-foreground transition-colors">About Us</Link>
+              <Link href="/contact" className="block text-muted-foreground hover:text-foreground transition-colors">Contact</Link>
+              <Link href="/blog" className="block text-muted-foreground hover:text-foreground transition-colors">Blog</Link>
+            </div>
+          </div>
+
+          {/* Policies */}
+          <div>
+            <h4 className="font-semibold mb-3 text-xs uppercase tracking-wider text-muted-foreground">Policies</h4>
+            <div className="space-y-2 text-sm">
+              <Link href="/privacy-policy" className="block text-muted-foreground hover:text-foreground transition-colors">Privacy Policy</Link>
+              <Link href="/terms-and-conditions" className="block text-muted-foreground hover:text-foreground transition-colors">Terms & Conditions</Link>
+              <Link href="/refund-policy" className="block text-muted-foreground hover:text-foreground transition-colors">Refund Policy</Link>
+              <Link href="/shipping-policy" className="block text-muted-foreground hover:text-foreground transition-colors">Shipping Policy</Link>
+            </div>
+          </div>
+
+          {/* Contact */}
+          <div>
+            <h4 className="font-semibold mb-3 text-xs uppercase tracking-wider text-muted-foreground">Support</h4>
+            <div className="space-y-2 text-sm text-muted-foreground">
+              <p>{BUSINESS.email.support}</p>
+              <p>{BUSINESS.phone}</p>
+              <p className="text-xs">{BUSINESS.hours}</p>
             </div>
           </div>
         </div>
-        <div className="mt-6 pt-6 border-t text-center text-[10px] md:text-xs text-muted-foreground">
-          © 2026 VCHUKI. All rights reserved.
+
+        {/* Trust Badges */}
+        <div className="mt-8 pt-6 border-t flex flex-wrap items-center justify-center gap-4 md:gap-6 text-[10px] md:text-xs text-muted-foreground">
+          <span className="flex items-center gap-1">🔒 Secure Payments</span>
+          <span className="flex items-center gap-1">🚚 Free Shipping ₹999+</span>
+          <span className="flex items-center gap-1">↩️ 30-Day Returns</span>
+          <span className="flex items-center gap-1">✓ 100% Genuine</span>
+        </div>
+
+        {/* Bottom Bar */}
+        <div className="mt-6 pt-4 border-t flex flex-col md:flex-row items-center justify-between gap-2 text-[10px] md:text-xs text-muted-foreground">
+          <div className="text-center md:text-left">
+            <p>© 2026 {BUSINESS.legalName}. All rights reserved.</p>
+            <p className="mt-0.5">GSTIN: {BUSINESS.gstin} | CIN: {BUSINESS.cin}</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <span>Visa</span>
+            <span>Mastercard</span>
+            <span>UPI</span>
+            <span>Razorpay</span>
+          </div>
         </div>
       </div>
     </footer>
