@@ -33,9 +33,12 @@ export default function Navbar() {
           </div>
 
           {/* Center - Logo */}
-          <Link href="/" className="flex items-center gap-1.5">
-            <Image src="/logo-mark.svg" alt="VCHUKI" width={22} height={22} className="dark:invert" />
-            <span className="text-sm md:text-base font-semibold tracking-[0.18em]">VCHUKI</span>
+          <Link href="/" className="flex items-center gap-2">
+            <Image src="/logo-mark.svg" alt="VCHUKI" width={24} height={24} className="dark:invert" />
+            <div className="hidden sm:block">
+              <span className="text-sm font-semibold tracking-[0.2em] block leading-none">VCHUKI</span>
+              <span className="text-[7px] tracking-[0.15em] text-muted-foreground block mt-0.5">PREMIUM MENSWEAR</span>
+            </div>
           </Link>
 
           {/* Right - Actions */}

@@ -9,9 +9,12 @@ export default function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-5 gap-6 md:gap-8">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
-            <div className="flex items-center gap-1.5 mb-3">
-              <Image src="/logo-mark.svg" alt="VCHUKI" width={24} height={24} className="dark:invert" />
-              <span className="text-base font-bold tracking-[0.12em]">VCHUKI</span>
+            <div className="flex items-center gap-2 mb-3">
+              <Image src="/logo-mark.svg" alt="VCHUKI" width={22} height={22} className="dark:invert" />
+              <div>
+                <span className="text-sm font-semibold tracking-[0.15em] block leading-none">VCHUKI</span>
+                <span className="text-[7px] tracking-[0.1em] text-muted-foreground block mt-0.5">PREMIUM MENSWEAR</span>
+              </div>
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed">{BUSINESS.tagline}</p>
             {/* Social Icons */}

@@ -37,8 +37,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <Link href="/" className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors">
             <ArrowLeft className="h-3 w-3" /> Back to Store
           </Link>
-          <p className="mt-2 text-sm font-semibold tracking-[0.12em]">VCHUKI</p>
-          <p className="text-[10px] text-muted-foreground">Admin Portal</p>
+          <p className="mt-2 text-sm font-semibold tracking-[0.15em]">VCHUKI</p>
+          <p className="text-[8px] tracking-[0.1em] text-muted-foreground">PREMIUM MENSWEAR</p>
         </div>
 
         <nav className="flex-1 p-2 space-y-0.5 overflow-auto">

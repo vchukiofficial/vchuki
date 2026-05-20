@@ -1,9 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60" fill="none">
-  <g stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" fill="none">
-    <path d="M15 12 L25 32 L30 42"/>
-    <path d="M45 12 L35 32 L30 42"/>
-    <path d="M18 22 L40 12"/>
-    <path d="M42 22 L20 12"/>
-    <path d="M26 18 L30 13 L34 18 L30 23 Z"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <g stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Left V arm -->
+    <path d="M30 20 C35 35, 42 50, 50 65"/>
+    <!-- Right V arm -->
+    <path d="M70 20 C65 35, 58 50, 50 65"/>
+    <!-- Left crossing curve -->
+    <path d="M35 15 C45 20, 55 10, 65 15"/>
+    <!-- Right crossing curve -->
+    <path d="M35 15 C40 5, 60 5, 65 15"/>
   </g>
 </svg>
