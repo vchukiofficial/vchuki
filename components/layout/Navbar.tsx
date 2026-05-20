@@ -9,6 +9,8 @@ import { useCartStore } from "@/store/cartStore"
 import { useSession } from "next-auth/react"
 import { useState, useRef, useEffect } from "react"
 
+import Image from "next/image"
+
 export default function Navbar() {
   const { toggleCart } = useUIStore()
   const items = useCartStore((s) => s.items)
@@ -34,8 +36,9 @@ export default function Navbar() {
           {showMobileMenu ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
 
-        <Link href="/" className="text-xl md:text-2xl font-bold text-gradient tracking-wider">
-          VCHUKI
+        <Link href="/" className="flex items-center gap-1.5">
+          <Image src="/logo-mark.svg" alt="VCHUKI" width={28} height={28} className="dark:invert" />
+          <span className="text-lg md:text-xl font-bold tracking-[0.15em] hidden sm:inline">VCHUKI</span>
         </Link>
 
         {/* Desktop nav */}
