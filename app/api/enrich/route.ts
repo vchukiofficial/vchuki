@@ -20,7 +20,7 @@ const imagePool = [
   "https://images.unsplash.com/photo-1564584217132-2271feaeb3c5?w=600&q=80",
 ]
 
-function shuffle(arr: string[]) { return [...arr].sort(() => Math.random() - 0.5) }
+function shuffle<T>(arr: T[]): T[] { return [...arr].sort(() => Math.random() - 0.5) }
 
 export async function GET(request: NextRequest) {
   const secret = request.nextUrl.searchParams.get("secret")
@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
     if (existingSet.has(product._id.toString())) continue
 
     const numColors = 3 + Math.floor(Math.random() * 3)
-    const productColors = shuffle([...colors]).slice(0, numColors) as typeof colors
+    const productColors = shuffle(colors).slice(0, numColors)
     const variants: any[] = []
 
     for (const color of productColors) {
