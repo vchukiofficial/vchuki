@@ -1,6 +1,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { BUSINESS } from "@/lib/constants"
+import { Truck, RotateCcw, Shield, CheckCircle } from "lucide-react"
 
 export default function Footer() {
   return (
@@ -74,10 +75,10 @@ export default function Footer() {
 
         {/* Trust Badges */}
         <div className="mt-10 pt-6 border-t border-[#f5e6d3]/10 flex flex-wrap items-center justify-center gap-5 md:gap-8 text-[10px] md:text-xs text-[#f5e6d3]/40">
-          <span>🔒 Secure Payments</span>
-          <span>🚚 Free Shipping ₹999+</span>
-          <span>↩️ 30-Day Returns</span>
-          <span>✓ 100% Genuine</span>
+          <span className="flex items-center gap-1.5"><Shield className="h-3 w-3" /> Secure Payments</span>
+          <span className="flex items-center gap-1.5"><Truck className="h-3 w-3" /> Free Shipping ₹999+</span>
+          <span className="flex items-center gap-1.5"><RotateCcw className="h-3 w-3" /> 30-Day Returns</span>
+          <span className="flex items-center gap-1.5"><CheckCircle className="h-3 w-3" /> 100% Genuine</span>
         </div>
 
         {/* Bottom Bar */}

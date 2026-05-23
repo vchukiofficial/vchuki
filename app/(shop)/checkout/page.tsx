@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react"
 import { useCartStore } from "@/store/cartStore"
 import Image from "next/image"
 import Link from "next/link"
-import { Check, Shield, Truck, ArrowLeft, CreditCard, Banknote } from "lucide-react"
+import { Check, Shield, Truck, ArrowLeft, CreditCard, Banknote, Package, Clock, MapPin, ShoppingBag } from "lucide-react"
 
 type Step = "details" | "payment" | "confirmation"
 
@@ -36,7 +36,7 @@ export default function CheckoutPage() {
     return (
       <div className="container py-20 text-center max-w-md mx-auto">
         <div className="w-16 h-16 mx-auto mb-4 border border-[#c4956a]/20 rounded-full flex items-center justify-center">
-          <span className="text-2xl">🛒</span>
+          <ShoppingBag className="h-7 w-7 text-[#c4956a]/40" />
         </div>
         <h1 className="text-xl font-medium text-foreground mb-2">Your bag is empty</h1>
         <p className="text-sm text-muted-foreground mb-6">Add some premium shirts to get started</p>
@@ -102,32 +102,98 @@ export default function CheckoutPage() {
   // Order Confirmation
   if (step === "confirmation") {
     return (
-      <div className="container py-16 md:py-24 text-center max-w-md mx-auto">
-        <div className="w-16 h-16 mx-auto mb-6 bg-emerald-500/10 border border-emerald-500/20 rounded-full flex items-center justify-center">
-          <Check className="h-7 w-7 text-emerald-600 dark:text-emerald-400" />
+      <div className="container py-12 md:py-20 max-w-lg mx-auto">
+        {/* Success Icon */}
+        <div className="text-center">
+          <div className="w-16 h-16 mx-auto mb-6 bg-emerald-500/10 border border-emerald-500/20 rounded-full flex items-center justify-center">
+            <Check className="h-7 w-7 text-emerald-600 dark:text-emerald-400" />
+          </div>
+          <h1 className="text-2xl font-medium text-foreground">Order Confirmed!</h1>
+          <p className="text-sm text-muted-foreground mt-2">Thank you for shopping with VCHUKI</p>
         </div>
-        <h1 className="text-2xl font-medium text-foreground">Order Confirmed!</h1>
-        <p className="text-sm text-muted-foreground mt-2">Thank you for shopping with VCHUKI</p>
-        {orderId && (
-          <p className="text-xs text-muted-foreground mt-3">
-            Order ID: <span className="font-mono text-foreground">{orderId}</span>
-          </p>
-        )}
-        <div className="mt-6 p-4 border border-border bg-card/50 text-left space-y-2">
-          <p className="text-xs text-muted-foreground">We&apos;ll send order updates to:</p>
-          <p className="text-sm font-medium text-foreground">{form.email || session?.user?.email}</p>
-          <p className="text-sm text-foreground">{form.phone}</p>
+
+        {/* Order Details Card */}
+        <div className="mt-8 border border-border bg-card p-5 space-y-4">
+          {orderId && (
+            <div className="flex items-center justify-between pb-3 border-b border-border">
+              <span className="text-[10px] uppercase tracking-wider text-muted-foreground">Order ID</span>
+              <span className="text-xs font-mono font-medium text-foreground">#{orderId.slice(-8).toUpperCase()}</span>
+            </div>
+          )}
+
+          {/* What happens next */}
+          <div className="space-y-3">
+            <p className="text-[10px] uppercase tracking-wider text-[#c4956a] font-medium">What happens next</p>
+            <div className="space-y-2.5">
+              <div className="flex items-start gap-3">
+                <div className="h-6 w-6 rounded-full bg-emerald-500/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <Check className="h-3 w-3 text-emerald-600" />
+                </div>
+                <div>
+                  <p className="text-xs font-medium text-foreground">Order Placed</p>
+                  <p className="text-[10px] text-muted-foreground">We&apos;ve received your order</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="h-6 w-6 rounded-full bg-[#c4956a]/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <Package className="h-3 w-3 text-[#c4956a]" />
+                </div>
+                <div>
+                  <p className="text-xs font-medium text-foreground">Packaging</p>
+                  <p className="text-[10px] text-muted-foreground">Your shirt will be carefully packed within 24h</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="h-6 w-6 rounded-full bg-blue-500/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <Truck className="h-3 w-3 text-blue-500" />
+                </div>
+                <div>
+                  <p className="text-xs font-medium text-foreground">Shipping</p>
+                  <p className="text-[10px] text-muted-foreground">Dispatched via premium courier</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <MapPin className="h-3 w-3 text-muted-foreground" />
+                </div>
+                <div>
+                  <p className="text-xs font-medium text-foreground">Delivery</p>
+                  <p className="text-[10px] text-muted-foreground">Estimated 3-5 business days</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Contact info */}
+          <div className="pt-3 border-t border-border">
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2">Updates will be sent to</p>
+            <p className="text-sm font-medium text-foreground">{form.email || session?.user?.email}</p>
+            {form.phone && <p className="text-xs text-muted-foreground mt-0.5">{form.phone}</p>}
+          </div>
+
+          {/* Estimated delivery */}
+          <div className="pt-3 border-t border-border flex items-center gap-2">
+            <Clock className="h-3.5 w-3.5 text-[#c4956a]" />
+            <p className="text-xs text-foreground">Estimated delivery: <span className="font-medium">{new Date(Date.now() + 5 * 86400000).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</span></p>
+          </div>
         </div>
-        <div className="mt-8 flex flex-col gap-3">
+
+        {/* Actions */}
+        <div className="mt-6 flex flex-col gap-3">
           {session && (
-            <Link href="/account/orders" className="px-6 py-3 bg-[#2a1f14] dark:bg-[#c4956a] text-[#f5e6d3] dark:text-[#2a1f14] text-xs font-medium tracking-wider uppercase hover:opacity-90 transition-opacity">
+            <Link href="/account/orders" className="block w-full py-3.5 bg-[#2a1f14] dark:bg-[#c4956a] text-[#f5e6d3] dark:text-[#2a1f14] text-center text-xs font-medium tracking-wider uppercase hover:opacity-90 transition-opacity">
               Track Order
             </Link>
           )}
-          <Link href="/shirts" className="px-6 py-3 border border-border text-xs font-medium tracking-wider uppercase hover:bg-card transition-colors text-foreground">
+          <Link href="/shirts" className="block w-full py-3 border border-border text-center text-xs font-medium tracking-wider uppercase hover:bg-card transition-colors text-foreground">
             Continue Shopping
           </Link>
         </div>
+
+        {/* Need help */}
+        <p className="text-center text-[10px] text-muted-foreground mt-6">
+          Need help? <a href="https://wa.me/919876543210" target="_blank" rel="noopener noreferrer" className="text-[#c4956a] hover:underline">Chat with us on WhatsApp</a>
+        </p>
       </div>
     )
   }

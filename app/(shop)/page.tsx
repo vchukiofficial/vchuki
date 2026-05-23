@@ -2,7 +2,7 @@ import Link from "next/link"
 import Image from "next/image"
 import connectDB from "@/lib/mongodb"
 import Product from "@/models/Product"
-import { Star, ArrowRight, Sparkles } from "lucide-react"
+import { Star, ArrowRight, Sparkles, Truck, RotateCcw, Shield, CheckCircle } from "lucide-react"
 import { HeroSection } from "@/components/home/HeroSection"
 import { AnimatedSection } from "@/components/home/AnimatedSection"
 import { ProductCarousel } from "@/components/home/ProductCarousel"
@@ -274,13 +274,13 @@ export default async function HomePage() {
       <div className="border-t border-border">
         <div className="container py-6 md:py-8 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
           {[
-            { icon: "🚚", label: "Free Shipping", sub: "Orders above ₹999" },
-            { icon: "↩️", label: "30-Day Returns", sub: "Hassle-free" },
-            { icon: "🔒", label: "Secure Checkout", sub: "256-bit SSL" },
-            { icon: "✓", label: "Premium Quality", sub: "47 quality checks" },
+            { icon: Truck, label: "Free Shipping", sub: "Orders above ₹999" },
+            { icon: RotateCcw, label: "30-Day Returns", sub: "Hassle-free" },
+            { icon: Shield, label: "Secure Checkout", sub: "256-bit SSL" },
+            { icon: CheckCircle, label: "Premium Quality", sub: "47 quality checks" },
           ].map((item) => (
             <div key={item.label} className="flex flex-col items-center gap-1">
-              <span className="text-base">{item.icon}</span>
+              <item.icon className="h-4 w-4 text-[#c4956a]" />
               <p className="text-[11px] md:text-xs font-medium tracking-wide text-foreground">{item.label}</p>
               <p className="text-[9px] md:text-[10px] text-muted-foreground">{item.sub}</p>
             </div>
