@@ -5,15 +5,43 @@ import { useAdminStore } from "@/store/adminStore"
 import { StatusBadge, FileUpload, SectionHeader, EmptyState } from "@/components/admin/ui"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Plus, Trash2, Star, Search, Package, X } from "lucide-react"
+import { Plus, Trash2, Star, Search, Package, X, Palette, Image as ImageIcon } from "lucide-react"
 import Image from "next/image"
+
+const PRESET_COLORS = [
+  { name: "Desert Sand", hex: "#D4A574" },
+  { name: "Royal Indigo", hex: "#3D5A80" },
+  { name: "Sage", hex: "#6B7C5E" },
+  { name: "Rust Earth", hex: "#8B4513" },
+  { name: "Ivory Cream", hex: "#F5E6D3" },
+  { name: "Midnight Black", hex: "#1A1A1A" },
+  { name: "Charcoal", hex: "#36454F" },
+  { name: "Ocean Blue", hex: "#4A90D9" },
+  { name: "Olive", hex: "#556B2F" },
+  { name: "Heritage Gold", hex: "#C4956A" },
+  { name: "White", hex: "#FFFFFF" },
+  { name: "Navy", hex: "#1B2A4A" },
+  { name: "Maroon", hex: "#800000" },
+  { name: "Sky Blue", hex: "#87CEEB" },
+  { name: "Dusty Rose", hex: "#DCAE96" },
+]
+
+const ALL_SIZES = ["XS", "S", "M", "L", "XL", "XXL", "3XL"]
+
+interface VariantRow {
+  color: string
+  hex: string
+  sizes: { size: string; stock: number }[]
+  images: string[]
+}
 
 export default function AdminProductsPage() {
   const { products, loading, fetchProducts, deleteProduct, updateProduct, createProduct } = useAdminStore()
   const [search, setSearch] = useState("")
   const [showForm, setShowForm] = useState(false)
   const [formImages, setFormImages] = useState<string[]>([])
-  const [variants, setVariants] = useState<{ color: string; hex: string; sizes: string; stock: string }[]>([])
+  const [mainImage, setMainImage] = useState("")
+  const [variants, setVariants] = useState<VariantRow[]>([])
   const [selected, setSelected] = useState<Set<string>>(new Set())
 
   useEffect(() => { fetchProducts() }, [fetchProducts])
@@ -40,17 +68,56 @@ export default function AdminProductsPage() {
   }
 
   function addVariant() {
-    setVariants([...variants, { color: "", hex: "#000000", sizes: "S,M,L,XL,XXL", stock: "50" }])
+    setVariants([...variants, { color: "", hex: "#000000", sizes: ALL_SIZES.slice(1, 6).map(s => ({ size: s, stock: 50 })), images: [] }])
   }
 
   function removeVariant(i: number) {
     setVariants(variants.filter((_, idx) => idx !== i))
   }
 
+  function updateVariantColor(i: number, color: string, hex: string) {
+    const nv = [...variants]
+    nv[i].color = color
+    nv[i].hex = hex
+    setVariants(nv)
+  }
+
+  function updateVariantStock(variantIdx: number, sizeIdx: number, stock: number) {
+    const nv = [...variants]
+    nv[variantIdx].sizes[sizeIdx].stock = stock
+    setVariants(nv)
+  }
+
+  function toggleVariantSize(variantIdx: number, size: string) {
+    const nv = [...variants]
+    const existing = nv[variantIdx].sizes.findIndex(s => s.size === size)
+    if (existing >= 0) {
+      nv[variantIdx].sizes.splice(existing, 1)
+    } else {
+      nv[variantIdx].sizes.push({ size, stock: 50 })
+      nv[variantIdx].sizes.sort((a, b) => ALL_SIZES.indexOf(a.size) - ALL_SIZES.indexOf(b.size))
+    }
+    setVariants(nv)
+  }
+
+  function selectPresetColor(i: number, preset: typeof PRESET_COLORS[0]) {
+    const nv = [...variants]
+    nv[i].color = preset.name
+    nv[i].hex = preset.hex
+    setVariants(nv)
+  }
+
   async function handleCreate(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     const fd = new FormData(e.currentTarget)
     const name = fd.get("name") as string
+
+    // Build images array: main image first, then sub images
+    const allImages: string[] = []
+    if (mainImage) allImages.push(mainImage)
+    if (formImages.length > 0) allImages.push(...formImages)
+    const urlImages = (fd.get("imageUrl") as string || "").split(",").map(t => t.trim()).filter(Boolean)
+    if (urlImages.length > 0) allImages.push(...urlImages)
 
     const product = await createProduct({
       name,
@@ -59,14 +126,38 @@ export default function AdminProductsPage() {
       basePrice: Number(fd.get("basePrice")),
       category: fd.get("category"),
       tags: (fd.get("tags") as string || "").split(",").map(t => t.trim()).filter(Boolean),
-      images: formImages.length > 0 ? formImages : (fd.get("imageUrl") as string || "").split(",").map(t => t.trim()).filter(Boolean),
+      images: allImages,
       isFeatured: fd.get("isFeatured") === "on",
       isActive: true,
     })
 
+    // Create variants via API
+    if (product && variants.length > 0) {
+      for (const variant of variants) {
+        for (const sizeData of variant.sizes) {
+          await fetch("/api/products/" + product._id + "/variants", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              product: product._id,
+              color: { name: variant.color, hex: variant.hex },
+              size: sizeData.size,
+              stock: sizeData.stock,
+              fabric: fd.get("fabric") || "Premium Linen",
+              fit: fd.get("fit") || "regular",
+              priceAdjustment: sizeData.size === "XXL" ? 50 : sizeData.size === "3XL" ? 100 : 0,
+              sku: `VC-${product.slug}-${variant.color.toLowerCase().replace(/\s/g, "-")}-${sizeData.size}`,
+              images: variant.images.length > 0 ? variant.images : allImages,
+            }),
+          })
+        }
+      }
+    }
+
     if (product) {
       setShowForm(false)
       setFormImages([])
+      setMainImage("")
       setVariants([])
     }
   }
@@ -102,88 +193,199 @@ export default function AdminProductsPage() {
 
       {/* Create Form */}
       {showForm && (
-        <form onSubmit={handleCreate} className="p-5 rounded-lg border bg-card space-y-5 animate-fade-in">
+        <form onSubmit={handleCreate} className="p-5 border border-border bg-card space-y-6 animate-fade-in">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-medium">New Product</h3>
+            <h3 className="text-sm font-medium text-foreground">New Product</h3>
             <button type="button" onClick={() => setShowForm(false)}><X className="h-4 w-4 text-muted-foreground" /></button>
           </div>
 
           {/* Basic Info */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <div className="md:col-span-2">
-              <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Product Name *</label>
-              <Input name="name" required className="h-9 text-xs mt-1" placeholder="Premium Oxford Shirt - White" />
-            </div>
-            <div className="md:col-span-2">
-              <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Description *</label>
-              <textarea name="description" required className="w-full mt-1 px-3 py-2 rounded-md border bg-background text-xs resize-none h-20" placeholder="Crafted from premium cotton..." />
-            </div>
-            <div>
-              <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Price (₹) *</label>
-              <Input name="basePrice" type="number" required className="h-9 text-xs mt-1" placeholder="1499" />
-            </div>
-            <div>
-              <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Category *</label>
-              <select name="category" required className="w-full h-9 mt-1 rounded-md border bg-background px-3 text-xs">
-                <option value="formal">Formal</option>
-                <option value="casual">Casual</option>
-                <option value="ethnic">Ethnic</option>
-              </select>
-            </div>
-            <div>
-              <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Tags</label>
-              <Input name="tags" className="h-9 text-xs mt-1" placeholder="linen, summer, bestseller, new-launch" />
-            </div>
-            <div className="flex items-center gap-2 pt-5">
-              <input type="checkbox" name="isFeatured" id="feat" className="accent-foreground" />
-              <label htmlFor="feat" className="text-xs">Featured / Bestseller</label>
+          <div>
+            <p className="text-[10px] uppercase tracking-wider text-[#c4956a] font-medium mb-3">Basic Information</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="md:col-span-2">
+                <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Product Name *</label>
+                <Input name="name" required className="h-9 text-xs mt-1" placeholder="Desert Sand Linen Shirt" />
+              </div>
+              <div className="md:col-span-2">
+                <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Description *</label>
+                <textarea name="description" required className="w-full mt-1 px-3 py-2 border border-border bg-background text-xs resize-none h-20 focus:outline-none focus:border-[#c4956a]/50 text-foreground" placeholder="Crafted from premium linen..." />
+              </div>
+              <div>
+                <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Price (₹) *</label>
+                <Input name="basePrice" type="number" required className="h-9 text-xs mt-1" placeholder="799" />
+              </div>
+              <div>
+                <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Category *</label>
+                <select name="category" required className="w-full h-9 mt-1 border border-border bg-background px-3 text-xs text-foreground focus:outline-none focus:border-[#c4956a]/50">
+                  <option value="linen">Linen</option>
+                  <option value="formal">Formal</option>
+                  <option value="casual">Casual</option>
+                  <option value="premium">Premium</option>
+                  <option value="ethnic">Ethnic</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Fabric</label>
+                <select name="fabric" className="w-full h-9 mt-1 border border-border bg-background px-3 text-xs text-foreground">
+                  <option value="100% Premium Linen">100% Premium Linen</option>
+                  <option value="Premium Cotton">Premium Cotton</option>
+                  <option value="Cotton-Linen Blend">Cotton-Linen Blend</option>
+                  <option value="Egyptian Cotton">Egyptian Cotton</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Fit</label>
+                <select name="fit" className="w-full h-9 mt-1 border border-border bg-background px-3 text-xs text-foreground">
+                  <option value="regular">Regular</option>
+                  <option value="slim">Slim</option>
+                  <option value="relaxed">Relaxed</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Tags (comma separated)</label>
+                <Input name="tags" className="h-9 text-xs mt-1" placeholder="linen, summer, bestseller, new-launch" />
+              </div>
+              <div className="flex items-center gap-2 pt-5">
+                <input type="checkbox" name="isFeatured" id="feat" className="accent-[#c4956a]" />
+                <label htmlFor="feat" className="text-xs text-foreground">Featured / Bestseller</label>
+              </div>
             </div>
           </div>
 
           {/* Images */}
           <div>
-            <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Product Images</label>
-            <div className="mt-2">
-              <FileUpload images={formImages} onChange={setFormImages} maxFiles={8} />
-            </div>
-            <div className="mt-2">
-              <Input name="imageUrl" className="h-8 text-xs" placeholder="Or paste image URLs (comma separated)" />
+            <p className="text-[10px] uppercase tracking-wider text-[#c4956a] font-medium mb-3 flex items-center gap-1.5"><ImageIcon className="h-3 w-3" /> Product Images</p>
+            <div className="grid md:grid-cols-2 gap-4">
+              <div>
+                <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Main Image URL *</label>
+                <Input value={mainImage} onChange={e => setMainImage(e.target.value)} className="h-9 text-xs mt-1" placeholder="https://... (primary product photo)" />
+                {mainImage && (
+                  <div className="mt-2 relative h-32 w-24 border border-border overflow-hidden">
+                    <Image src={mainImage} alt="Main" fill className="object-cover" />
+                    <span className="absolute top-1 left-1 text-[8px] bg-[#c4956a] text-white px-1">MAIN</span>
+                  </div>
+                )}
+              </div>
+              <div>
+                <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Sub Images (comma separated URLs)</label>
+                <Input name="imageUrl" className="h-9 text-xs mt-1" placeholder="url1, url2, url3..." />
+                <div className="mt-2">
+                  <FileUpload images={formImages} onChange={setFormImages} maxFiles={6} />
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Variants */}
+          {/* Color Variants */}
           <div>
-            <div className="flex items-center justify-between">
-              <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Variants (Optional)</label>
-              <button type="button" onClick={addVariant} className="text-[10px] text-foreground hover:underline">+ Add Variant</button>
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-[10px] uppercase tracking-wider text-[#c4956a] font-medium flex items-center gap-1.5"><Palette className="h-3 w-3" /> Color Variants & Stock</p>
+              <button type="button" onClick={addVariant} className="flex items-center gap-1 text-[10px] font-medium text-[#c4956a] hover:underline">
+                <Plus className="h-3 w-3" /> Add Color
+              </button>
             </div>
-            {variants.length > 0 && (
-              <div className="mt-2 space-y-2">
-                {variants.map((v, i) => (
-                  <div key={i} className="flex items-center gap-2 p-2 rounded border bg-muted/30">
-                    <input type="color" value={v.hex} onChange={e => { const nv = [...variants]; nv[i].hex = e.target.value; setVariants(nv) }} className="h-7 w-7 rounded border cursor-pointer" />
-                    <Input value={v.color} onChange={e => { const nv = [...variants]; nv[i].color = e.target.value; setVariants(nv) }} placeholder="Color name" className="h-7 text-[11px] flex-1" />
-                    <Input value={v.sizes} onChange={e => { const nv = [...variants]; nv[i].sizes = e.target.value; setVariants(nv) }} placeholder="S,M,L,XL" className="h-7 text-[11px] w-28" />
-                    <Input value={v.stock} onChange={e => { const nv = [...variants]; nv[i].stock = e.target.value; setVariants(nv) }} placeholder="Stock" className="h-7 text-[11px] w-16" type="number" />
-                    <button type="button" onClick={() => removeVariant(i)}><X className="h-3.5 w-3.5 text-muted-foreground" /></button>
-                  </div>
-                ))}
+
+            {variants.length === 0 && (
+              <div className="p-4 border border-dashed border-border text-center">
+                <Palette className="h-5 w-5 mx-auto text-muted-foreground/30 mb-1" />
+                <p className="text-[10px] text-muted-foreground">No color variants added yet</p>
+                <button type="button" onClick={addVariant} className="text-[10px] text-[#c4956a] mt-1 hover:underline">+ Add first color variant</button>
               </div>
             )}
+
+            {variants.map((variant, vi) => (
+              <div key={vi} className="mb-4 p-4 border border-border bg-background">
+                {/* Color Selection */}
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="h-8 w-8 rounded-full border-2 border-border" style={{ backgroundColor: variant.hex }} />
+                    <div>
+                      <input
+                        value={variant.color}
+                        onChange={e => updateVariantColor(vi, e.target.value, variant.hex)}
+                        placeholder="Color name"
+                        className="text-xs font-medium border-none bg-transparent outline-none text-foreground w-32"
+                      />
+                      <input
+                        type="color"
+                        value={variant.hex}
+                        onChange={e => updateVariantColor(vi, variant.color, e.target.value)}
+                        className="h-4 w-8 cursor-pointer border-none"
+                      />
+                    </div>
+                  </div>
+                  <button type="button" onClick={() => removeVariant(vi)} className="text-muted-foreground hover:text-red-500">
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+
+                {/* Preset Colors */}
+                <div className="flex flex-wrap gap-1.5 mb-3">
+                  {PRESET_COLORS.map(preset => (
+                    <button
+                      key={preset.name}
+                      type="button"
+                      onClick={() => selectPresetColor(vi, preset)}
+                      className={`h-5 w-5 rounded-full border-2 transition-transform hover:scale-110 ${variant.hex === preset.hex ? "border-[#c4956a] scale-110" : "border-border"}`}
+                      style={{ backgroundColor: preset.hex }}
+                      title={preset.name}
+                    />
+                  ))}
+                </div>
+
+                {/* Sizes & Stock */}
+                <p className="text-[9px] uppercase tracking-wider text-muted-foreground mb-2">Sizes & Stock (pieces available)</p>
+                <div className="flex flex-wrap gap-2">
+                  {ALL_SIZES.map(size => {
+                    const sizeData = variant.sizes.find(s => s.size === size)
+                    const isActive = !!sizeData
+                    return (
+                      <div key={size} className="flex flex-col items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={() => toggleVariantSize(vi, size)}
+                          className={`h-8 w-10 border text-[10px] font-medium transition-colors ${isActive ? "border-[#c4956a] bg-[#c4956a]/10 text-foreground" : "border-border text-muted-foreground/40"}`}
+                        >
+                          {size}
+                        </button>
+                        {isActive && (
+                          <input
+                            type="number"
+                            value={sizeData!.stock}
+                            onChange={e => updateVariantStock(vi, variant.sizes.indexOf(sizeData!), Number(e.target.value))}
+                            className="w-10 h-5 text-[9px] text-center border border-border bg-background text-foreground"
+                            min={0}
+                          />
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+
+                {/* Variant-specific images */}
+                <div className="mt-3">
+                  <label className="text-[9px] uppercase tracking-wider text-muted-foreground">Variant Images (optional, comma URLs)</label>
+                  <input
+                    value={variant.images.join(", ")}
+                    onChange={e => { const nv = [...variants]; nv[vi].images = e.target.value.split(",").map(s => s.trim()).filter(Boolean); setVariants(nv) }}
+                    className="w-full mt-1 px-2 py-1.5 border border-border bg-background text-[10px] text-foreground"
+                    placeholder="Leave empty to use main product images"
+                  />
+                </div>
+              </div>
+            ))}
           </div>
 
-          {/* SEO */}
-          <div>
-            <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">SEO (Auto-generated if empty)</label>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
-              <Input name="metaTitle" className="h-8 text-xs" placeholder="Meta title" />
-              <Input name="metaDescription" className="h-8 text-xs" placeholder="Meta description" />
-            </div>
-          </div>
-
-          <div className="flex gap-2 pt-2">
+          {/* Submit */}
+          <div className="flex gap-2 pt-2 border-t border-border">
             <Button type="submit" size="sm" className="text-xs">Create Product</Button>
             <Button type="button" variant="ghost" size="sm" className="text-xs" onClick={() => setShowForm(false)}>Cancel</Button>
+            {variants.length > 0 && (
+              <span className="text-[10px] text-muted-foreground self-center ml-auto">
+                {variants.length} color(s) × {variants.reduce((s, v) => s + v.sizes.length, 0)} size variants = {variants.reduce((s, v) => s + v.sizes.length, 0)} SKUs
+              </span>
+            )}
           </div>
         </form>
       )}
@@ -192,46 +394,46 @@ export default function AdminProductsPage() {
       {filtered.length === 0 ? (
         <EmptyState icon={Package} title="No products found" description="Try a different search or add a new product." />
       ) : (
-        <div className="rounded-lg border overflow-hidden">
+        <div className="border border-border overflow-hidden">
           <table className="w-full text-xs">
-            <thead className="bg-muted/50">
-              <tr className="text-left text-muted-foreground">
+            <thead className="bg-card">
+              <tr className="text-left text-muted-foreground border-b border-border">
                 <th className="p-3 w-8"><input type="checkbox" checked={selected.size === filtered.slice(0, 40).length && filtered.length > 0} onChange={toggleAll} className="accent-[#c4956a]" /></th>
-                <th className="p-3 font-medium">Product</th>
-                <th className="p-3 font-medium">Price</th>
-                <th className="p-3 font-medium hidden md:table-cell">Category</th>
-                <th className="p-3 font-medium hidden md:table-cell">Tags</th>
-                <th className="p-3 font-medium">Status</th>
-                <th className="p-3 font-medium w-20">Actions</th>
+                <th className="p-3 font-medium text-[10px] uppercase tracking-wider">Product</th>
+                <th className="p-3 font-medium text-[10px] uppercase tracking-wider">Price</th>
+                <th className="p-3 font-medium text-[10px] uppercase tracking-wider hidden md:table-cell">Category</th>
+                <th className="p-3 font-medium text-[10px] uppercase tracking-wider hidden md:table-cell">Tags</th>
+                <th className="p-3 font-medium text-[10px] uppercase tracking-wider">Featured</th>
+                <th className="p-3 font-medium text-[10px] uppercase tracking-wider w-16">Delete</th>
               </tr>
             </thead>
-            <tbody className="divide-y">
+            <tbody className="divide-y divide-border">
               {filtered.slice(0, 40).map((product) => (
-                <tr key={product._id} className={`transition-colors ${selected.has(product._id) ? "bg-[#c4956a]/5" : "hover:bg-muted/30"}`}>
+                <tr key={product._id} className={`transition-colors ${selected.has(product._id) ? "bg-[#c4956a]/5" : "hover:bg-card/50"}`}>
                   <td className="p-3"><input type="checkbox" checked={selected.has(product._id)} onChange={() => toggleSelect(product._id)} className="accent-[#c4956a]" /></td>
                   <td className="p-3">
                     <div className="flex items-center gap-2.5">
-                      <div className="h-9 w-9 rounded bg-muted overflow-hidden relative flex-shrink-0">
-                        {product.images?.[0] && <Image src={product.images[0]} alt="" fill className="object-cover" />}
+                      <div className="h-9 w-9 bg-card border border-border overflow-hidden relative flex-shrink-0">
+                        {product.images?.[0] && <Image src={product.images[0]} alt="" fill className="object-cover" sizes="36px" />}
                       </div>
                       <div className="min-w-0">
-                        <p className="font-medium truncate max-w-[180px]">{product.name}</p>
+                        <p className="font-medium truncate max-w-[180px] text-foreground">{product.name}</p>
                         <p className="text-[10px] text-muted-foreground truncate">{product.slug}</p>
                       </div>
                     </div>
                   </td>
-                  <td className="p-3 font-medium">₹{product.basePrice?.toLocaleString()}</td>
+                  <td className="p-3 font-medium text-foreground">₹{product.basePrice?.toLocaleString()}</td>
                   <td className="p-3 hidden md:table-cell"><StatusBadge status={product.category} /></td>
                   <td className="p-3 hidden md:table-cell">
                     <div className="flex gap-1 flex-wrap">
                       {product.tags?.slice(0, 2).map((tag: string) => (
-                        <span key={tag} className="text-[9px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">{tag}</span>
+                        <span key={tag} className="text-[9px] px-1.5 py-0.5 bg-muted text-muted-foreground">{tag}</span>
                       ))}
                     </div>
                   </td>
                   <td className="p-3">
                     <button onClick={() => updateProduct(product._id, { isFeatured: !product.isFeatured })}>
-                      <Star className={`h-3.5 w-3.5 transition-colors ${product.isFeatured ? "fill-amber-500 text-amber-500" : "text-muted-foreground/30 hover:text-amber-500"}`} />
+                      <Star className={`h-3.5 w-3.5 transition-colors ${product.isFeatured ? "fill-[#c4956a] text-[#c4956a]" : "text-muted-foreground/30 hover:text-[#c4956a]"}`} />
                     </button>
                   </td>
                   <td className="p-3">
@@ -244,8 +446,8 @@ export default function AdminProductsPage() {
             </tbody>
           </table>
           {filtered.length > 40 && (
-            <div className="p-3 text-center text-[11px] text-muted-foreground border-t">
-              Showing 40 of {filtered.length} products. Use search to find specific items.
+            <div className="p-3 text-center text-[10px] text-muted-foreground border-t border-border">
+              Showing 40 of {filtered.length}. Use search to find specific items.
             </div>
           )}
         </div>
