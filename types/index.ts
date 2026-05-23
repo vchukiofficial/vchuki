@@ -74,7 +74,7 @@ export interface Order {
   paymentMethod: 'razorpay' | 'stripe' | 'cod'
   paymentStatus: 'pending' | 'paid' | 'failed'
   paymentId?: string
-  shippingStatus: 'pending' | 'shipped' | 'delivered' | 'cancelled'
+  shippingStatus: 'pending' | 'confirmed' | 'packaging' | 'dispatched' | 'shipped' | 'out_for_delivery' | 'delivered' | 'returned' | 'cancelled'
   timeline: { event: string; timestamp: string }[]
   createdAt: string
 }

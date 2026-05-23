@@ -19,25 +19,25 @@ export default function MobileNav() {
   ]
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-t md:hidden">
+    <div className="fixed bottom-0 left-0 right-0 z-50 bg-background/98 backdrop-blur-md border-t border-[#c4956a]/15 md:hidden safe-area-bottom">
       <div className="grid grid-cols-5 h-14">
         {tabs.map((tab) => {
           const active = pathname === tab.href
           return (
-            <Link key={tab.href} href={tab.href} className={`flex flex-col items-center justify-center gap-0.5 ${active ? "text-foreground" : "text-muted-foreground"}`}>
+            <Link key={tab.href} href={tab.href} className={`flex flex-col items-center justify-center gap-0.5 transition-colors ${active ? "text-[#c4956a]" : "text-muted-foreground"}`}>
               <tab.icon className="h-[18px] w-[18px]" strokeWidth={active ? 2 : 1.5} />
-              <span className="text-[9px] tracking-wide">{tab.label}</span>
+              <span className="text-[9px] tracking-wide font-medium">{tab.label}</span>
             </Link>
           )
         })}
         <button onClick={toggleCart} className="flex flex-col items-center justify-center gap-0.5 text-muted-foreground relative">
           <ShoppingCart className="h-[18px] w-[18px]" strokeWidth={1.5} />
           {items.length > 0 && (
-            <span className="absolute top-2 right-4 h-3 w-3 rounded-full bg-foreground text-background text-[7px] font-medium flex items-center justify-center">
+            <span className="absolute top-2 right-4 h-3.5 w-3.5 rounded-full bg-[#c4956a] text-white text-[7px] font-bold flex items-center justify-center">
               {items.length}
             </span>
           )}
-          <span className="text-[9px] tracking-wide">Bag</span>
+          <span className="text-[9px] tracking-wide font-medium">Bag</span>
         </button>
       </div>
     </div>

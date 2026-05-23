@@ -17,14 +17,21 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-  const session = await getServerSession(authOptions)
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-
   await connectDB()
   const body = await request.json()
 
+  // Validate required fields
+  if (!body.items?.length || !body.shippingAddress || !body.finalAmount) {
+    return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
+  }
+
+  // Check if user is logged in (optional for guest checkout)
+  const session = await getServerSession(authOptions)
+
   const order = await Order.create({
-    user: session.user.id,
+    user: session?.user?.id || undefined,
+    guestEmail: body.guestEmail || undefined,
+    guestPhone: body.guestPhone || undefined,
     items: body.items,
     totalAmount: body.totalAmount,
     discountAmount: body.discountAmount || 0,
@@ -37,5 +44,5 @@ export async function POST(request: NextRequest) {
     timeline: [{ event: "Order placed", timestamp: new Date() }],
   })
 
-  return NextResponse.json(order, { status: 201 })
+  return NextResponse.json({ orderId: order._id, message: "Order placed successfully" }, { status: 201 })
 }

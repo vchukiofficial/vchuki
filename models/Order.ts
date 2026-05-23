@@ -11,7 +11,9 @@ export interface IOrderItem {
 }
 
 export interface IOrder extends Document {
-  user: Schema.Types.ObjectId
+  user?: Schema.Types.ObjectId
+  guestEmail?: string
+  guestPhone?: string
   items: IOrderItem[]
   totalAmount: number
   discountAmount: number
@@ -37,7 +39,9 @@ export interface IOrder extends Document {
 }
 
 const OrderSchema: Schema = new Schema({
-  user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  user: { type: Schema.Types.ObjectId, ref: 'User' },
+  guestEmail: String,
+  guestPhone: String,
   items: [{
     product: { type: Schema.Types.ObjectId, ref: 'Product' },
     variant: { type: Schema.Types.ObjectId, ref: 'ProductVariant' },
@@ -63,7 +67,10 @@ const OrderSchema: Schema = new Schema({
   paymentMethod: { type: String, enum: ['razorpay', 'stripe', 'cod'], default: 'cod' },
   paymentStatus: { type: String, enum: ['pending', 'paid', 'failed'], default: 'pending' },
   paymentId: String,
-  shippingStatus: { type: String, enum: ['pending', 'shipped', 'delivered', 'cancelled'], default: 'pending' },
+  shippingStatus: { type: String, enum: ['pending', 'confirmed', 'packaging', 'dispatched', 'shipped', 'out_for_delivery', 'delivered', 'returned', 'cancelled'], default: 'pending' },
+  courier: String,
+  awb: String,
+  estimatedDelivery: Date,
   timeline: [{
     event: String,
     timestamp: { type: Date, default: Date.now },
