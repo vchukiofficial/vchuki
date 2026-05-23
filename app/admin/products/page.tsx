@@ -14,8 +14,30 @@ export default function AdminProductsPage() {
   const [showForm, setShowForm] = useState(false)
   const [formImages, setFormImages] = useState<string[]>([])
   const [variants, setVariants] = useState<{ color: string; hex: string; sizes: string; stock: string }[]>([])
+  const [selected, setSelected] = useState<Set<string>>(new Set())
 
   useEffect(() => { fetchProducts() }, [fetchProducts])
+
+  function toggleSelect(id: string) {
+    const next = new Set(selected)
+    if (next.has(id)) next.delete(id)
+    else next.add(id)
+    setSelected(next)
+  }
+
+  function toggleAll() {
+    const ids = filtered.slice(0, 40).map(p => p._id)
+    if (selected.size === ids.length) setSelected(new Set())
+    else setSelected(new Set(ids))
+  }
+
+  async function bulkDelete() {
+    if (!confirm(`Delete ${selected.size} product(s)? This cannot be undone.`)) return
+    for (const id of selected) {
+      await deleteProduct(id)
+    }
+    setSelected(new Set())
+  }
 
   function addVariant() {
     setVariants([...variants, { color: "", hex: "#000000", sizes: "S,M,L,XL,XXL", stock: "50" }])
@@ -59,9 +81,16 @@ export default function AdminProductsPage() {
         title="Products"
         description={`${products.length} products in catalog`}
         action={
-          <Button size="sm" onClick={() => setShowForm(!showForm)} className="text-xs h-8 gap-1.5">
-            <Plus className="h-3.5 w-3.5" /> Add Product
-          </Button>
+          <div className="flex items-center gap-2">
+            {selected.size > 0 && (
+              <button onClick={bulkDelete} className="flex items-center gap-1.5 px-3 py-1.5 bg-red-500 text-white text-[10px] font-medium uppercase tracking-wider hover:bg-red-600 transition-colors h-8">
+                <Trash2 className="h-3 w-3" /> Delete ({selected.size})
+              </button>
+            )}
+            <Button size="sm" onClick={() => setShowForm(!showForm)} className="text-xs h-8 gap-1.5">
+              <Plus className="h-3.5 w-3.5" /> Add Product
+            </Button>
+          </div>
         }
       />
 
@@ -167,6 +196,7 @@ export default function AdminProductsPage() {
           <table className="w-full text-xs">
             <thead className="bg-muted/50">
               <tr className="text-left text-muted-foreground">
+                <th className="p-3 w-8"><input type="checkbox" checked={selected.size === filtered.slice(0, 40).length && filtered.length > 0} onChange={toggleAll} className="accent-[#c4956a]" /></th>
                 <th className="p-3 font-medium">Product</th>
                 <th className="p-3 font-medium">Price</th>
                 <th className="p-3 font-medium hidden md:table-cell">Category</th>
@@ -177,7 +207,8 @@ export default function AdminProductsPage() {
             </thead>
             <tbody className="divide-y">
               {filtered.slice(0, 40).map((product) => (
-                <tr key={product._id} className="hover:bg-muted/30 transition-colors">
+                <tr key={product._id} className={`transition-colors ${selected.has(product._id) ? "bg-[#c4956a]/5" : "hover:bg-muted/30"}`}>
+                  <td className="p-3"><input type="checkbox" checked={selected.has(product._id)} onChange={() => toggleSelect(product._id)} className="accent-[#c4956a]" /></td>
                   <td className="p-3">
                     <div className="flex items-center gap-2.5">
                       <div className="h-9 w-9 rounded bg-muted overflow-hidden relative flex-shrink-0">

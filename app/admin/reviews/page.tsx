@@ -7,6 +7,7 @@ export default function AdminReviewsPage() {
   const [reviews, setReviews] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<"all" | "pending" | "approved" | "featured">("all")
+  const [selected, setSelected] = useState<Set<string>>(new Set())
 
   function fetchReviews() {
     setLoading(true)
@@ -17,6 +18,27 @@ export default function AdminReviewsPage() {
   }
 
   useEffect(() => { fetchReviews() }, [])
+
+  function toggleSelect(id: string) {
+    const next = new Set(selected)
+    if (next.has(id)) next.delete(id)
+    else next.add(id)
+    setSelected(next)
+  }
+
+  function toggleAll() {
+    if (selected.size === filtered.length) setSelected(new Set())
+    else setSelected(new Set(filtered.map(r => r._id)))
+  }
+
+  async function bulkDelete() {
+    if (!confirm(`Delete ${selected.size} review(s)?`)) return
+    for (const id of selected) {
+      await fetch(`/api/reviews/${id}`, { method: "DELETE", credentials: "include" })
+    }
+    setReviews(reviews.filter(r => !selected.has(r._id)))
+    setSelected(new Set())
+  }
 
   async function handleDelete(id: string) {
     await fetch(`/api/reviews/${id}`, { method: "DELETE", credentials: "include" })
@@ -54,9 +76,16 @@ export default function AdminReviewsPage() {
           <h1 className="text-xl font-medium tracking-tight text-foreground">Review Management</h1>
           <p className="text-xs text-muted-foreground mt-0.5">{reviews.length} customer reviews</p>
         </div>
-        <button onClick={fetchReviews} className="flex items-center gap-1.5 px-3 py-1.5 border border-border text-[10px] font-medium hover:border-[#c4956a]/30 transition-colors text-foreground">
-          <RefreshCw className="h-3 w-3" /> Refresh
-        </button>
+        <div className="flex items-center gap-2">
+          {selected.size > 0 && (
+            <button onClick={bulkDelete} className="flex items-center gap-1.5 px-3 py-1.5 bg-red-500 text-white text-[10px] font-medium uppercase tracking-wider hover:bg-red-600 transition-colors">
+              <Trash2 className="h-3 w-3" /> Delete ({selected.size})
+            </button>
+          )}
+          <button onClick={fetchReviews} className="flex items-center gap-1.5 px-3 py-1.5 border border-border text-[10px] font-medium hover:border-[#c4956a]/30 transition-colors text-foreground">
+            <RefreshCw className="h-3 w-3" /> Refresh
+          </button>
+        </div>
       </div>
 
       {/* Analytics */}
@@ -117,11 +146,18 @@ export default function AdminReviewsPage() {
         {filtered.length === 0 && (
           <div className="text-center py-12 text-muted-foreground text-sm border border-border">No reviews in this category.</div>
         )}
+        {filtered.length > 0 && (
+          <label className="flex items-center gap-2 text-[10px] text-muted-foreground cursor-pointer">
+            <input type="checkbox" checked={selected.size === filtered.length && filtered.length > 0} onChange={toggleAll} className="accent-[#c4956a]" />
+            Select All ({filtered.length})
+          </label>
+        )}
         {filtered.map(r => (
-          <div key={r._id} className={`p-4 border bg-card hover:border-[#c4956a]/20 transition-colors ${r.featured ? "border-[#c4956a]/30" : "border-border"}`}>
+          <div key={r._id} className={`p-4 border bg-card hover:border-[#c4956a]/20 transition-colors ${selected.has(r._id) ? "border-[#c4956a]/20 bg-[#c4956a]/5" : r.featured ? "border-[#c4956a]/30" : "border-border"}`}>
             <div className="flex items-start justify-between gap-3">
               <div className="flex-1">
                 <div className="flex items-center gap-2 flex-wrap">
+                  <input type="checkbox" checked={selected.has(r._id)} onChange={() => toggleSelect(r._id)} className="accent-[#c4956a]" />
                   <div className="flex">
                     {Array.from({ length: 5 }, (_, i) => (
                       <Star key={i} className={`h-3 w-3 ${i < r.rating ? "fill-[#c4956a] text-[#c4956a]" : "text-muted-foreground/20"}`} />
