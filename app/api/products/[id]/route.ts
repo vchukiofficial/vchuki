@@ -21,6 +21,6 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     return NextResponse.json({ error: "Forbidden" }, { status: 403 })
   }
   await connectDB()
-  await Product.findByIdAndUpdate(params.id, { isActive: false })
+  await Product.findByIdAndDelete(params.id)
   return NextResponse.json({ message: "Deleted" })
 }

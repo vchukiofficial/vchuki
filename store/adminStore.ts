@@ -42,7 +42,7 @@ export const useAdminStore = create<AdminState>((set, get) => ({
 
   fetchProducts: async () => {
     set((s) => ({ loading: { ...s.loading, products: true } }))
-    const res = await fetch("/api/products?limit=100")
+    const res = await fetch("/api/products?limit=500")
     const data = await res.json()
     set((s) => ({ products: data.products || [], loading: { ...s.loading, products: false } }))
   },
@@ -83,8 +83,10 @@ export const useAdminStore = create<AdminState>((set, get) => ({
   },
 
   deleteProduct: async (id) => {
-    await fetch(`/api/products/${id}`, { method: "DELETE" })
-    set((s) => ({ products: s.products.filter((p) => p._id !== id) }))
+    const res = await fetch(`/api/products/${id}`, { method: "DELETE" })
+    if (res.ok) {
+      set((s) => ({ products: s.products.filter((p) => p._id !== id) }))
+    }
   },
 
   updateProduct: async (id, data) => {

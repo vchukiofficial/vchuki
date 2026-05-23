@@ -72,8 +72,8 @@ function pickAny(arr: any[]): any { return arr[Math.floor(Math.random() * arr.le
 
 export async function GET(request: NextRequest) {
   const secret = request.nextUrl.searchParams.get("secret")
-  if (secret !== "vchuki-seed-2026") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  if (secret !== "vchuki-seed-2026-CONFIRM-DELETE-ALL") {
+    return NextResponse.json({ error: "Unauthorized. This will DELETE ALL DATA. Use correct secret." }, { status: 401 })
   }
 
   await connectDB()
