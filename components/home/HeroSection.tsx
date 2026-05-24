@@ -2,12 +2,13 @@
 
 import { motion } from "framer-motion"
 import Link from "next/link"
-import { ArrowRight, ShoppingCart } from "lucide-react"
+import Image from "next/image"
+import { ArrowRight, ShoppingCart, Sparkles, Wind, Ruler, CheckCircle } from "lucide-react"
 
 export function HeroSection() {
   return (
     <section className="relative min-h-[100vh] flex items-center overflow-hidden">
-      {/* Background - Light mode */}
+      {/* Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#d4a574]/15 via-[#f5e6d3] to-[#e8d5c0] dark:from-[#1a1209] dark:via-[#0f0a06] dark:to-[#1a1209]" />
       
       {/* Heritage pattern */}
@@ -65,7 +66,7 @@ export function HeroSection() {
               Crafted in Jodhpur with the finest linen. Breathable, soft, and designed for the modern man who values quiet luxury.
             </motion.p>
 
-            {/* USP badges */}
+            {/* USP badges - using lucide icons instead of emojis */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -73,13 +74,13 @@ export function HeroSection() {
               className="mt-6 grid grid-cols-2 gap-3 max-w-sm"
             >
               {[
-                { icon: "◈", label: "Premium Linen Fabric" },
-                { icon: "❋", label: "Soft & Breathable" },
-                { icon: "✦", label: "Perfect Modern Fit" },
-                { icon: "✧", label: "Lightweight Comfort" },
+                { icon: Sparkles, label: "Premium Linen Fabric" },
+                { icon: Wind, label: "Soft & Breathable" },
+                { icon: Ruler, label: "Perfect Modern Fit" },
+                { icon: CheckCircle, label: "Lightweight Comfort" },
               ].map((item) => (
                 <div key={item.label} className="flex items-center gap-2">
-                  <span className="text-[#c4956a] text-sm">{item.icon}</span>
+                  <item.icon className="h-3.5 w-3.5 text-[#c4956a]" />
                   <span className="text-[10px] md:text-[11px] uppercase tracking-wide text-muted-foreground font-medium">{item.label}</span>
                 </div>
               ))}
@@ -122,10 +123,10 @@ export function HeroSection() {
               <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Shades:</span>
               <div className="flex gap-2">
                 {[
+                  { color: "#87CEEB", name: "Sky Blue" },
                   { color: "#3d5a80", name: "Royal Indigo" },
                   { color: "#d4a574", name: "Desert Sand" },
                   { color: "#6b7c5e", name: "Sage" },
-                  { color: "#8b4513", name: "Rust Earth" },
                   { color: "#f5e6d3", name: "Ivory" },
                 ].map((swatch) => (
                   <div
@@ -139,30 +140,60 @@ export function HeroSection() {
             </motion.div>
           </motion.div>
 
-          {/* Right - Product Visual */}
+          {/* Right - Product Image (skyblue.png) */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.4, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="relative hidden lg:flex items-center justify-center"
+            className="relative flex items-center justify-center"
           >
             <div className="relative">
-              <div className="absolute -inset-8 bg-gradient-to-t from-[#c4956a]/10 via-transparent to-transparent rounded-full blur-2xl" />
-              <div className="relative w-[380px] h-[480px] bg-gradient-to-b from-card/80 to-[#c4956a]/10 border border-[#c4956a]/20 flex items-center justify-center">
-                <div className="text-center space-y-4">
-                  <div className="w-20 h-20 mx-auto border border-[#c4956a]/40 rounded-full flex items-center justify-center">
-                    <span className="text-3xl font-light text-[#c4956a]">V</span>
-                  </div>
-                  <p className="text-xs uppercase tracking-[0.3em] text-[#c4956a] font-medium">VCHUKI</p>
-                  <p className="text-[10px] text-muted-foreground">Premium Linen Collection</p>
-                  <p className="text-[9px] text-muted-foreground/60 mt-2">Wear Confidence. Own Style.</p>
-                </div>
-              </div>
+              {/* Glow behind product */}
+              <div className="absolute -inset-12 bg-gradient-to-t from-[#c4956a]/15 via-[#87CEEB]/10 to-transparent rounded-full blur-3xl" />
+              
+              {/* Floating shirt animation */}
+              <motion.div
+                animate={{ y: [-8, 8, -8] }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                className="relative w-[280px] h-[360px] md:w-[350px] md:h-[440px] lg:w-[400px] lg:h-[500px]"
+              >
+                <Image
+                  src="/skyblue.png"
+                  alt="VCHUKI Premium Sky Blue Linen Shirt - Front View"
+                  fill
+                  className="object-contain drop-shadow-2xl"
+                  sizes="400px"
+                  priority
+                />
+              </motion.div>
+
               {/* Corner motifs */}
-              <div className="absolute -top-3 -left-3 w-6 h-6 border-t-2 border-l-2 border-[#c4956a]/40" />
-              <div className="absolute -top-3 -right-3 w-6 h-6 border-t-2 border-r-2 border-[#c4956a]/40" />
-              <div className="absolute -bottom-3 -left-3 w-6 h-6 border-b-2 border-l-2 border-[#c4956a]/40" />
-              <div className="absolute -bottom-3 -right-3 w-6 h-6 border-b-2 border-r-2 border-[#c4956a]/40" />
+              <div className="absolute -top-4 -left-4 w-8 h-8 border-t-2 border-l-2 border-[#c4956a]/40" />
+              <div className="absolute -top-4 -right-4 w-8 h-8 border-t-2 border-r-2 border-[#c4956a]/40" />
+              <div className="absolute -bottom-4 -left-4 w-8 h-8 border-b-2 border-l-2 border-[#c4956a]/40" />
+              <div className="absolute -bottom-4 -right-4 w-8 h-8 border-b-2 border-r-2 border-[#c4956a]/40" />
+
+              {/* Floating badge */}
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 1, duration: 0.5 }}
+                className="absolute -right-4 top-16 px-3 py-2 bg-background/90 backdrop-blur-sm border border-[#c4956a]/20 shadow-lg"
+              >
+                <p className="text-[9px] uppercase tracking-wider text-[#c4956a] font-medium">100% Linen</p>
+                <p className="text-[10px] text-foreground font-medium mt-0.5">Premium Fabric</p>
+              </motion.div>
+
+              {/* Size badge */}
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 1.2, duration: 0.5 }}
+                className="absolute -left-4 bottom-24 px-3 py-2 bg-background/90 backdrop-blur-sm border border-[#c4956a]/20 shadow-lg"
+              >
+                <p className="text-[9px] uppercase tracking-wider text-[#c4956a] font-medium">Available</p>
+                <p className="text-[10px] text-foreground font-medium mt-0.5">S · M · L · XL · XXL</p>
+              </motion.div>
             </div>
           </motion.div>
         </div>

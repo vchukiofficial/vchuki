@@ -2,7 +2,7 @@ import Link from "next/link"
 import Image from "next/image"
 import connectDB from "@/lib/mongodb"
 import Product from "@/models/Product"
-import { Star, ArrowRight, Sparkles, Truck, RotateCcw, Shield, CheckCircle } from "lucide-react"
+import { Star, ArrowRight, Sparkles, Truck, RotateCcw, Shield, CheckCircle, Gem, MapPin, ClipboardCheck, Wind } from "lucide-react"
 import { HeroSection } from "@/components/home/HeroSection"
 import { AnimatedSection } from "@/components/home/AnimatedSection"
 import { ProductCarousel } from "@/components/home/ProductCarousel"
@@ -32,13 +32,13 @@ export default async function HomePage() {
         <div className="container py-5 md:py-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
             {[
-              { icon: "◈", label: "100% Premium Linen", sub: "Finest mills" },
-              { icon: "✦", label: "Crafted in Jodhpur", sub: "Rajasthan heritage" },
-              { icon: "❋", label: "47 Quality Checks", sub: "Zero compromise" },
-              { icon: "✧", label: "Breathable Comfort", sub: "All-day ease" },
+              { icon: Gem, label: "100% Premium Linen", sub: "Finest mills" },
+              { icon: MapPin, label: "Crafted in Jodhpur", sub: "Rajasthan heritage" },
+              { icon: ClipboardCheck, label: "47 Quality Checks", sub: "Zero compromise" },
+              { icon: Wind, label: "Breathable Comfort", sub: "All-day ease" },
             ].map((item) => (
               <div key={item.label} className="flex flex-col items-center gap-1">
-                <span className="text-[#c4956a] text-base">{item.icon}</span>
+                <item.icon className="h-4 w-4 text-[#c4956a]" />
                 <p className="text-[10px] md:text-[11px] uppercase tracking-[0.12em] text-[#f5e6d3] font-medium">{item.label}</p>
                 <p className="text-[9px] text-[#f5e6d3]/50">{item.sub}</p>
               </div>
