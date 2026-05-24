@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import localFont from "next/font/local"
 import "./globals.css"
 import { Providers } from "@/components/Providers"
+import { PageTracker } from "@/components/PageTracker"
 import Script from "next/script"
 
 const geistSans = localFont({
@@ -97,7 +98,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} font-sans`}>
-        <Providers>{children}</Providers>
+        <Providers>
+          <PageTracker />
+          {children}
+        </Providers>
         {/* Google Analytics */}
         <Script src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX" strategy="afterInteractive" />
         <Script id="gtag" strategy="afterInteractive">
