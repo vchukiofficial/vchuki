@@ -54,9 +54,9 @@ export default function CartPage() {
         <div className="space-y-3">
           {items.map((item) => (
             <div key={item._id + item.sku} className="flex gap-4 p-4 border border-border bg-card hover:border-[#c4956a]/20 transition-colors">
-              <div className="relative h-24 w-20 overflow-hidden bg-secondary flex-shrink-0 border border-border">
-                <Image src={item.images?.[0] || "/placeholder.jpg"} alt={item.name} fill className="object-cover" sizes="80px" />
-              </div>
+              <Link href={`/product/${item.slug}`} className="relative h-24 w-20 overflow-hidden bg-secondary flex-shrink-0 border border-border">
+                <Image src={item.images?.[0] || "/placeholder.jpg"} alt={item.name} fill className="object-contain p-1" sizes="80px" />
+              </Link>
               <div className="flex-1 min-w-0">
                 <Link href={`/product/${item.slug}`} className="text-sm font-medium text-foreground hover:text-[#c4956a] transition-colors line-clamp-1">{item.name}</Link>
                 <p className="text-[10px] text-muted-foreground mt-0.5">{item.size} / {item.color}</p>

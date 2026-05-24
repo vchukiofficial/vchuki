@@ -3,9 +3,11 @@
 import { useState, useMemo } from "react"
 import Image from "next/image"
 import { useCartStore } from "@/store/cartStore"
-import { Star, ShoppingCart, Heart, Check, Truck, RotateCcw, Shield, MessageCircle } from "lucide-react"
+import { Star, ShoppingCart, Heart, Check, Truck, RotateCcw, Shield, MessageCircle, Camera } from "lucide-react"
 import type { Product, ProductVariant, Review } from "@/types"
 import { motion, AnimatePresence } from "framer-motion"
+import { SizeGuide } from "./SizeGuide"
+import { VirtualTryOn } from "./VirtualTryOn"
 
 interface Props {
   product: Product
@@ -23,6 +25,8 @@ export default function ProductDetailClient({ product, variants, reviews }: Prop
   const [selectedColor, setSelectedColor] = useState(colors[0]?.name || "")
   const [activeImageIndex, setActiveImageIndex] = useState(0)
   const [added, setAdded] = useState(false)
+  const [sizeGuideOpen, setSizeGuideOpen] = useState(false)
+  const [tryOnOpen, setTryOnOpen] = useState(false)
 
   const selectedVariant = useMemo(
     () => variants.find((v) => v.size === selectedSize && v.color.name === selectedColor),
@@ -167,7 +171,7 @@ export default function ProductDetailClient({ product, variants, reviews }: Prop
                 <p className="text-xs font-medium text-foreground">
                   Size: <span className="text-muted-foreground font-normal">{selectedSize}</span>
                 </p>
-                <button className="text-[10px] text-[#c4956a] underline underline-offset-2">Size Guide</button>
+                <button onClick={() => setSizeGuideOpen(true)} className="text-[10px] text-[#c4956a] underline underline-offset-2">Size Guide</button>
               </div>
               <div className="flex gap-2 flex-wrap">
                 {sizes.map((size) => {
@@ -220,15 +224,24 @@ export default function ProductDetailClient({ product, variants, reviews }: Prop
           </div>
 
           {/* WhatsApp Styling Help */}
-          <a
-            href="https://wa.me/919876543210?text=Hi! I need styling help with the product"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 px-4 py-2.5 border border-emerald-500/30 bg-emerald-500/5 text-emerald-700 dark:text-emerald-400 text-xs font-medium hover:bg-emerald-500/10 transition-colors"
-          >
-            <MessageCircle className="h-4 w-4" />
-            Need styling help? Chat with us on WhatsApp
-          </a>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setTryOnOpen(true)}
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 border border-[#c4956a]/30 bg-[#c4956a]/5 text-[#c4956a] text-xs font-medium hover:bg-[#c4956a]/10 transition-colors"
+            >
+              <Camera className="h-4 w-4" />
+              Virtual Try-On
+            </button>
+            <a
+              href="https://wa.me/919876543210?text=Hi! I need styling help with the product"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 border border-emerald-500/30 bg-emerald-500/5 text-emerald-700 dark:text-emerald-400 text-xs font-medium hover:bg-emerald-500/10 transition-colors"
+            >
+              <MessageCircle className="h-4 w-4" />
+              WhatsApp Help
+            </a>
+          </div>
 
           {/* Trust Badges */}
           <div className="grid grid-cols-3 gap-3 pt-4 border-t border-border">
@@ -320,6 +333,17 @@ export default function ProductDetailClient({ product, variants, reviews }: Prop
           </button>
         </div>
       </div>
+
+      {/* Size Guide Modal */}
+      <SizeGuide isOpen={sizeGuideOpen} onClose={() => setSizeGuideOpen(false)} />
+
+      {/* Virtual Try-On */}
+      <VirtualTryOn
+        isOpen={tryOnOpen}
+        onClose={() => setTryOnOpen(false)}
+        shirtImage={displayImages[0]}
+        productName={`${product.name} — ${selectedColor}`}
+      />
     </div>
   )
 }
