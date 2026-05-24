@@ -1,7 +1,8 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { TrendingUp, ShoppingCart, Users, IndianRupee, Eye, MousePointer, Clock, Smartphone, Monitor, Globe } from "lucide-react"
+import { TrendingUp, ShoppingCart, Users, IndianRupee, Eye, MousePointer, Clock, Smartphone, Monitor, Globe, Download } from "lucide-react"
+import { exportToExcel } from "@/lib/admin/exportExcel"
 
 export default function AdminAnalyticsPage() {
   const [stats, setStats] = useState<any>(null)
@@ -18,6 +19,32 @@ export default function AdminAnalyticsPage() {
 
   const aov = stats?.revenue && stats?.totalOrders ? Math.round(stats.revenue / stats.totalOrders) : 0
 
+  async function handleExport() {
+    const exportData = [
+      { metric: "Revenue", value: `₹${(stats?.revenue || 0).toLocaleString()}` },
+      { metric: "Total Orders", value: String(stats?.totalOrders || 0) },
+      { metric: "AOV", value: `₹${aov.toLocaleString()}` },
+      { metric: "Total Customers", value: String(stats?.totalUsers || 0) },
+      { metric: "Conversion Rate", value: "3.2%" },
+      { metric: "Cart Abandonment", value: "68%" },
+      { metric: "Bounce Rate", value: "34.2%" },
+      { metric: "Avg Session Duration", value: "3m 42s" },
+      { metric: "Repeat Purchase Rate", value: "24%" },
+      { metric: "Mobile Traffic", value: "72%" },
+      { metric: "Desktop Traffic", value: "22%" },
+    ]
+    await exportToExcel({
+      title: "Analytics Report",
+      sheetName: "Analytics",
+      filename: "VCHUKI_Analytics",
+      columns: [
+        { header: "Metric", key: "metric", width: 25 },
+        { header: "Value", key: "value", width: 20 },
+      ],
+      data: exportData,
+    })
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -26,6 +53,9 @@ export default function AdminAnalyticsPage() {
           <p className="text-xs text-muted-foreground mt-0.5">Business intelligence & real-time metrics</p>
         </div>
         <div className="flex items-center gap-2">
+          <button onClick={handleExport} className="flex items-center gap-1.5 px-3 py-1.5 border border-border text-[10px] font-medium hover:border-[#c4956a]/30 transition-colors text-foreground">
+            <Download className="h-3 w-3" /> Export Excel
+          </button>
           <div className="flex items-center gap-1.5 px-3 py-1.5 border border-emerald-500/30 bg-emerald-500/5">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             <span className="text-[10px] font-medium text-emerald-600 dark:text-emerald-400">{liveVisitors} live visitors</span>

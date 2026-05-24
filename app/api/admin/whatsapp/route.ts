@@ -48,6 +48,16 @@ export async function PATCH(request: NextRequest) {
   const config = await WhatsAppConfig.findOne()
   if (!config) return NextResponse.json({ error: "Config not found" }, { status: 404 })
 
+  // Validate: cannot enable without required credentials
+  if (body.isActive === true) {
+    const bId = body.businessId ?? config.businessId
+    const pId = body.phoneNumberId ?? config.phoneNumberId
+    const token = body.accessToken ?? config.accessToken
+    if (!bId || !pId || !token) {
+      return NextResponse.json({ error: "Cannot enable WhatsApp without WABA ID, Phone Number ID, and Access Token" }, { status: 400 })
+    }
+  }
+
   // Update fields
   if (body.businessId !== undefined) config.businessId = body.businessId
   if (body.phoneNumberId !== undefined) config.phoneNumberId = body.phoneNumberId

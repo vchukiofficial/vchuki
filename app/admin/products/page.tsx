@@ -5,8 +5,9 @@ import { useAdminStore } from "@/store/adminStore"
 import { StatusBadge, FileUpload, SectionHeader, EmptyState } from "@/components/admin/ui"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Plus, Trash2, Star, Search, Package, X, Palette, Image as ImageIcon } from "lucide-react"
+import { Plus, Trash2, Star, Search, Package, X, Palette, Image as ImageIcon, Download } from "lucide-react"
 import Image from "next/image"
+import { exportToExcel } from "@/lib/admin/exportExcel"
 
 const PRESET_COLORS = [
   { name: "Desert Sand", hex: "#D4A574" },
@@ -162,6 +163,33 @@ export default function AdminProductsPage() {
     }
   }
 
+  async function handleExport() {
+    const exportData = filtered.map(p => ({
+      name: p.name,
+      price: `₹${p.basePrice?.toLocaleString()}`,
+      category: p.category,
+      tags: p.tags?.join(", ") || "",
+      featured: p.isFeatured ? "Yes" : "No",
+      active: p.isActive ? "Yes" : "No",
+      slug: p.slug,
+    }))
+    await exportToExcel({
+      title: "Products Catalog",
+      sheetName: "Products",
+      filename: "VCHUKI_Products",
+      columns: [
+        { header: "Product Name", key: "name", width: 30 },
+        { header: "Price", key: "price", width: 12 },
+        { header: "Category", key: "category", width: 14 },
+        { header: "Tags", key: "tags", width: 25 },
+        { header: "Featured", key: "featured", width: 10 },
+        { header: "Active", key: "active", width: 10 },
+        { header: "Slug", key: "slug", width: 30 },
+      ],
+      data: exportData,
+    })
+  }
+
   const filtered = products.filter(p => p.name?.toLowerCase().includes(search.toLowerCase()))
 
   if (loading.products) return <div className="text-sm text-muted-foreground animate-pulse">Loading products...</div>
@@ -178,6 +206,9 @@ export default function AdminProductsPage() {
                 <Trash2 className="h-3 w-3" /> Delete ({selected.size})
               </button>
             )}
+            <button onClick={handleExport} className="flex items-center gap-1.5 px-3 py-1.5 border border-border text-[10px] font-medium uppercase tracking-wider hover:border-[#c4956a]/30 transition-colors text-foreground h-8">
+              <Download className="h-3 w-3" /> Export Excel
+            </button>
             <Button size="sm" onClick={() => setShowForm(!showForm)} className="text-xs h-8 gap-1.5">
               <Plus className="h-3.5 w-3.5" /> Add Product
             </Button>

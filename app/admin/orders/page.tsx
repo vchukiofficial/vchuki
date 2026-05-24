@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react"
 import { useAdminStore } from "@/store/adminStore"
 import { StatusBadge, SectionHeader, EmptyState } from "@/components/admin/ui"
-import { ShoppingCart, Package, Truck, Search, Download, ChevronDown } from "lucide-react"
+import { ShoppingCart, Package, Truck, Search, Download, ChevronDown, Trash2 } from "lucide-react"
+import { exportToExcel } from "@/lib/admin/exportExcel"
 
 const STATUSES = ["pending", "confirmed", "packaging", "dispatched", "shipped", "out_for_delivery", "delivered", "returned", "cancelled"] as const
 const COURIERS = ["Delhivery", "Shiprocket", "Blue Dart", "DTDC"] as const
@@ -19,6 +20,7 @@ export default function AdminOrdersPage() {
   const [search, setSearch] = useState("")
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null)
   const [assigningCourier, setAssigningCourier] = useState<string | null>(null)
+  const [selected, setSelected] = useState<Set<string>>(new Set())
 
   useEffect(() => { fetchOrders() }, [fetchOrders])
 
@@ -30,6 +32,64 @@ export default function AdminOrdersPage() {
 
   const counts: Record<string, number> = { all: orders.length }
   orders.forEach(o => { counts[o.shippingStatus] = (counts[o.shippingStatus] || 0) + 1 })
+
+  function toggleSelect(id: string) {
+    const next = new Set(selected)
+    if (next.has(id)) next.delete(id)
+    else next.add(id)
+    setSelected(next)
+  }
+
+  function toggleAll() {
+    if (selected.size === filtered.length) setSelected(new Set())
+    else setSelected(new Set(filtered.map(o => o._id)))
+  }
+
+  async function bulkDelete() {
+    if (!confirm(`Delete ${selected.size} order(s)? This cannot be undone.`)) return
+    for (const id of selected) {
+      await fetch(`/api/orders/${id}`, { method: "DELETE", credentials: "include" })
+    }
+    setSelected(new Set())
+    fetchOrders()
+  }
+
+  async function singleDelete(id: string) {
+    if (!confirm("Delete this order? This cannot be undone.")) return
+    await fetch(`/api/orders/${id}`, { method: "DELETE", credentials: "include" })
+    fetchOrders()
+  }
+
+  async function handleExport() {
+    const exportData = filtered.map(o => ({
+      orderId: `#${o._id?.slice(-8).toUpperCase()}`,
+      items: o.items?.map((i: any) => `${i.name} (${i.size}/${i.color}) ×${i.quantity}`).join(", "),
+      amount: `₹${o.finalAmount?.toLocaleString()}`,
+      status: o.shippingStatus,
+      payment: o.paymentMethod === "cod" ? "COD" : "Razorpay",
+      paymentStatus: o.paymentStatus,
+      customer: (o as any).shippingAddress?.name || "",
+      city: (o as any).shippingAddress?.city || "",
+      date: new Date(o.createdAt).toLocaleDateString("en-IN"),
+    }))
+    await exportToExcel({
+      title: "Orders Report",
+      sheetName: "Orders",
+      filename: "VCHUKI_Orders",
+      columns: [
+        { header: "Order ID", key: "orderId", width: 14 },
+        { header: "Items", key: "items", width: 40 },
+        { header: "Amount", key: "amount", width: 12 },
+        { header: "Status", key: "status", width: 16 },
+        { header: "Payment", key: "payment", width: 12 },
+        { header: "Payment Status", key: "paymentStatus", width: 14 },
+        { header: "Customer", key: "customer", width: 20 },
+        { header: "City", key: "city", width: 14 },
+        { header: "Date", key: "date", width: 12 },
+      ],
+      data: exportData,
+    })
+  }
 
   async function handleStatusUpdate(id: string, status: string) {
     await updateOrderStatus(id, status)
@@ -57,9 +117,16 @@ export default function AdminOrdersPage() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <SectionHeader title="Orders" description={`${orders.length} total orders`} />
-        <button className="flex items-center gap-1.5 px-3 py-1.5 border border-border text-[10px] font-medium uppercase tracking-wider hover:border-[#c4956a]/30 transition-colors text-foreground">
-          <Download className="h-3 w-3" /> Export
-        </button>
+        <div className="flex items-center gap-2">
+          {selected.size > 0 && (
+            <button onClick={bulkDelete} className="flex items-center gap-1.5 px-3 py-1.5 bg-red-500 text-white text-[10px] font-medium uppercase tracking-wider hover:bg-red-600 transition-colors">
+              <Trash2 className="h-3 w-3" /> Delete ({selected.size})
+            </button>
+          )}
+          <button onClick={handleExport} className="flex items-center gap-1.5 px-3 py-1.5 border border-border text-[10px] font-medium uppercase tracking-wider hover:border-[#c4956a]/30 transition-colors text-foreground">
+            <Download className="h-3 w-3" /> Export Excel
+          </button>
+        </div>
       </div>
 
       {/* Search */}
@@ -85,6 +152,14 @@ export default function AdminOrdersPage() {
         ))}
       </div>
 
+      {/* Select All */}
+      {filtered.length > 0 && (
+        <label className="flex items-center gap-2 text-[10px] text-muted-foreground cursor-pointer">
+          <input type="checkbox" checked={selected.size === filtered.length && filtered.length > 0} onChange={toggleAll} className="accent-[#c4956a]" />
+          Select All ({filtered.length})
+        </label>
+      )}
+
       {filtered.length === 0 ? (
         <EmptyState icon={ShoppingCart} title="No orders" description="Orders will appear here when customers place them." />
       ) : (
@@ -92,14 +167,15 @@ export default function AdminOrdersPage() {
           {filtered.map((order) => {
             const isExpanded = expandedOrder === order._id
             return (
-              <div key={order._id} className="border border-border overflow-hidden hover:border-[#c4956a]/20 transition-colors">
+              <div key={order._id} className={`border overflow-hidden transition-colors ${selected.has(order._id) ? "border-[#c4956a]/30 bg-[#c4956a]/5" : "border-border hover:border-[#c4956a]/20"}`}>
                 {/* Order Row */}
-                <div className="flex items-center justify-between p-4 cursor-pointer" onClick={() => setExpandedOrder(isExpanded ? null : order._id)}>
+                <div className="flex items-center justify-between p-4">
                   <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-full bg-card border border-border flex items-center justify-center">
+                    <input type="checkbox" checked={selected.has(order._id)} onChange={() => toggleSelect(order._id)} className="accent-[#c4956a]" />
+                    <div className="h-8 w-8 rounded-full bg-card border border-border flex items-center justify-center cursor-pointer" onClick={() => setExpandedOrder(isExpanded ? null : order._id)}>
                       <Package className="h-3.5 w-3.5 text-muted-foreground" />
                     </div>
-                    <div>
+                    <div className="cursor-pointer" onClick={() => setExpandedOrder(isExpanded ? null : order._id)}>
                       <p className="text-xs font-medium font-mono text-foreground">#{order._id?.slice(-8).toUpperCase()}</p>
                       <p className="text-[10px] text-muted-foreground">{order.items?.length} items · {new Date(order.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}</p>
                     </div>
@@ -107,7 +183,10 @@ export default function AdminOrdersPage() {
                   <div className="flex items-center gap-3">
                     <StatusBadge status={order.shippingStatus} />
                     <span className="text-sm font-semibold text-foreground">₹{order.finalAmount?.toLocaleString()}</span>
-                    <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform ${isExpanded ? "rotate-180" : ""}`} />
+                    <button onClick={() => singleDelete(order._id)} className="h-7 w-7 border border-border flex items-center justify-center text-muted-foreground hover:text-red-500 hover:border-red-500/30 transition-colors">
+                      <Trash2 className="h-3 w-3" />
+                    </button>
+                    <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform cursor-pointer ${isExpanded ? "rotate-180" : ""}`} onClick={() => setExpandedOrder(isExpanded ? null : order._id)} />
                   </div>
                 </div>
 
@@ -115,7 +194,6 @@ export default function AdminOrdersPage() {
                 {isExpanded && (
                   <div className="border-t border-border p-4 bg-card/30 space-y-4">
                     <div className="grid md:grid-cols-3 gap-4">
-                      {/* Items */}
                       <div>
                         <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-2">Items</p>
                         <div className="space-y-1.5">
@@ -126,8 +204,6 @@ export default function AdminOrdersPage() {
                           ))}
                         </div>
                       </div>
-
-                      {/* Customer & Address */}
                       <div>
                         <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-2">Shipping</p>
                         <div className="text-xs space-y-0.5">
@@ -137,8 +213,6 @@ export default function AdminOrdersPage() {
                           <p className="text-muted-foreground">{(order as any).shippingAddress?.phone}</p>
                         </div>
                       </div>
-
-                      {/* Payment & Delivery */}
                       <div>
                         <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-2">Payment</p>
                         <div className="text-xs space-y-1">
@@ -161,7 +235,6 @@ export default function AdminOrdersPage() {
                         {STATUSES.map(s => <option key={s} value={s} className="capitalize">{s.replace("_", " ")}</option>)}
                       </select>
 
-                      {/* Assign Courier */}
                       {(order.shippingStatus === "packaging" || order.shippingStatus === "confirmed") && (
                         <>
                           {assigningCourier === order._id ? (
@@ -181,7 +254,6 @@ export default function AdminOrdersPage() {
                       )}
                     </div>
 
-                    {/* Timeline */}
                     {(order as any).timeline?.length > 0 && (
                       <div>
                         <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-2">Timeline</p>

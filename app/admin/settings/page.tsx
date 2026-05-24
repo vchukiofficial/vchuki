@@ -6,11 +6,11 @@ import { MessageCircle, CreditCard, Truck, Mail, Bell, Shield, Globe, ChevronRig
 
 const integrations = [
   { href: "/admin/settings/whatsapp", icon: MessageCircle, label: "WhatsApp Business", desc: "Templates, automation flows, webhook & marketing", color: "text-emerald-600", bg: "bg-emerald-500/10" },
-  { href: "#", icon: CreditCard, label: "Razorpay", desc: "Payment gateway configuration", color: "text-blue-600", bg: "bg-blue-500/10" },
-  { href: "#", icon: Truck, label: "Shipping Partners", desc: "Delhivery, Shiprocket, Blue Dart, DTDC", color: "text-amber-600", bg: "bg-amber-500/10" },
-  { href: "#", icon: Mail, label: "Email (Resend)", desc: "Transactional & marketing emails", color: "text-purple-600", bg: "bg-purple-500/10" },
-  { href: "#", icon: Bell, label: "Push Notifications", desc: "Firebase push notifications", color: "text-red-600", bg: "bg-red-500/10" },
-  { href: "#", icon: Globe, label: "Meta Pixel & Analytics", desc: "Facebook Pixel, Google Analytics, Conversion API", color: "text-indigo-600", bg: "bg-indigo-500/10" },
+  { href: "/admin/settings/razorpay", icon: CreditCard, label: "Razorpay", desc: "Payment gateway configuration", color: "text-blue-600", bg: "bg-blue-500/10" },
+  { href: "/admin/settings/shipping", icon: Truck, label: "Shipping Partners", desc: "Delhivery, Shiprocket, Blue Dart, DTDC", color: "text-amber-600", bg: "bg-amber-500/10" },
+  { href: "/admin/settings/email", icon: Mail, label: "Email (Resend)", desc: "Transactional & marketing emails", color: "text-purple-600", bg: "bg-purple-500/10" },
+  { href: "/admin/settings/push-notifications", icon: Bell, label: "Push Notifications", desc: "Firebase push notifications", color: "text-red-600", bg: "bg-red-500/10" },
+  { href: "/admin/settings/meta-pixel", icon: Globe, label: "Meta Pixel & Analytics", desc: "Facebook Pixel, Google Analytics, Conversion API", color: "text-indigo-600", bg: "bg-indigo-500/10" },
 ]
 
 export default function AdminSettingsPage() {

@@ -1,7 +1,8 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Truck, CheckCircle, Clock, AlertTriangle, Download, Printer } from "lucide-react"
+import { Truck, CheckCircle, Clock, AlertTriangle, Download, Printer, Trash2 } from "lucide-react"
+import { exportToExcel } from "@/lib/admin/exportExcel"
 
 export default function AdminShipmentsPage() {
   const [orders, setOrders] = useState<any[]>([])
@@ -9,11 +10,14 @@ export default function AdminShipmentsPage() {
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [bulkCourier, setBulkCourier] = useState("Delhivery")
 
-  useEffect(() => {
+  function fetchData() {
+    setLoading(true)
     fetch("/api/orders", { credentials: "include" })
       .then(r => r.json())
       .then(d => { setOrders(d.orders || []); setLoading(false) })
-  }, [])
+  }
+
+  useEffect(() => { fetchData() }, [])
 
   const shipments = orders.filter(o => ["dispatched", "shipped", "out_for_delivery"].includes(o.shippingStatus))
   const readyToShip = orders.filter(o => ["confirmed", "packaging"].includes(o.shippingStatus))
@@ -42,10 +46,54 @@ export default function AdminShipmentsPage() {
       })
     }
     setSelected(new Set())
-    // Refresh
-    const res = await fetch("/api/orders", { credentials: "include" })
-    const d = await res.json()
-    setOrders(d.orders || [])
+    fetchData()
+  }
+
+  async function bulkDelete() {
+    if (!confirm(`Delete ${selected.size} shipment(s)? This cannot be undone.`)) return
+    for (const id of selected) {
+      await fetch(`/api/orders/${id}`, { method: "DELETE", credentials: "include" })
+    }
+    setSelected(new Set())
+    fetchData()
+  }
+
+  async function singleDelete(id: string) {
+    if (!confirm("Delete this shipment record?")) return
+    await fetch(`/api/orders/${id}`, { method: "DELETE", credentials: "include" })
+    fetchData()
+  }
+
+  async function handleExport() {
+    const allShipments = [...readyToShip, ...shipments, ...delivered]
+    const exportData = allShipments.map(o => ({
+      orderId: `#${o._id?.slice(-8).toUpperCase()}`,
+      status: o.shippingStatus,
+      courier: o.courier || "Not Assigned",
+      awb: o.awb || "—",
+      customer: o.shippingAddress?.name || "",
+      city: o.shippingAddress?.city || "",
+      state: o.shippingAddress?.state || "",
+      amount: `₹${o.finalAmount?.toLocaleString()}`,
+      date: new Date(o.createdAt).toLocaleDateString("en-IN"),
+    }))
+    await exportToExcel({
+      title: "Shipments Report",
+      sheetName: "Shipments",
+      filename: "VCHUKI_Shipments",
+      columns: [
+        { header: "Order ID", key: "orderId", width: 14 },
+        { header: "Status", key: "status", width: 16 },
+        { header: "Courier", key: "courier", width: 14 },
+        { header: "AWB", key: "awb", width: 20 },
+        { header: "Customer", key: "customer", width: 20 },
+        { header: "City", key: "city", width: 14 },
+        { header: "State", key: "state", width: 14 },
+        { header: "Amount", key: "amount", width: 12 },
+        { header: "Date", key: "date", width: 12 },
+      ],
+      data: exportData,
+    })
   }
 
   if (loading) return <div className="text-sm text-muted-foreground animate-pulse p-4">Loading shipments...</div>
@@ -58,8 +106,13 @@ export default function AdminShipmentsPage() {
           <p className="text-xs text-muted-foreground mt-0.5">Bulk processing, AWB generation & tracking</p>
         </div>
         <div className="flex gap-2">
-          <button className="flex items-center gap-1.5 px-3 py-1.5 border border-border text-[10px] font-medium hover:border-[#c4956a]/30 transition-colors text-foreground">
-            <Download className="h-3 w-3" /> Export CSV
+          {selected.size > 0 && (
+            <button onClick={bulkDelete} className="flex items-center gap-1.5 px-3 py-1.5 bg-red-500 text-white text-[10px] font-medium uppercase tracking-wider hover:bg-red-600 transition-colors">
+              <Trash2 className="h-3 w-3" /> Delete ({selected.size})
+            </button>
+          )}
+          <button onClick={handleExport} className="flex items-center gap-1.5 px-3 py-1.5 border border-border text-[10px] font-medium hover:border-[#c4956a]/30 transition-colors text-foreground">
+            <Download className="h-3 w-3" /> Export Excel
           </button>
           <button className="flex items-center gap-1.5 px-3 py-1.5 border border-border text-[10px] font-medium hover:border-[#c4956a]/30 transition-colors text-foreground">
             <Printer className="h-3 w-3" /> Print Labels
@@ -98,7 +151,7 @@ export default function AdminShipmentsPage() {
 
           <div className="space-y-1.5">
             <label className="flex items-center gap-2 text-[10px] text-muted-foreground cursor-pointer">
-              <input type="checkbox" checked={selected.size === readyToShip.length} onChange={selectAll} className="accent-[#c4956a]" />
+              <input type="checkbox" checked={selected.size === readyToShip.length && readyToShip.length > 0} onChange={selectAll} className="accent-[#c4956a]" />
               Select All
             </label>
             {readyToShip.map(order => (
@@ -110,7 +163,12 @@ export default function AdminShipmentsPage() {
                     <p className="text-[10px] text-muted-foreground">{order.shippingAddress?.city}, {order.shippingAddress?.state} · {order.items?.length} items</p>
                   </div>
                 </div>
-                <span className="text-xs font-medium text-foreground">₹{order.finalAmount?.toLocaleString()}</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-medium text-foreground">₹{order.finalAmount?.toLocaleString()}</span>
+                  <button onClick={(e) => { e.preventDefault(); singleDelete(order._id) }} className="h-6 w-6 border border-border flex items-center justify-center text-muted-foreground hover:text-red-500 transition-colors">
+                    <Trash2 className="h-2.5 w-2.5" />
+                  </button>
+                </div>
               </label>
             ))}
           </div>
@@ -138,13 +196,18 @@ export default function AdminShipmentsPage() {
                     </p>
                   </div>
                 </div>
-                <span className={`text-[9px] px-2 py-0.5 font-medium uppercase tracking-wider ${
-                  order.shippingStatus === "out_for_delivery" ? "bg-orange-500/10 text-orange-600" :
-                  order.shippingStatus === "shipped" ? "bg-blue-500/10 text-blue-600" :
-                  "bg-cyan-500/10 text-cyan-600"
-                }`}>
-                  {order.shippingStatus.replace("_", " ")}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className={`text-[9px] px-2 py-0.5 font-medium uppercase tracking-wider ${
+                    order.shippingStatus === "out_for_delivery" ? "bg-orange-500/10 text-orange-600" :
+                    order.shippingStatus === "shipped" ? "bg-blue-500/10 text-blue-600" :
+                    "bg-cyan-500/10 text-cyan-600"
+                  }`}>
+                    {order.shippingStatus.replace("_", " ")}
+                  </span>
+                  <button onClick={() => singleDelete(order._id)} className="h-6 w-6 border border-border flex items-center justify-center text-muted-foreground hover:text-red-500 transition-colors">
+                    <Trash2 className="h-2.5 w-2.5" />
+                  </button>
+                </div>
               </div>
             ))}
           </div>

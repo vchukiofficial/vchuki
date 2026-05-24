@@ -1,7 +1,8 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Star, Trash2, Check, Pin, Eye, EyeOff, RefreshCw } from "lucide-react"
+import { Star, Trash2, Check, Pin, Eye, EyeOff, RefreshCw, Download } from "lucide-react"
+import { exportToExcel } from "@/lib/admin/exportExcel"
 
 export default function AdminReviewsPage() {
   const [reviews, setReviews] = useState<any[]>([])
@@ -57,6 +58,35 @@ export default function AdminReviewsPage() {
     setReviews(reviews.map(r => r._id === id ? { ...r, status: r.status === "approved" ? "hidden" : "approved" } : r))
   }
 
+  async function handleExport() {
+    const exportData = reviews.map(r => ({
+      customer: r.user?.name || "Customer",
+      product: r.product?.name || "Product",
+      rating: `${r.rating}/5`,
+      comment: r.comment || "",
+      verified: r.verifiedPurchase ? "Yes" : "No",
+      featured: r.featured ? "Yes" : "No",
+      status: r.status || "approved",
+      date: new Date(r.createdAt).toLocaleDateString("en-IN"),
+    }))
+    await exportToExcel({
+      title: "Customer Reviews",
+      sheetName: "Reviews",
+      filename: "VCHUKI_Reviews",
+      columns: [
+        { header: "Customer", key: "customer", width: 20 },
+        { header: "Product", key: "product", width: 28 },
+        { header: "Rating", key: "rating", width: 8 },
+        { header: "Comment", key: "comment", width: 40 },
+        { header: "Verified", key: "verified", width: 10 },
+        { header: "Featured", key: "featured", width: 10 },
+        { header: "Status", key: "status", width: 10 },
+        { header: "Date", key: "date", width: 12 },
+      ],
+      data: exportData,
+    })
+  }
+
   const filtered = filter === "all" ? reviews :
     filter === "pending" ? reviews.filter(r => r.status === "pending") :
     filter === "approved" ? reviews.filter(r => r.status === "approved") :
@@ -82,6 +112,9 @@ export default function AdminReviewsPage() {
               <Trash2 className="h-3 w-3" /> Delete ({selected.size})
             </button>
           )}
+          <button onClick={handleExport} className="flex items-center gap-1.5 px-3 py-1.5 border border-border text-[10px] font-medium hover:border-[#c4956a]/30 transition-colors text-foreground">
+            <Download className="h-3 w-3" /> Export Excel
+          </button>
           <button onClick={fetchReviews} className="flex items-center gap-1.5 px-3 py-1.5 border border-border text-[10px] font-medium hover:border-[#c4956a]/30 transition-colors text-foreground">
             <RefreshCw className="h-3 w-3" /> Refresh
           </button>

@@ -1,7 +1,8 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Users, Crown, ShoppingCart, Clock, RefreshCw, Trash2 } from "lucide-react"
+import { Users, Crown, ShoppingCart, Clock, RefreshCw, Trash2, Download } from "lucide-react"
+import { exportToExcel } from "@/lib/admin/exportExcel"
 
 export default function AdminCustomersPage() {
   const [users, setUsers] = useState<any[]>([])
@@ -47,6 +48,27 @@ export default function AdminCustomersPage() {
     setSelected(new Set())
   }
 
+  async function handleExport() {
+    const exportData = users.map(u => ({
+      name: u.name,
+      email: u.email,
+      role: u.role,
+      joined: new Date(u.createdAt).toLocaleDateString("en-IN"),
+    }))
+    await exportToExcel({
+      title: "Customers Report",
+      sheetName: "Customers",
+      filename: "VCHUKI_Customers",
+      columns: [
+        { header: "Name", key: "name", width: 22 },
+        { header: "Email", key: "email", width: 28 },
+        { header: "Role", key: "role", width: 10 },
+        { header: "Joined", key: "joined", width: 14 },
+      ],
+      data: exportData,
+    })
+  }
+
   const admins = users.filter(u => u.role === "admin")
   const customers = users.filter(u => u.role === "user")
 
@@ -66,6 +88,9 @@ export default function AdminCustomersPage() {
               <Trash2 className="h-3 w-3" /> Delete ({selected.size})
             </button>
           )}
+          <button onClick={handleExport} className="flex items-center gap-1.5 px-3 py-1.5 border border-border text-[10px] font-medium hover:border-[#c4956a]/30 transition-colors text-foreground">
+            <Download className="h-3 w-3" /> Export Excel
+          </button>
           <button onClick={fetchUsers} className="flex items-center gap-1.5 px-3 py-1.5 border border-border text-[10px] font-medium hover:border-[#c4956a]/30 transition-colors text-foreground">
             <RefreshCw className="h-3 w-3" /> Refresh
           </button>

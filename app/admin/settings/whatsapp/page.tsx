@@ -130,7 +130,16 @@ export default function WhatsAppSettingsPage() {
             <span className={`w-2 h-2 rounded-full ${config.isActive ? "bg-emerald-500 animate-pulse" : "bg-red-500"}`} />
             {config.isActive ? "Connected" : "Disconnected"}
           </span>
-          <button onClick={() => saveConfig({ isActive: !config.isActive })} className="px-3 py-1.5 border border-border text-[10px] font-medium hover:border-[#c4956a]/30 transition-colors text-foreground">
+          <button onClick={() => {
+            if (!config.isActive) {
+              // Validate required fields before enabling
+              if (!config.businessId || !config.phoneNumberId || !config.accessToken) {
+                alert("Cannot enable WhatsApp without WABA ID, Phone Number ID, and Access Token. Please fill in API credentials first.")
+                return
+              }
+            }
+            saveConfig({ isActive: !config.isActive })
+          }} className="px-3 py-1.5 border border-border text-[10px] font-medium hover:border-[#c4956a]/30 transition-colors text-foreground">
             {config.isActive ? "Disable" : "Enable"}
           </button>
         </div>
