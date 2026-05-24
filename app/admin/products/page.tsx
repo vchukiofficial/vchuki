@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Plus, Trash2, Star, Search, Package, X, Palette, Image as ImageIcon, Download } from "lucide-react"
 import Image from "next/image"
+import Link from "next/link"
 import { exportToExcel } from "@/lib/admin/exportExcel"
 
 const PRESET_COLORS = [
@@ -445,10 +446,10 @@ export default function AdminProductsPage() {
                   <td className="p-3">
                     <div className="flex items-center gap-2.5">
                       <div className="h-9 w-9 bg-card border border-border overflow-hidden relative flex-shrink-0">
-                        {product.images?.[0] && <Image src={product.images[0]} alt="" fill className="object-cover" sizes="36px" />}
+                        {product.images?.[0] && <Image src={product.images[0]} alt="" fill className="object-contain p-0.5" sizes="36px" />}
                       </div>
                       <div className="min-w-0">
-                        <p className="font-medium truncate max-w-[180px] text-foreground">{product.name}</p>
+                        <Link href={`/admin/products/${product._id}`} className="font-medium truncate max-w-[180px] text-foreground hover:text-[#c4956a] transition-colors block">{product.name}</Link>
                         <p className="text-[10px] text-muted-foreground truncate">{product.slug}</p>
                       </div>
                     </div>
