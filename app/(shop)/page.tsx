@@ -7,6 +7,7 @@ import { HeroSection } from "@/components/home/HeroSection"
 import { AnimatedSection } from "@/components/home/AnimatedSection"
 import { ProductCarousel } from "@/components/home/ProductCarousel"
 import { ProductGrid } from "@/components/home/ProductGrid"
+import { RajasthanPalette } from "@/components/home/RajasthanPalette"
 
 async function getProducts() {
   await connectDB()
@@ -55,18 +56,18 @@ export default async function HomePage() {
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
           {[
-            { name: "Linen", slug: "linen", img: "https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=500&q=80", desc: "Breathable luxury" },
-            { name: "Formal", slug: "formal", img: "https://images.unsplash.com/photo-1603252109303-2751441dd157?w=500&q=80", desc: "Office elegance" },
-            { name: "Casual", slug: "casual", img: "https://images.unsplash.com/photo-1589310243389-96a5483213a8?w=500&q=80", desc: "Weekend ease" },
-            { name: "Premium", slug: "premium", img: "https://images.unsplash.com/photo-1620012253295-c15cc3e65df4?w=500&q=80", desc: "Exclusive craft" },
+            { name: "Linen Full Sleeve Shirts", slug: "linen", img: "/skyblue.png", desc: "Breathable luxury" },
+            { name: "Linen Half Sleeve Shirts", slug: "linen-half-sleeve", img: "/Beige.png", desc: "Summer ease" },
+            { name: "Linen Short Kurtas Half Sleeve", slug: "kurta-half-sleeve", img: "/Yellow.png", desc: "Ethnic modern" },
+            { name: "Linen Short Kurtas Full Sleeve", slug: "kurta-full-sleeve", img: "/Olive Green.png", desc: "Heritage craft" },
           ].map((cat) => (
-            <Link key={cat.slug} href={`/shirts/${cat.slug}`} className="group relative aspect-[3/4] overflow-hidden border border-border">
-              <Image src={cat.img} alt={`${cat.name} Shirts - VCHUKI`} fill className="object-cover transition-transform duration-700 group-hover:scale-105" sizes="(max-width: 768px) 50vw, 25vw" loading="lazy" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-              <div className="absolute top-3 left-3 w-4 h-4 border-t border-l border-white/30" />
-              <div className="absolute top-3 right-3 w-4 h-4 border-t border-r border-white/30" />
+            <Link key={cat.slug} href={`/shirts/${cat.slug}`} className="group relative aspect-[3/4] overflow-hidden border border-border bg-gradient-to-b from-card/50 to-background">
+              <Image src={cat.img} alt={`${cat.name} - VCHUKI`} fill className="object-contain p-4 transition-transform duration-700 group-hover:scale-105" sizes="(max-width: 768px) 50vw, 25vw" loading="lazy" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+              <div className="absolute top-3 left-3 w-4 h-4 border-t border-l border-[#c4956a]/30" />
+              <div className="absolute top-3 right-3 w-4 h-4 border-t border-r border-[#c4956a]/30" />
               <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6">
-                <p className="text-white text-sm md:text-base font-medium tracking-wide">{cat.name}</p>
+                <p className="text-white text-xs md:text-sm font-medium tracking-wide leading-tight">{cat.name}</p>
                 <p className="text-white/50 text-[10px] md:text-xs mt-0.5 group-hover:text-white/80 transition-colors">{cat.desc}</p>
               </div>
             </Link>
@@ -131,34 +132,8 @@ export default async function HomePage() {
         </AnimatedSection>
       </section>
 
-      {/* Color Story Experience */}
-      <AnimatedSection className="container py-20 md:py-32">
-        <div className="text-center mb-12 md:mb-16">
-          <p className="text-[10px] uppercase tracking-[0.3em] text-[#c4956a] font-medium mb-2">Every Color Has a Story</p>
-          <h2 className="text-2xl md:text-4xl font-light tracking-tight text-foreground">The Color Palette</h2>
-          <p className="text-sm text-muted-foreground mt-3 max-w-md mx-auto">Each shade is inspired by the landscapes of Rajasthan — from desert sands to royal indigo nights.</p>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          {[
-            { name: "Desert Sand", color: "#d4a574", mood: "Warm sandstone palace" },
-            { name: "Royal Indigo", color: "#3d5a80", mood: "Moonlit blue haveli" },
-            { name: "Sage", color: "#6b7c5e", mood: "Botanical calm" },
-            { name: "Rust Earth", color: "#8b4513", mood: "Artisan copper" },
-            { name: "Ivory Cream", color: "#f5e6d3", mood: "Pure elegance" },
-          ].map((item) => (
-            <Link key={item.name} href={`/shirts?color=${item.name.toLowerCase().replace(" ", "-")}`} className="group text-center">
-              <div className="aspect-square overflow-hidden mb-3 relative border border-border group-hover:border-[#c4956a]/40 transition-colors">
-                <div className="absolute inset-0" style={{ backgroundColor: item.color }} />
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center bg-black/20">
-                  <Sparkles className="h-5 w-5 text-white/80" />
-                </div>
-              </div>
-              <p className="text-xs font-medium tracking-wide text-foreground">{item.name}</p>
-              <p className="text-[10px] text-muted-foreground mt-0.5">{item.mood}</p>
-            </Link>
-          ))}
-        </div>
-      </AnimatedSection>
+      {/* Color Story Experience — Luxury Interactive Palette */}
+      <RajasthanPalette />
 
       {/* Linen Collection with Quick Add */}
       {linen.length > 0 && (
