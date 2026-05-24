@@ -158,7 +158,7 @@ export function HeroSection() {
                 className="relative w-[280px] h-[360px] md:w-[350px] md:h-[440px] lg:w-[400px] lg:h-[500px]"
               >
                 <Image
-                  src="/skyblue.png"
+                  src="https://u1kwkwq0sju0a3pp.public.blob.vercel-storage.com/products/vchuki/skyblue.png"
                   alt="VCHUKI Premium Sky Blue Linen Shirt - Front View"
                   fill
                   className="object-contain drop-shadow-2xl"

@@ -10,7 +10,7 @@ const SHADES = [
   {
     name: "Desert Sand",
     hex: "#DCCEB8",
-    image: "/Beige.png",
+    image: "https://u1kwkwq0sju0a3pp.public.blob.vercel-storage.com/products/vchuki/beige.png",
     mood: "Elegant. Timeless. Minimal.",
     story: "Inspired by warm sandstone palaces of Rajasthan",
     visual: "Golden desert sunlight, palace walls, warm beige atmosphere",
@@ -21,7 +21,7 @@ const SHADES = [
   {
     name: "Royal Indigo",
     hex: "#304D7A",
-    image: "/Sky Blue.png",
+    image: "https://u1kwkwq0sju0a3pp.public.blob.vercel-storage.com/products/vchuki/sky-blue.png",
     mood: "Bold. Regal. Powerful.",
     story: "Inspired by the royal blue city nights of Jodhpur",
     visual: "Moonlit blue havelis, luxury indigo textures, cinematic evening tone",
@@ -32,7 +32,7 @@ const SHADES = [
   {
     name: "Sage Heritage",
     hex: "#8A8F63",
-    image: "/Olive Green.png",
+    image: "https://u1kwkwq0sju0a3pp.public.blob.vercel-storage.com/products/vchuki/olive-green.png",
     mood: "Masculine. Earthy. Premium.",
     story: "Inspired by royal courtyard gardens and botanical calm",
     visual: "Muted olive greenery, sandstone courtyards, luxury linen textures",
@@ -43,7 +43,7 @@ const SHADES = [
   {
     name: "Golden Dune",
     hex: "#D8BF62",
-    image: "/Yellow.png",
+    image: "https://u1kwkwq0sju0a3pp.public.blob.vercel-storage.com/products/vchuki/yellow.png",
     mood: "Warm. Creative. Stylish.",
     story: "Inspired by Rajasthan's golden desert horizon",
     visual: "Golden dunes, sunset glow, rich earthy fashion tone",
@@ -54,7 +54,7 @@ const SHADES = [
   {
     name: "Ivory White",
     hex: "#F5F3EE",
-    image: "/white.png",
+    image: "https://u1kwkwq0sju0a3pp.public.blob.vercel-storage.com/products/vchuki/white.png",
     mood: "Pure. Clean. Luxurious.",
     story: "Inspired by marble palaces and pristine elegance",
     visual: "White marble, morning light, clean luxury minimalism",

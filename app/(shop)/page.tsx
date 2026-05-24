@@ -58,10 +58,10 @@ export default async function HomePage() {
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
           {[
-            { name: "Linen Full Sleeve Shirts", slug: "linen", img: "/skyblue.png", desc: "Breathable luxury" },
-            { name: "Linen Half Sleeve Shirts", slug: "linen-half-sleeve", img: "/Beige.png", desc: "Summer ease" },
-            { name: "Linen Short Kurtas Half Sleeve", slug: "kurta-half-sleeve", img: "/Yellow.png", desc: "Ethnic modern" },
-            { name: "Linen Short Kurtas Full Sleeve", slug: "kurta-full-sleeve", img: "/Olive Green.png", desc: "Heritage craft" },
+            { name: "Linen Full Sleeve Shirts", slug: "linen", img: "https://u1kwkwq0sju0a3pp.public.blob.vercel-storage.com/products/vchuki/skyblue.png", desc: "Breathable luxury" },
+            { name: "Linen Half Sleeve Shirts", slug: "linen-half-sleeve", img: "https://u1kwkwq0sju0a3pp.public.blob.vercel-storage.com/products/vchuki/beige.png", desc: "Summer ease" },
+            { name: "Linen Short Kurtas Half Sleeve", slug: "kurta-half-sleeve", img: "https://u1kwkwq0sju0a3pp.public.blob.vercel-storage.com/products/vchuki/shortsleevgoldenduneshortkurta.png", desc: "Ethnic modern" },
+            { name: "Linen Short Kurtas Full Sleeve", slug: "kurta-full-sleeve", img: "https://u1kwkwq0sju0a3pp.public.blob.vercel-storage.com/products/vchuki/fullsleevolivegreenshortshirts.png", desc: "Heritage craft" },
           ].map((cat) => (
             <Link key={cat.slug} href={`/shirts/${cat.slug}`} className="group relative aspect-[3/4] overflow-hidden border border-border bg-gradient-to-b from-card/50 to-background">
               <Image src={cat.img} alt={`${cat.name} - VCHUKI`} fill className="object-contain p-4 transition-transform duration-700 group-hover:scale-105" sizes="(max-width: 768px) 50vw, 25vw" loading="lazy" />
@@ -120,7 +120,7 @@ export default async function HomePage() {
             <div className="relative aspect-[4/5] overflow-hidden">
               <div className="absolute -inset-2 border border-[#c4956a]/20" />
               <Image
-                src="/Linenproductwity6imagelayout.png"
+                src="https://u1kwkwq0sju0a3pp.public.blob.vercel-storage.com/products/vchuki/linenproductwity6imagelayout.png"
                 alt="VCHUKI Premium Linen Shirt Collection - Multiple Views"
                 fill
                 className="object-cover"
