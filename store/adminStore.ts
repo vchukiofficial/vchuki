@@ -42,7 +42,7 @@ export const useAdminStore = create<AdminState>((set, get) => ({
 
   fetchProducts: async () => {
     set((s) => ({ loading: { ...s.loading, products: true } }))
-    const res = await fetch("/api/products?limit=500")
+    const res = await fetch("/api/products?limit=500&admin=true")
     const data = await res.json()
     set((s) => ({ products: data.products || [], loading: { ...s.loading, products: false } }))
   },

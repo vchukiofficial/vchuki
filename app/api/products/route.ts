@@ -13,7 +13,9 @@ export async function GET(request: NextRequest) {
   const page = Number(searchParams.get("page")) || 1
   const limit = Number(searchParams.get("limit")) || 12
 
-  const query: Record<string, any> = { isActive: true }
+  const query: Record<string, any> = {}
+  const admin = searchParams.get("admin")
+  if (!admin) query.isActive = true
   if (category) query.category = category
   if (search) query.name = { $regex: search, $options: "i" }
   if (featured === "true") query.isFeatured = true
