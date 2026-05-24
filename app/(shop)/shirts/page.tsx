@@ -13,12 +13,13 @@ export const metadata: Metadata = {
   alternates: { canonical: "https://vchuki.com/shirts" },
 }
 
+export const revalidate = 0
+
 const categories = [
-  { slug: "formal", name: "Formal" },
-  { slug: "casual", name: "Casual" },
-  { slug: "linen", name: "Linen" },
-  { slug: "cotton", name: "Cotton" },
-  { slug: "premium", name: "Premium" },
+  { slug: "linen-full-sleeve", name: "Linen Full Sleeve" },
+  { slug: "linen-half-sleeve", name: "Linen Half Sleeve" },
+  { slug: "kurta-full-sleeve", name: "Short Kurta Full Sleeve" },
+  { slug: "kurta-half-sleeve", name: "Short Kurta Half Sleeve" },
 ]
 
 interface Props {

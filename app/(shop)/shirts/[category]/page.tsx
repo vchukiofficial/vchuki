@@ -6,47 +6,43 @@ import Link from "next/link"
 import { ShirtsProductGrid } from "@/components/products/ShirtsProductGrid"
 
 const categoryMeta: Record<string, { title: string; description: string; h1: string; content: string }> = {
-  formal: {
-    title: "Formal Shirts for Men — Office & Business Wear",
-    description: "Shop premium formal shirts for men at VCHUKI. Oxford shirts, dress shirts, French cuff shirts. Free shipping above ₹999.",
-    h1: "Formal Shirts for Men",
-    content: "Elevate your professional wardrobe with VCHUKI's premium formal shirts. Crafted from 100% cotton with meticulous attention to detail.",
+  "linen-full-sleeve": {
+    title: "Linen Full Sleeve Shirts for Men — Premium Breathable Shirts | VCHUKI",
+    description: "Shop premium linen full sleeve shirts for men at VCHUKI. Breathable, lightweight & crafted in Jodhpur. Free shipping above ₹999.",
+    h1: "Linen Full Sleeve Shirts",
+    content: "Stay cool and stylish with VCHUKI's premium linen full sleeve shirts. Made from 100% natural linen, breathable and perfect for Indian summers. Crafted in Jodhpur with Rajasthan's finest textile heritage.",
   },
-  casual: {
-    title: "Casual Shirts for Men — Everyday Style",
-    description: "Explore casual shirts for men at VCHUKI. Comfortable fits for everyday wear. Shop now with free shipping.",
-    h1: "Casual Shirts for Men",
-    content: "Discover comfortable and stylish casual shirts at VCHUKI. Designed for weekends, outings, and everyday style.",
+  "linen-half-sleeve": {
+    title: "Linen Half Sleeve Shirts for Men — Summer Essentials | VCHUKI",
+    description: "Buy premium linen half sleeve shirts for men online at VCHUKI. Perfect for summer. Lightweight & breathable. Free shipping.",
+    h1: "Linen Half Sleeve Shirts",
+    content: "Embrace summer with VCHUKI's linen half sleeve shirts. Lightweight, breathable, and designed for the modern man who values comfort without compromising on style.",
+  },
+  "kurta-full-sleeve": {
+    title: "Linen Short Kurtas Full Sleeve — Modern Ethnic Wear | VCHUKI",
+    description: "Shop premium linen short kurtas with full sleeves at VCHUKI. Modern ethnic wear crafted in Jodhpur. Free shipping above ₹999.",
+    h1: "Linen Short Kurtas — Full Sleeve",
+    content: "Discover VCHUKI's modern linen short kurtas with full sleeves. A perfect fusion of Rajasthani heritage and contemporary fashion. Ideal for festivals, office, and everyday ethnic style.",
+  },
+  "kurta-half-sleeve": {
+    title: "Linen Short Kurtas Half Sleeve — Casual Ethnic | VCHUKI",
+    description: "Buy premium linen short kurtas with half sleeves at VCHUKI. Casual ethnic wear for modern men. Free shipping above ₹999.",
+    h1: "Linen Short Kurtas — Half Sleeve",
+    content: "VCHUKI's half sleeve linen short kurtas bring effortless ethnic style to your wardrobe. Breathable, comfortable, and crafted with premium linen for all-day ease.",
   },
   linen: {
-    title: "Linen Shirts for Men — Breathable Summer Shirts Online",
+    title: "Linen Shirts for Men — Breathable Summer Shirts Online | VCHUKI",
     description: "Buy premium linen shirts for men online at VCHUKI. Breathable, lightweight & perfect for Indian summers. Free shipping.",
     h1: "Linen Shirts for Men",
     content: "Stay cool and stylish with VCHUKI's premium linen shirts. Made from 100% natural linen, breathable and perfect for Indian summers.",
-  },
-  cotton: {
-    title: "Cotton Shirts for Men — Premium 100% Cotton",
-    description: "Shop 100% cotton shirts for men at VCHUKI. Soft, durable & comfortable. Premium quality at great prices.",
-    h1: "Cotton Shirts for Men",
-    content: "Experience the comfort of pure cotton with VCHUKI's premium cotton shirt collection.",
-  },
-  oversized: {
-    title: "Oversized Shirts for Men — Relaxed Fit",
-    description: "Shop trendy oversized shirts for men at VCHUKI. Relaxed fit & modern streetwear style. Free shipping above ₹999.",
-    h1: "Oversized Shirts for Men",
-    content: "Make a statement with VCHUKI's oversized shirt collection. Drop shoulders, relaxed fits, and contemporary designs.",
-  },
-  premium: {
-    title: "Premium Collection — Luxury Shirts for Men",
-    description: "Explore VCHUKI's premium luxury shirt collection. Handcrafted with the finest fabrics. Limited edition pieces.",
-    h1: "Premium Collection",
-    content: "Indulge in luxury with VCHUKI's Premium Collection. Each piece is handcrafted using the finest imported fabrics.",
   },
 }
 
 interface Props {
   params: { category: string }
 }
+
+export const revalidate = 0
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const meta = categoryMeta[params.category]
@@ -58,10 +54,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-export function generateStaticParams() {
-  return Object.keys(categoryMeta).map((category) => ({ category }))
-}
-
 export default async function CategoryPage({ params }: Props) {
   const meta = categoryMeta[params.category]
   if (!meta) notFound()
@@ -69,16 +61,16 @@ export default async function CategoryPage({ params }: Props) {
   await connectDB()
 
   const query: Record<string, any> = { isActive: true }
-  if (["formal", "casual", "ethnic"].includes(params.category)) {
-    query.category = params.category
+  if (params.category === "linen-full-sleeve") {
+    query.tags = { $in: ["linen", "full-sleeve"] }
+  } else if (params.category === "linen-half-sleeve") {
+    query.tags = { $in: ["half-sleeve"] }
+  } else if (params.category === "kurta-full-sleeve") {
+    query.tags = { $in: ["kurta", "full-sleeve"] }
+  } else if (params.category === "kurta-half-sleeve") {
+    query.tags = { $in: ["kurta", "half-sleeve"] }
   } else if (params.category === "linen") {
     query.$or = [{ tags: { $in: ["linen"] } }, { category: "linen" }]
-  } else if (params.category === "cotton") {
-    query.tags = { $in: ["cotton"] }
-  } else if (params.category === "oversized") {
-    query.tags = { $in: ["oversized", "relaxed"] }
-  } else if (params.category === "premium") {
-    query.$or = [{ category: "premium" }, { tags: { $in: ["premium"] } }]
   }
 
   const products = await Product.find(query).sort({ createdAt: -1 }).lean()
