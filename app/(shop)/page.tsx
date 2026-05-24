@@ -117,8 +117,8 @@ export default async function HomePage() {
             <div className="relative aspect-[4/5] overflow-hidden">
               <div className="absolute -inset-2 border border-[#c4956a]/20" />
               <Image
-                src="https://images.unsplash.com/photo-1620012253295-c15cc3e65df4?w=800&q=85"
-                alt="VCHUKI Craftsmanship"
+                src="/Linenproductwity6imagelayout.png"
+                alt="VCHUKI Premium Linen Shirt Collection - Multiple Views"
                 fill
                 className="object-cover"
                 sizes="(max-width: 768px) 100vw, 50vw"
