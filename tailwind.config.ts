@@ -33,9 +33,9 @@ const config: Config = {
       },
       borderRadius: { lg: "var(--radius)", md: "calc(var(--radius) - 2px)", sm: "calc(var(--radius) - 4px)" },
       fontFamily: {
-        sans: ["var(--font-geist-sans)", "system-ui", "sans-serif"],
+        sans: ["var(--font-inter)", "system-ui", "sans-serif"],
         mono: ["var(--font-geist-mono)", "monospace"],
-        display: ["Playfair Display", "Georgia", "serif"],
+        display: ["var(--font-playfair)", "Playfair Display", "Georgia", "serif"],
       },
       letterSpacing: { premium: "0.15em", heritage: "0.25em" },
       keyframes: {

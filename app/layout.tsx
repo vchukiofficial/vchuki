@@ -1,14 +1,20 @@
 import type { Metadata } from "next"
+import { Inter, Playfair_Display } from "next/font/google"
 import localFont from "next/font/local"
 import "./globals.css"
 import { Providers } from "@/components/Providers"
 import { PageTracker } from "@/components/PageTracker"
 import Script from "next/script"
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+})
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  variable: "--font-playfair",
+  display: "swap",
 })
 const geistMono = localFont({
   src: "./fonts/GeistMonoVF.woff",
@@ -97,7 +103,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
         />
       </head>
-      <body className={`${geistSans.variable} ${geistMono.variable} font-sans`}>
+      <body className={`${inter.variable} ${playfair.variable} ${geistMono.variable} font-sans`}>
         <Providers>
           <PageTracker />
           {children}

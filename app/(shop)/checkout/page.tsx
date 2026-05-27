@@ -11,7 +11,7 @@ type Step = "details" | "payment" | "confirmation"
 
 export default function CheckoutPage() {
   const { data: session } = useSession()
-  const { items, discount, couponCode, clearCart } = useCartStore()
+  const { items, discount, comboDiscount, comboLabel, couponCode, clearCart } = useCartStore()
   const [step, setStep] = useState<Step>("details")
   const [loading, setLoading] = useState(false)
   const [orderId, setOrderId] = useState("")
@@ -30,7 +30,8 @@ export default function CheckoutPage() {
 
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
   const shipping = subtotal >= 999 ? 0 : 50
-  const total = subtotal - discount + shipping
+  const totalDiscount = discount + comboDiscount
+  const total = subtotal - totalDiscount + shipping
 
   if (items.length === 0 && step !== "confirmation") {
     return (
@@ -58,43 +59,48 @@ export default function CheckoutPage() {
 
   async function handlePlaceOrder() {
     setLoading(true)
+    try {
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: items.map((item) => ({
+            product: item._id.split("-")[0] || item._id,
+            variant: item.variantId,
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity,
+            size: item.size,
+            color: item.color,
+          })),
+          shippingAddress: {
+            name: form.name,
+            street: form.street,
+            city: form.city,
+            state: form.state,
+            zip: form.zip,
+            phone: form.phone,
+          },
+          guestEmail: session ? undefined : form.email,
+          guestPhone: session ? undefined : form.phone,
+          paymentMethod,
+          couponCode,
+          totalAmount: subtotal,
+          discountAmount: totalDiscount,
+          finalAmount: total,
+        }),
+      })
 
-    const res = await fetch("/api/orders", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        items: items.map((item) => ({
-          product: item._id,
-          variant: item.variantId,
-          name: item.name,
-          price: item.price,
-          quantity: item.quantity,
-          size: item.size,
-          color: item.color,
-        })),
-        shippingAddress: {
-          name: form.name,
-          street: form.street,
-          city: form.city,
-          state: form.state,
-          zip: form.zip,
-          phone: form.phone,
-        },
-        guestEmail: session ? undefined : form.email,
-        guestPhone: session ? undefined : form.phone,
-        paymentMethod,
-        couponCode,
-        totalAmount: subtotal,
-        discountAmount: discount,
-        finalAmount: total,
-      }),
-    })
-
-    if (res.ok) {
       const data = await res.json()
-      setOrderId(data.orderId)
-      clearCart()
-      setStep("confirmation")
+      if (res.ok) {
+        setOrderId(data.orderId)
+        clearCart()
+        setStep("confirmation")
+      } else {
+        alert(data.error || "Order failed. Please try again.")
+      }
+    } catch {
+      alert("Network error. Please check your connection and try again.")
     }
     setLoading(false)
   }
@@ -437,8 +443,14 @@ export default function CheckoutPage() {
               </div>
               {discount > 0 && (
                 <div className="flex justify-between text-emerald-600 dark:text-emerald-400">
-                  <span>Discount {couponCode && `(${couponCode})`}</span>
+                  <span>Coupon {couponCode && `(${couponCode})`}</span>
                   <span>-₹{discount.toLocaleString()}</span>
+                </div>
+              )}
+              {comboDiscount > 0 && (
+                <div className="flex justify-between text-emerald-600 dark:text-emerald-400">
+                  <span>Combo Offer {comboLabel && `(${comboLabel})`}</span>
+                  <span>-₹{comboDiscount.toLocaleString()}</span>
                 </div>
               )}
               <div className="flex justify-between text-muted-foreground">

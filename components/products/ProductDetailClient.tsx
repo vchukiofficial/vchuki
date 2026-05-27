@@ -8,6 +8,7 @@ import type { Product, ProductVariant, Review } from "@/types"
 import { motion, AnimatePresence } from "framer-motion"
 import { SizeGuide } from "./SizeGuide"
 import { VirtualTryOn } from "./VirtualTryOn"
+import { ComboOfferWidget } from "./ComboOfferWidget"
 
 interface Props {
   product: Product
@@ -204,6 +205,9 @@ export default function ProductDetailClient({ product, variants, reviews }: Prop
               {inStock ? (selectedVariant.stock <= 5 ? `Only ${selectedVariant.stock} left — selling fast` : "✓ In Stock") : "Out of Stock"}
             </p>
           )}
+
+          {/* Combo Offers */}
+          <ComboOfferWidget category={product.category} productName={product.name} />
 
           {/* Add to Cart */}
           <div className="flex gap-3 pt-2">

@@ -51,8 +51,8 @@ export default async function HomePage() {
       </section>
 
       {/* Collection Spotlight */}
-      <AnimatedSection className="container py-20 md:py-28">
-        <div className="text-center mb-10 md:mb-14">
+      <AnimatedSection className="container py-10 md:py-16">
+        <div className="text-center mb-6 md:mb-8">
           <p className="text-[10px] uppercase tracking-[0.3em] text-[#c4956a] font-medium mb-2">Explore</p>
           <h2 className="text-2xl md:text-4xl font-light tracking-tight text-foreground">Shop by Collection</h2>
         </div>
@@ -79,9 +79,9 @@ export default async function HomePage() {
 
       {/* Bestsellers */}
       {bestsellers.length > 0 && (
-        <AnimatedSection className="py-16 md:py-28 bg-card/50 dark:bg-card/30 border-y border-border">
+        <AnimatedSection className="py-10 md:py-16 bg-card/50 dark:bg-card/30 border-y border-border">
           <div className="container">
-            <div className="flex items-end justify-between mb-8 md:mb-12">
+            <div className="flex items-end justify-between mb-6 md:mb-8">
               <div>
                 <p className="text-[10px] md:text-[11px] uppercase tracking-[0.25em] text-[#c4956a] font-medium">Most Loved</p>
                 <h2 className="text-2xl md:text-4xl font-light tracking-tight mt-1 text-foreground">Bestsellers</h2>
@@ -96,7 +96,7 @@ export default async function HomePage() {
       )}
 
       {/* Brand Story — Heritage Editorial */}
-      <section className="relative py-24 md:py-40 overflow-hidden">
+      <section className="relative py-14 md:py-24 overflow-hidden">
         <div className="absolute inset-0 bg-[#2a1f14] dark:bg-[#0f0a06]" />
         <div className="absolute inset-0 heritage-pattern opacity-30" />
         <AnimatedSection className="container relative z-10">
@@ -139,9 +139,9 @@ export default async function HomePage() {
 
       {/* Linen Collection with Quick Add */}
       {linen.length > 0 && (
-        <AnimatedSection className="py-20 md:py-28 bg-card/40 dark:bg-card/20 border-y border-border">
+        <AnimatedSection className="py-10 md:py-16 bg-card/40 dark:bg-card/20 border-y border-border">
           <div className="container">
-            <div className="text-center mb-10 md:mb-14">
+            <div className="text-center mb-6 md:mb-8">
               <p className="text-[10px] uppercase tracking-[0.3em] text-[#c4956a] mb-2">Summer Essential</p>
               <h2 className="text-2xl md:text-4xl font-light tracking-tight text-foreground">The Linen Edit</h2>
               <p className="text-sm text-muted-foreground mt-3 max-w-md mx-auto">Breathable. Elegant. Made for Indian summers.</p>
@@ -153,9 +153,9 @@ export default async function HomePage() {
 
       {/* New Arrivals with Quick Add */}
       {newArrivals.length > 0 && (
-        <AnimatedSection className="py-16 md:py-28">
+        <AnimatedSection className="py-10 md:py-16">
           <div className="container">
-            <div className="flex items-end justify-between mb-8 md:mb-12">
+            <div className="flex items-end justify-between mb-6 md:mb-8">
               <div>
                 <p className="text-[10px] md:text-[11px] uppercase tracking-[0.25em] text-[#c4956a] font-medium">Just Dropped</p>
                 <h2 className="text-2xl md:text-4xl font-light tracking-tight mt-1 text-foreground">New Arrivals</h2>
@@ -171,8 +171,8 @@ export default async function HomePage() {
 
       {/* Why VCHUKI — Premium Trust */}
       <section className="border-y border-border">
-        <AnimatedSection className="container py-20 md:py-28">
-          <div className="text-center mb-12">
+        <AnimatedSection className="container py-10 md:py-16">
+          <div className="text-center mb-8">
             <p className="text-[10px] uppercase tracking-[0.3em] text-[#c4956a] font-medium mb-2">The VCHUKI Promise</p>
             <h2 className="text-2xl md:text-3xl font-light tracking-tight text-foreground">Why Men Choose Us</h2>
           </div>
@@ -195,8 +195,8 @@ export default async function HomePage() {
 
       {/* Testimonials */}
       <section className="bg-card/50 dark:bg-card/20">
-        <AnimatedSection className="container py-16 md:py-24">
-          <div className="text-center mb-10">
+        <AnimatedSection className="container py-10 md:py-14">
+          <div className="text-center mb-6">
             <p className="text-[10px] uppercase tracking-[0.25em] text-[#c4956a] mb-2">Customer Love</p>
             <h2 className="text-2xl md:text-3xl font-light tracking-tight text-foreground">What They Say</h2>
           </div>
