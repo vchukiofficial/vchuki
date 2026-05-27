@@ -9,7 +9,7 @@ export async function GET() {
   if (!session) return NextResponse.json({ wishlist: [] })
 
   await connectDB()
-  const user = await User.findById(session.user.id).select("wishlist").lean()
+  const user = await User.findById(session.user.id).select("wishlist").lean() as any
   return NextResponse.json({ wishlist: user?.wishlist || [] })
 }
 
