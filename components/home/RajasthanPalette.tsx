@@ -203,7 +203,7 @@ export function RajasthanPalette() {
             </div>
           </div>
 
-          {/* Right — Floating Product */}
+          {/* Right — Product Display */}
           <div className="relative flex items-center justify-center">
             {/* Background glow for product */}
             <div
@@ -217,7 +217,7 @@ export function RajasthanPalette() {
             <div className="absolute bottom-0 left-0 w-12 h-12 border-b border-l border-[#c4956a]/30" />
             <div className="absolute bottom-0 right-0 w-12 h-12 border-b border-r border-[#c4956a]/30" />
 
-            {/* Product Image */}
+            {/* Product Image — full width, proper sizing */}
             <AnimatePresence mode="wait">
               <motion.div
                 key={active}
@@ -225,23 +225,16 @@ export function RajasthanPalette() {
                 animate={{ opacity: 1, scale: 1, rotateY: 0 }}
                 exit={{ opacity: 0, scale: 0.92, rotateY: 5 }}
                 transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                className="relative w-[300px] h-[400px] md:w-[380px] md:h-[480px]"
+                className="relative w-full aspect-[3/4] max-w-[420px] mx-auto"
               >
-                {/* Floating animation wrapper */}
-                <motion.div
-                  animate={{ y: [-6, 6, -6] }}
-                  transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-                  className="relative w-full h-full"
-                >
-                  <Image
-                    src={shade.image}
-                    alt={`VCHUKI ${shade.name} Premium Linen Shirt`}
-                    fill
-                    className="object-contain drop-shadow-2xl"
-                    sizes="(max-width: 768px) 300px, 380px"
-                    priority
-                  />
-                </motion.div>
+                <Image
+                  src={shade.image}
+                  alt={`VCHUKI ${shade.name} Premium Linen Shirt`}
+                  fill
+                  className="object-contain"
+                  sizes="(max-width: 768px) 80vw, 420px"
+                  priority
+                />
               </motion.div>
             </AnimatePresence>
 
@@ -273,7 +266,7 @@ export function RajasthanPalette() {
               View Collection
             </Link>
           </div>
-          <div className="grid grid-cols-5 gap-2 md:gap-4">
+          <div className="grid grid-cols-5 gap-1.5 md:gap-3">
             {SHADES.map((s, i) => (
               <button
                 key={s.name}
@@ -282,19 +275,19 @@ export function RajasthanPalette() {
                   active === i ? "border-[#c4956a] shadow-lg" : "border-border hover:border-[#c4956a]/30"
                 }`}
               >
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/40" />
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/50" />
                 <Image
                   src={s.image}
                   alt={s.name}
                   fill
-                  className={`object-contain p-2 transition-transform duration-500 ${active === i ? "scale-105" : "group-hover:scale-105"}`}
+                  className={`object-cover transition-transform duration-500 ${active === i ? "scale-105" : "group-hover:scale-105"}`}
                   sizes="20vw"
                 />
-                <div className="absolute bottom-0 left-0 right-0 p-2 md:p-3">
-                  <p className="text-[8px] md:text-[10px] text-white font-medium tracking-wide truncate">{s.name}</p>
-                  <div className="flex items-center gap-1.5 mt-0.5">
+                <div className="absolute bottom-0 left-0 right-0 p-1.5 md:p-3">
+                  <p className="text-[7px] md:text-[10px] text-white font-medium tracking-wide truncate">{s.name}</p>
+                  <div className="flex items-center gap-1 mt-0.5">
                     <div className="w-2 h-2 rounded-full border border-white/40" style={{ backgroundColor: s.hex }} />
-                    <p className="text-[7px] md:text-[9px] text-white/60 uppercase tracking-wider">{s.hex}</p>
+                    <p className="text-[6px] md:text-[9px] text-white/60 uppercase tracking-wider hidden md:block">{s.hex}</p>
                   </div>
                 </div>
                 {active === i && (

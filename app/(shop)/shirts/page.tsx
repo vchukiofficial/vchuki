@@ -2,9 +2,10 @@ import { Metadata } from "next"
 import { Suspense } from "react"
 import connectDB from "@/lib/mongodb"
 import Product from "@/models/Product"
+import ProductVariant from "@/models/ProductVariant"
 import Link from "next/link"
 import ProductFilters from "@/components/products/ProductFilters"
-import { ShirtsProductGrid } from "@/components/products/ShirtsProductGrid"
+import { ShirtsVariantGrid } from "@/components/products/ShirtsVariantGrid"
 
 export const metadata: Metadata = {
   title: "Shop Premium Shirts for Men — Formal, Casual, Linen | VCHUKI",
@@ -23,7 +24,7 @@ const categories = [
 ]
 
 interface Props {
-  searchParams: { search?: string; page?: string; sort?: string; price?: string; tag?: string; size?: string }
+  searchParams: { search?: string; page?: string; sort?: string; price?: string; tag?: string; size?: string; category?: string }
 }
 
 export default async function ShirtsPage({ searchParams }: Props) {
@@ -31,7 +32,29 @@ export default async function ShirtsPage({ searchParams }: Props) {
 
   const query: Record<string, any> = { isActive: true }
   if (searchParams.search) query.name = { $regex: searchParams.search, $options: "i" }
-  if (searchParams.tag) query.tags = { $in: [searchParams.tag] }
+
+  // Build tag conditions separately then combine with $and
+  const tagConditions: any[] = []
+
+  if (searchParams.category) {
+    let categoryTags: string[] = []
+    switch (searchParams.category) {
+      case "linen-full-sleeve": categoryTags = ["linen", "full-sleeve"]; break
+      case "linen-half-sleeve": categoryTags = ["half-sleeve"]; break
+      case "kurta-full-sleeve": categoryTags = ["kurta", "full-sleeve"]; break
+      case "kurta-half-sleeve": categoryTags = ["kurta", "half-sleeve"]; break
+      default: query.category = searchParams.category
+    }
+    if (categoryTags.length > 0) {
+      tagConditions.push({ tags: { $all: categoryTags } })
+    }
+  }
+  if (searchParams.tag) {
+    tagConditions.push({ tags: searchParams.tag })
+  }
+  if (tagConditions.length > 0) {
+    query.$and = tagConditions
+  }
   if (searchParams.price) {
     const [min, max] = searchParams.price.split("-").map(Number)
     query.basePrice = { $gte: min, $lte: max }
@@ -53,7 +76,57 @@ export default async function ShirtsPage({ searchParams }: Props) {
     Product.countDocuments(query),
   ])
 
-  const serialized = JSON.parse(JSON.stringify(products))
+  // Expand products into variant cards (one per unique color, in-stock only)
+  const variantCards: any[] = []
+  for (const product of products) {
+    const p = product as any
+    const variants = await ProductVariant.find({ product: p._id, stock: { $gt: 0 } }).lean()
+
+    if (variants.length === 0) {
+      // Show product without variant expansion
+      variantCards.push({ ...p, _id: p._id.toString() })
+      continue
+    }
+
+    // Group by color
+    const colorMap = new Map<string, any>()
+    for (const v of variants) {
+      const vAny = v as any
+      const colorName = vAny.color?.name || "Default"
+      if (!colorMap.has(colorName)) {
+        colorMap.set(colorName, {
+          ...p,
+          _id: `${p._id}-${colorName}`,
+          productId: p._id.toString(),
+          variantColor: vAny.color,
+          variantImage: vAny.images?.[0] || p.images?.[0],
+          variantPrice: p.basePrice + (vAny.priceAdjustment || 0),
+          variantSku: vAny.sku,
+          variantId: vAny._id?.toString(),
+          variantStock: vAny.stock,
+          availableSizes: [vAny.size],
+        })
+      } else {
+        const existing = colorMap.get(colorName)
+        if (!existing.availableSizes.includes(vAny.size)) {
+          existing.availableSizes.push(vAny.size)
+        }
+      }
+    }
+
+    // Filter by size if specified
+    if (searchParams.size) {
+      for (const [, card] of colorMap) {
+        if (card.availableSizes.includes(searchParams.size)) {
+          variantCards.push(card)
+        }
+      }
+    } else {
+      variantCards.push(...colorMap.values())
+    }
+  }
+
+  const serialized = JSON.parse(JSON.stringify(variantCards))
   const totalPages = Math.ceil(total / limit)
 
   return (
@@ -68,19 +141,41 @@ export default async function ShirtsPage({ searchParams }: Props) {
       {/* Header */}
       <div className="mb-5">
         <h1 className="text-xl md:text-3xl font-light tracking-tight text-foreground">Premium Shirts for Men</h1>
-        <p className="text-xs md:text-sm text-muted-foreground mt-1">{total} products · Free shipping above ₹999</p>
+        <p className="text-xs md:text-sm text-muted-foreground mt-1">{serialized.length} variants · Free shipping above ₹999</p>
       </div>
 
-      {/* Category pills */}
+      {/* Category pills — these apply as filters, not navigation */}
       <div className="flex gap-2 overflow-x-auto no-scrollbar mb-5 pb-1">
-        <Link href="/shirts" className="px-4 py-2 text-[10px] uppercase tracking-wider font-medium border border-[#c4956a] bg-[#c4956a]/10 text-[#c4956a] whitespace-nowrap">
+        <Link
+          href="/shirts"
+          className={`px-4 py-2 text-[10px] uppercase tracking-wider font-medium border whitespace-nowrap transition-colors ${
+            !searchParams.category ? "border-[#c4956a] bg-[#c4956a]/10 text-[#c4956a]" : "border-border text-muted-foreground hover:border-[#c4956a]/40 hover:text-foreground"
+          }`}
+        >
           All
         </Link>
-        {categories.map((cat) => (
-          <Link key={cat.slug} href={`/shirts/${cat.slug}`} className="px-4 py-2 text-[10px] uppercase tracking-wider font-medium border border-border text-muted-foreground hover:border-[#c4956a]/40 hover:text-foreground whitespace-nowrap transition-colors">
-            {cat.name}
-          </Link>
-        ))}
+        {categories.map((cat) => {
+          // Build URL preserving existing filters
+          const params = new URLSearchParams()
+          if (searchParams.sort) params.set("sort", searchParams.sort)
+          if (searchParams.price) params.set("price", searchParams.price)
+          if (searchParams.tag) params.set("tag", searchParams.tag)
+          if (searchParams.size) params.set("size", searchParams.size)
+          params.set("category", cat.slug)
+          const isActive = searchParams.category === cat.slug
+
+          return (
+            <Link
+              key={cat.slug}
+              href={`/shirts?${params.toString()}`}
+              className={`px-4 py-2 text-[10px] uppercase tracking-wider font-medium border whitespace-nowrap transition-colors ${
+                isActive ? "border-[#c4956a] bg-[#c4956a]/10 text-[#c4956a]" : "border-border text-muted-foreground hover:border-[#c4956a]/40 hover:text-foreground"
+              }`}
+            >
+              {cat.name}
+            </Link>
+          )
+        })}
       </div>
 
       {/* Filters */}
@@ -88,8 +183,8 @@ export default async function ShirtsPage({ searchParams }: Props) {
         <ProductFilters />
       </Suspense>
 
-      {/* Products Grid with Add to Cart */}
-      <ShirtsProductGrid products={serialized} />
+      {/* Products Grid — variant expanded */}
+      <ShirtsVariantGrid products={serialized} />
 
       {serialized.length === 0 && (
         <div className="text-center py-16">

@@ -38,7 +38,7 @@ export default function TermsPage() {
         <p>Delivery timelines are estimates and may vary based on location and courier availability. VCHUKI is not liable for delays caused by courier partners, natural disasters, or circumstances beyond our control. See our <Link href="/shipping-policy" className="text-primary hover:underline">Shipping Policy</Link> for details.</p>
 
         <h2>5. Returns & Refunds</h2>
-        <p>Products may be returned within 30 days of delivery subject to our <Link href="/refund-policy" className="text-primary hover:underline">Refund & Return Policy</Link>. Items must be unused, unwashed, and in original packaging with tags attached.</p>
+        <p>Products may be returned within 14 days of delivery subject to our <Link href="/refund-policy" className="text-primary hover:underline">Refund & Return Policy</Link>. Items must be unused, unwashed, and in original packaging with tags attached.</p>
 
         <h2>6. User Accounts</h2>
         <p>You are responsible for maintaining the confidentiality of your account credentials. You agree to notify us immediately of any unauthorized use. We reserve the right to suspend accounts that violate these terms.</p>

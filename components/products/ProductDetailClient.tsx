@@ -1,14 +1,17 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import Image from "next/image"
+import { useSearchParams } from "next/navigation"
 import { useCartStore } from "@/store/cartStore"
+import { useWishlistStore } from "@/store/wishlistStore"
 import { Star, ShoppingCart, Heart, Check, Truck, RotateCcw, Shield, MessageCircle, Camera } from "lucide-react"
 import type { Product, ProductVariant, Review } from "@/types"
 import { motion, AnimatePresence } from "framer-motion"
 import { SizeGuide } from "./SizeGuide"
 import { VirtualTryOn } from "./VirtualTryOn"
 import { ComboOfferWidget } from "./ComboOfferWidget"
+import { StealDeals } from "./StealDeals"
 
 interface Props {
   product: Product
@@ -18,12 +21,23 @@ interface Props {
 
 export default function ProductDetailClient({ product, variants, reviews }: Props) {
   const addItem = useCartStore((s) => s.addItem)
+  const searchParams = useSearchParams()
+  const { items: wishlistItems, toggle: toggleWishlist, load: loadWishlist } = useWishlistStore()
+
+  useEffect(() => { loadWishlist() }, [loadWishlist])
 
   const sizes = useMemo(() => [...new Set(variants.map((v) => v.size))], [variants])
   const colors = useMemo(() => [...new Map(variants.map((v) => [v.color.name, v.color])).values()], [variants])
 
-  const [selectedSize, setSelectedSize] = useState(sizes[0] || "")
-  const [selectedColor, setSelectedColor] = useState(colors[0]?.name || "")
+  // Pre-select color and size from URL params (passed from listing page)
+  const urlColor = searchParams.get("color")
+  const urlSize = searchParams.get("size")
+
+  const initialColor = (urlColor && colors.find((c) => c.name === urlColor)) ? urlColor : colors[0]?.name || ""
+  const initialSize = (urlSize && sizes.includes(urlSize)) ? urlSize : sizes[0] || ""
+
+  const [selectedSize, setSelectedSize] = useState(initialSize)
+  const [selectedColor, setSelectedColor] = useState(initialColor)
   const [activeImageIndex, setActiveImageIndex] = useState(0)
   const [added, setAdded] = useState(false)
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false)
@@ -73,7 +87,7 @@ export default function ProductDetailClient({ product, variants, reviews }: Prop
       <div className="grid md:grid-cols-2 gap-6 lg:gap-12">
         {/* Image Gallery */}
         <div className="space-y-3">
-          <div className="relative aspect-[3/4] bg-card overflow-hidden border border-border">
+          <div className="relative aspect-square md:aspect-[4/5] bg-card overflow-hidden border border-border">
             <AnimatePresence mode="wait">
               <motion.div
                 key={displayImages[activeImageIndex]}
@@ -209,6 +223,9 @@ export default function ProductDetailClient({ product, variants, reviews }: Prop
           {/* Combo Offers */}
           <ComboOfferWidget category={product.category} productName={product.name} />
 
+          {/* Steal Deals */}
+          <StealDeals currentProductId={product._id} currentCategory={product.category} />
+
           {/* Add to Cart */}
           <div className="flex gap-3 pt-2">
             <button
@@ -222,8 +239,19 @@ export default function ProductDetailClient({ product, variants, reviews }: Prop
             >
               {added ? <><Check className="h-4 w-4" /> Added to Bag</> : <><ShoppingCart className="h-4 w-4" /> Add to Bag</>}
             </button>
-            <button className="h-12 w-12 border border-border flex items-center justify-center hover:border-[#c4956a]/50 transition-colors">
-              <Heart className="h-4 w-4 text-foreground/70" />
+            <button
+              onClick={() => toggleWishlist(product._id)}
+              className={`h-12 w-12 border flex items-center justify-center transition-colors ${
+                wishlistItems.includes(product._id)
+                  ? "border-red-500/50 bg-red-500/5"
+                  : "border-border hover:border-[#c4956a]/50"
+              }`}
+            >
+              <Heart className={`h-4 w-4 ${
+                wishlistItems.includes(product._id)
+                  ? "fill-red-500 text-red-500"
+                  : "text-foreground/70"
+              }`} />
             </button>
           </div>
 
@@ -257,7 +285,7 @@ export default function ProductDetailClient({ product, variants, reviews }: Prop
             <div className="text-center">
               <RotateCcw className="h-4 w-4 mx-auto text-[#c4956a]" strokeWidth={1.5} />
               <p className="text-[10px] text-foreground mt-1.5 font-medium">Easy Returns</p>
-              <p className="text-[9px] text-muted-foreground">30 days</p>
+              <p className="text-[9px] text-muted-foreground">14 days</p>
             </div>
             <div className="text-center">
               <Shield className="h-4 w-4 mx-auto text-[#c4956a]" strokeWidth={1.5} />

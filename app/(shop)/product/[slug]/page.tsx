@@ -5,6 +5,7 @@ import Product from "@/models/Product"
 import ProductVariant from "@/models/ProductVariant"
 import Review from "@/models/Review"
 import ProductDetailClient from "@/components/products/ProductDetailClient"
+import ProductRecommendations from "@/components/products/ProductRecommendations"
 import Link from "next/link"
 
 interface Props {
@@ -116,6 +117,11 @@ export default async function ProductPage({ params }: Props) {
         product={JSON.parse(JSON.stringify(product))}
         variants={JSON.parse(JSON.stringify(variants))}
         reviews={JSON.parse(JSON.stringify(reviews))}
+      />
+
+      <ProductRecommendations
+        currentProductId={p._id.toString()}
+        currentCategory={p.category}
       />
     </>
   )

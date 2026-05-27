@@ -2,11 +2,11 @@ import Link from "next/link"
 import Image from "next/image"
 import connectDB from "@/lib/mongodb"
 import Product from "@/models/Product"
-import { Star, ArrowRight, Sparkles, Truck, RotateCcw, Shield, CheckCircle, Gem, MapPin, ClipboardCheck, Wind } from "lucide-react"
+import ProductVariant from "@/models/ProductVariant"
+import { Star, ArrowRight, Truck, RotateCcw, Shield, CheckCircle, Gem, MapPin, ClipboardCheck, Wind } from "lucide-react"
 import { HeroSection } from "@/components/home/HeroSection"
 import { AnimatedSection } from "@/components/home/AnimatedSection"
 import { ProductCarousel } from "@/components/home/ProductCarousel"
-import { ProductGrid } from "@/components/home/ProductGrid"
 import { RajasthanPalette } from "@/components/home/RajasthanPalette"
 
 async function getProducts() {
@@ -14,10 +14,93 @@ async function getProducts() {
   const bestsellers = await Product.find({ isFeatured: true, isActive: true }).limit(8).lean()
   const newArrivals = await Product.find({ isActive: true, tags: { $in: ["new-launch"] } }).sort({ createdAt: -1 }).limit(8).lean()
   const linen = await Product.find({ isActive: true, tags: { $in: ["linen"] } }).limit(4).lean()
+
+  // For bestsellers, expand each product into variant cards (one per unique color with stock > 0)
+  const bestsellersWithVariants = []
+  for (const product of bestsellers) {
+    const p = product as any
+    const variants = await ProductVariant.find({ product: p._id, stock: { $gt: 0 } }).lean()
+    if (variants.length === 0) {
+      // No variants in stock, skip
+      continue
+    }
+    // Group by color
+    const colorMap = new Map<string, any>()
+    for (const v of variants) {
+      const vAny = v as any
+      const colorName = vAny.color?.name || "Default"
+      if (!colorMap.has(colorName)) {
+        colorMap.set(colorName, {
+          ...p,
+          _id: `${p._id}-${colorName}`,
+          productId: p._id,
+          variantColor: vAny.color,
+          variantImage: vAny.images?.[0] || p.images?.[0],
+          variantPrice: p.basePrice + (vAny.priceAdjustment || 0),
+          variantSku: vAny.sku,
+          variantId: vAny._id,
+          variantStock: vAny.stock,
+          availableSizes: [vAny.size],
+        })
+      } else {
+        colorMap.get(colorName).availableSizes.push(vAny.size)
+      }
+    }
+    bestsellersWithVariants.push(...colorMap.values())
+  }
+
+  // Expand linen into variant cards
+  const linenWithVariants = []
+  for (const product of linen) {
+    const p = product as any
+    const variants = await ProductVariant.find({ product: p._id, stock: { $gt: 0 } }).lean()
+    if (variants.length === 0) continue
+    const colorMap = new Map<string, any>()
+    for (const v of variants) {
+      const vAny = v as any
+      const colorName = vAny.color?.name || "Default"
+      if (!colorMap.has(colorName)) {
+        colorMap.set(colorName, {
+          ...p, _id: `${p._id}-${colorName}`, productId: p._id,
+          variantColor: vAny.color, variantImage: vAny.images?.[0] || p.images?.[0],
+          variantPrice: p.basePrice + (vAny.priceAdjustment || 0),
+          variantSku: vAny.sku, variantId: vAny._id, availableSizes: [vAny.size],
+        })
+      } else {
+        colorMap.get(colorName).availableSizes.push(vAny.size)
+      }
+    }
+    linenWithVariants.push(...colorMap.values())
+  }
+
+  // Expand newArrivals into variant cards
+  const newArrivalsWithVariants = []
+  for (const product of newArrivals) {
+    const p = product as any
+    const variants = await ProductVariant.find({ product: p._id, stock: { $gt: 0 } }).lean()
+    if (variants.length === 0) continue
+    const colorMap = new Map<string, any>()
+    for (const v of variants) {
+      const vAny = v as any
+      const colorName = vAny.color?.name || "Default"
+      if (!colorMap.has(colorName)) {
+        colorMap.set(colorName, {
+          ...p, _id: `${p._id}-${colorName}`, productId: p._id,
+          variantColor: vAny.color, variantImage: vAny.images?.[0] || p.images?.[0],
+          variantPrice: p.basePrice + (vAny.priceAdjustment || 0),
+          variantSku: vAny.sku, variantId: vAny._id, availableSizes: [vAny.size],
+        })
+      } else {
+        colorMap.get(colorName).availableSizes.push(vAny.size)
+      }
+    }
+    newArrivalsWithVariants.push(...colorMap.values())
+  }
+
   return {
-    bestsellers: JSON.parse(JSON.stringify(bestsellers)),
-    newArrivals: JSON.parse(JSON.stringify(newArrivals)),
-    linen: JSON.parse(JSON.stringify(linen)),
+    bestsellers: JSON.parse(JSON.stringify(bestsellersWithVariants)),
+    newArrivals: JSON.parse(JSON.stringify(newArrivalsWithVariants)),
+    linen: JSON.parse(JSON.stringify(linenWithVariants)),
   }
 }
 
@@ -146,8 +229,8 @@ export default async function HomePage() {
               <h2 className="text-2xl md:text-4xl font-light tracking-tight text-foreground">The Linen Edit</h2>
               <p className="text-sm text-muted-foreground mt-3 max-w-md mx-auto">Breathable. Elegant. Made for Indian summers.</p>
             </div>
-            <ProductGrid products={linen} />
           </div>
+          <ProductCarousel products={linen} autoScroll />
         </AnimatedSection>
       )}
 
@@ -164,8 +247,8 @@ export default async function HomePage() {
                 View All <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
               </Link>
             </div>
-            <ProductGrid products={newArrivals.slice(0, 8)} />
           </div>
+          <ProductCarousel products={newArrivals} autoScroll />
         </AnimatedSection>
       )}
 
@@ -180,7 +263,7 @@ export default async function HomePage() {
             {[
               { num: "47", label: "Quality Checks", sub: "Per shirt crafted" },
               { num: "100%", label: "Premium Fabric", sub: "Finest linen mills" },
-              { num: "30", label: "Day Returns", sub: "No questions asked" },
+              { num: "14", label: "Day Returns", sub: "No questions asked" },
               { num: "50K+", label: "Happy Customers", sub: "And counting" },
             ].map((item) => (
               <div key={item.label} className="group">
@@ -231,9 +314,7 @@ export default async function HomePage() {
         <div className="absolute inset-0 bg-[#2a1f14] dark:bg-[#0f0a06]" />
         <div className="absolute inset-0 heritage-pattern opacity-20" />
         <div className="container relative z-10 py-16 md:py-24 text-center max-w-lg mx-auto">
-          <div className="w-10 h-10 mx-auto mb-4 border border-[#c4956a]/40 rounded-full flex items-center justify-center">
-            <Sparkles className="h-4 w-4 text-[#c4956a]" />
-          </div>
+          <Image src="/marko.png" alt="VCHUKI" width={56} height={56} className="mx-auto mb-4 invert" />
           <p className="text-[10px] uppercase tracking-[0.3em] text-[#c4956a] mb-3">Exclusive Access</p>
           <h2 className="text-xl md:text-3xl font-light tracking-tight text-[#f5e6d3]">Join the VCHUKI Club</h2>
           <p className="text-sm text-[#f5e6d3]/50 mt-3">Get 10% off your first order. Early access to drops. Style tips from our team.</p>
@@ -252,7 +333,7 @@ export default async function HomePage() {
         <div className="container py-6 md:py-8 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
           {[
             { icon: Truck, label: "Free Shipping", sub: "Orders above ₹999" },
-            { icon: RotateCcw, label: "30-Day Returns", sub: "Hassle-free" },
+            { icon: RotateCcw, label: "14-Day Returns", sub: "Hassle-free" },
             { icon: Shield, label: "Secure Checkout", sub: "256-bit SSL" },
             { icon: CheckCircle, label: "Premium Quality", sub: "47 quality checks" },
           ].map((item) => (

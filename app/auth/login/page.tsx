@@ -78,7 +78,7 @@ export default function LoginPage() {
         <div className="absolute inset-0 heritage-pattern opacity-20" />
         <div className="relative z-10 p-12 max-w-md">
           <div className="flex items-center gap-2 mb-8">
-            <Image src="/logo-mark.svg" alt="VCHUKI" width={28} height={28} className="invert" />
+            <Image src="/marko.png" alt="VCHUKI" width={28} height={28} className="invert" />
             <span className="text-[#f5e6d3] text-lg font-semibold tracking-[0.25em]">VCHUKI</span>
           </div>
           <h2 className="text-[#f5e6d3] text-3xl font-light leading-snug">
@@ -100,7 +100,7 @@ export default function LoginPage() {
         <div className="w-full max-w-sm">
           {/* Mobile Logo */}
           <div className="lg:hidden flex items-center gap-2 mb-10">
-            <Image src="/logo-mark.svg" alt="VCHUKI" width={24} height={24} className="dark:invert" />
+            <Image src="/marko.png" alt="VCHUKI" width={24} height={24} className="dark:invert" />
             <span className="text-base font-semibold tracking-[0.25em] text-foreground">VCHUKI</span>
           </div>
 

@@ -1,32 +1,45 @@
-import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { create } from "zustand"
 
 interface WishlistState {
-  items: string[] // product IDs
-  toggleItem: (id: string) => void
-  addItem: (id: string) => void
-  removeItem: (id: string) => void
-  clear: () => void
+  items: string[]
+  loaded: boolean
+  toggle: (productId: string) => Promise<void>
+  load: () => Promise<void>
+  has: (productId: string) => boolean
 }
 
-export const useWishlistStore = create<WishlistState>()(
-  persist(
-    (set, get) => ({
-      items: [],
-      toggleItem: (id) => {
-        const { items } = get()
-        if (items.includes(id)) {
-          set({ items: items.filter(itemId => itemId !== id) })
-        } else {
-          set({ items: [...items, id] })
-        }
-      },
-      addItem: (id) => set(state => ({ items: [...state.items, id] })),
-      removeItem: (id) => set(state => ({ items: state.items.filter(itemId => itemId !== id) })),
-      clear: () => set({ items: [] }),
-    }),
-    {
-      name: 'wishlist-storage',
+export const useWishlistStore = create<WishlistState>((set, get) => ({
+  items: [],
+  loaded: false,
+  has: (productId: string) => get().items.includes(productId),
+  load: async () => {
+    if (get().loaded) return
+    try {
+      const res = await fetch("/api/wishlist")
+      const data = await res.json()
+      set({ items: data.wishlist || [], loaded: true })
+    } catch {
+      set({ loaded: true })
     }
-  )
-)
+  },
+  toggle: async (productId: string) => {
+    // Optimistic update
+    const current = get().items
+    const isInList = current.includes(productId)
+    set({ items: isInList ? current.filter((id) => id !== productId) : [...current, productId] })
+
+    try {
+      const res = await fetch("/api/wishlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId }),
+      })
+      if (!res.ok) {
+        // Revert on error
+        set({ items: current })
+      }
+    } catch {
+      set({ items: current })
+    }
+  },
+}))

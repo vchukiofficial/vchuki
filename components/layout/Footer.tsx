@@ -11,7 +11,7 @@ export default function Footer() {
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
             <div className="flex items-center gap-2 mb-4">
-              <Image src="/logo-mark.svg" alt="VCHUKI" width={24} height={24} className="invert" />
+              <Image src="/marko.png" alt="VCHUKI" width={36} height={36} className="invert" />
               <div>
                 <span className="text-sm font-bold tracking-[0.2em] block leading-none">VCHUKI</span>
                 <span className="text-[7px] tracking-[0.12em] text-[#c4956a] block mt-0.5">PREMIUM MENSWEAR</span>
@@ -34,10 +34,10 @@ export default function Footer() {
             <h4 className="font-semibold mb-4 text-[10px] uppercase tracking-[0.2em] text-[#c4956a]">Shop</h4>
             <div className="space-y-2.5 text-sm">
               <Link href="/shirts" className="block text-[#f5e6d3]/60 hover:text-[#f5e6d3] transition-colors">All Shirts</Link>
-              <Link href="/shirts/linen" className="block text-[#f5e6d3]/60 hover:text-[#f5e6d3] transition-colors">Linen</Link>
-              <Link href="/shirts/formal" className="block text-[#f5e6d3]/60 hover:text-[#f5e6d3] transition-colors">Formal</Link>
-              <Link href="/shirts/casual" className="block text-[#f5e6d3]/60 hover:text-[#f5e6d3] transition-colors">Casual</Link>
-              <Link href="/shirts/premium" className="block text-[#f5e6d3]/60 hover:text-[#f5e6d3] transition-colors">Premium</Link>
+              <Link href="/shirts/linen-half-sleeve" className="block text-[#f5e6d3]/60 hover:text-[#f5e6d3] transition-colors">Half Sleeve Shirts</Link>
+              <Link href="/shirts/linen" className="block text-[#f5e6d3]/60 hover:text-[#f5e6d3] transition-colors">Full Sleeve Shirts</Link>
+              <Link href="/shirts/kurta-half-sleeve" className="block text-[#f5e6d3]/60 hover:text-[#f5e6d3] transition-colors">Half Kurta</Link>
+              <Link href="/shirts/kurta-full-sleeve" className="block text-[#f5e6d3]/60 hover:text-[#f5e6d3] transition-colors">Full Kurta</Link>
             </div>
           </div>
 
@@ -77,7 +77,7 @@ export default function Footer() {
         <div className="mt-10 pt-6 border-t border-[#f5e6d3]/10 flex flex-wrap items-center justify-center gap-5 md:gap-8 text-[10px] md:text-xs text-[#f5e6d3]/40">
           <span className="flex items-center gap-1.5"><Shield className="h-3 w-3" /> Secure Payments</span>
           <span className="flex items-center gap-1.5"><Truck className="h-3 w-3" /> Free Shipping ₹999+</span>
-          <span className="flex items-center gap-1.5"><RotateCcw className="h-3 w-3" /> 30-Day Returns</span>
+          <span className="flex items-center gap-1.5"><RotateCcw className="h-3 w-3" /> 14-Day Returns</span>
           <span className="flex items-center gap-1.5"><CheckCircle className="h-3 w-3" /> 100% Genuine</span>
         </div>
 

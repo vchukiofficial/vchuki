@@ -47,7 +47,7 @@ export default function RegisterPage() {
         </div>
         <div className="relative z-10 p-12 max-w-md">
           <div className="flex items-center gap-2 mb-8">
-            <Image src="/logo-mark.svg" alt="VCHUKI" width={28} height={28} className="invert" />
+            <Image src="/marko.png" alt="VCHUKI" width={28} height={28} className="invert" />
             <span className="text-white text-lg font-semibold tracking-[0.18em]">VCHUKI</span>
           </div>
           <h2 className="text-white text-3xl font-light leading-snug">
@@ -63,7 +63,7 @@ export default function RegisterPage() {
       <div className="flex-1 flex items-center justify-center p-6 md:p-12">
         <div className="w-full max-w-sm">
           <div className="lg:hidden flex items-center gap-2 mb-10">
-            <Image src="/logo-mark.svg" alt="VCHUKI" width={24} height={24} className="dark:invert" />
+            <Image src="/marko.png" alt="VCHUKI" width={24} height={24} className="dark:invert" />
             <span className="text-base font-semibold tracking-[0.18em]">VCHUKI</span>
           </div>
 

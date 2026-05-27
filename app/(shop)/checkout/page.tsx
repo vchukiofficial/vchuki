@@ -49,11 +49,35 @@ export default function CheckoutPage() {
   }
 
   function updateForm(field: string, value: string) {
+    // Validate phone: only digits, max 10
+    if (field === "phone") {
+      const digits = value.replace(/\D/g, "")
+      if (digits.length > 10) return
+      setForm((prev) => ({ ...prev, phone: digits }))
+      return
+    }
+    // Validate pincode: only digits, max 6
+    if (field === "zip") {
+      const digits = value.replace(/\D/g, "")
+      if (digits.length > 6) return
+      setForm((prev) => ({ ...prev, zip: digits }))
+      return
+    }
     setForm((prev) => ({ ...prev, [field]: value }))
   }
 
   function handleContinueToPayment(e: React.FormEvent) {
     e.preventDefault()
+    // Validate phone
+    if (form.phone.length !== 10) {
+      alert("Please enter a valid 10-digit mobile number")
+      return
+    }
+    // Validate pincode
+    if (form.zip.length !== 6) {
+      alert("Please enter a valid 6-digit PIN code")
+      return
+    }
     setStep("payment")
   }
 
@@ -252,28 +276,38 @@ export default function CheckoutPage() {
                     </div>
                     <div className="md:col-span-2">
                       <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Phone (for delivery updates)</label>
-                      <input
-                        type="tel"
-                        value={form.phone}
-                        onChange={(e) => updateForm("phone", e.target.value)}
-                        required
-                        placeholder="+91 98765 43210"
-                        className="w-full mt-1 px-4 py-3 border border-border bg-background text-sm focus:outline-none focus:border-[#c4956a]/50 transition-colors text-foreground placeholder:text-muted-foreground/50"
-                      />
+                      <div className="flex mt-1">
+                        <span className="px-3 py-3 border border-r-0 border-border bg-muted text-sm text-muted-foreground">+91</span>
+                        <input
+                          type="tel"
+                          value={form.phone}
+                          onChange={(e) => updateForm("phone", e.target.value)}
+                          required
+                          pattern="[0-9]{10}"
+                          maxLength={10}
+                          placeholder="9876543210"
+                          className="w-full px-4 py-3 border border-border bg-background text-sm focus:outline-none focus:border-[#c4956a]/50 transition-colors text-foreground placeholder:text-muted-foreground/50"
+                        />
+                      </div>
                     </div>
                   </div>
                 )}
                 {session && (
                   <div>
                     <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Phone (for delivery updates)</label>
-                    <input
-                      type="tel"
-                      value={form.phone}
-                      onChange={(e) => updateForm("phone", e.target.value)}
-                      required
-                      placeholder="+91 98765 43210"
-                      className="w-full mt-1 px-4 py-3 border border-border bg-background text-sm focus:outline-none focus:border-[#c4956a]/50 transition-colors text-foreground placeholder:text-muted-foreground/50"
-                    />
+                    <div className="flex mt-1">
+                      <span className="px-3 py-3 border border-r-0 border-border bg-muted text-sm text-muted-foreground">+91</span>
+                      <input
+                        type="tel"
+                        value={form.phone}
+                        onChange={(e) => updateForm("phone", e.target.value)}
+                        required
+                        pattern="[0-9]{10}"
+                        maxLength={10}
+                        placeholder="9876543210"
+                        className="w-full px-4 py-3 border border-border bg-background text-sm focus:outline-none focus:border-[#c4956a]/50 transition-colors text-foreground placeholder:text-muted-foreground/50"
+                      />
+                    </div>
                   </div>
                 )}
               </div>
@@ -333,10 +367,13 @@ export default function CheckoutPage() {
                     <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">PIN Code</label>
                     <input
                       type="text"
+                      inputMode="numeric"
                       value={form.zip}
                       onChange={(e) => updateForm("zip", e.target.value)}
                       required
-                      placeholder="6-digit PIN"
+                      pattern="[0-9]{6}"
+                      maxLength={6}
+                      placeholder="342001"
                       className="w-full mt-1 px-4 py-3 border border-border bg-background text-sm focus:outline-none focus:border-[#c4956a]/50 transition-colors text-foreground placeholder:text-muted-foreground/50"
                     />
                   </div>

@@ -2,8 +2,11 @@ import { Metadata } from "next"
 import { notFound } from "next/navigation"
 import connectDB from "@/lib/mongodb"
 import Product from "@/models/Product"
+import ProductVariant from "@/models/ProductVariant"
 import Link from "next/link"
-import { ShirtsProductGrid } from "@/components/products/ShirtsProductGrid"
+import { Suspense } from "react"
+import ProductFilters from "@/components/products/ProductFilters"
+import { ShirtsVariantGrid } from "@/components/products/ShirtsVariantGrid"
 
 const categoryMeta: Record<string, { title: string; description: string; h1: string; content: string }> = {
   "linen-full-sleeve": {
@@ -38,8 +41,16 @@ const categoryMeta: Record<string, { title: string; description: string; h1: str
   },
 }
 
+const allCategories = [
+  { slug: "linen-full-sleeve", name: "Linen Full Sleeve" },
+  { slug: "linen-half-sleeve", name: "Linen Half Sleeve" },
+  { slug: "kurta-full-sleeve", name: "Short Kurta Full Sleeve" },
+  { slug: "kurta-half-sleeve", name: "Short Kurta Half Sleeve" },
+]
+
 interface Props {
   params: { category: string }
+  searchParams: { sort?: string; price?: string; tag?: string; size?: string }
 }
 
 export const revalidate = 0
@@ -54,7 +65,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-export default async function CategoryPage({ params }: Props) {
+export default async function CategoryPage({ params, searchParams }: Props) {
   const meta = categoryMeta[params.category]
   if (!meta) notFound()
 
@@ -62,19 +73,82 @@ export default async function CategoryPage({ params }: Props) {
 
   const query: Record<string, any> = { isActive: true }
   if (params.category === "linen-full-sleeve") {
-    query.tags = { $in: ["linen", "full-sleeve"] }
+    query.tags = { $all: ["linen", "full-sleeve"] }
   } else if (params.category === "linen-half-sleeve") {
-    query.tags = { $in: ["half-sleeve"] }
+    query.tags = { $all: ["half-sleeve"] }
   } else if (params.category === "kurta-full-sleeve") {
-    query.tags = { $in: ["kurta", "full-sleeve"] }
+    query.tags = { $all: ["kurta", "full-sleeve"] }
   } else if (params.category === "kurta-half-sleeve") {
-    query.tags = { $in: ["kurta", "half-sleeve"] }
+    query.tags = { $all: ["kurta", "half-sleeve"] }
   } else if (params.category === "linen") {
     query.$or = [{ tags: { $in: ["linen"] } }, { category: "linen" }]
   }
 
-  const products = await Product.find(query).sort({ createdAt: -1 }).lean()
-  const serialized = JSON.parse(JSON.stringify(products))
+  if (searchParams.tag) {
+    query.tags = { ...query.tags, $in: [searchParams.tag] }
+  }
+  if (searchParams.price) {
+    const [min, max] = searchParams.price.split("-").map(Number)
+    query.basePrice = { $gte: min, $lte: max }
+  }
+
+  let sort: Record<string, any> = { createdAt: -1 }
+  switch (searchParams.sort) {
+    case "price-asc": sort = { basePrice: 1 }; break
+    case "price-desc": sort = { basePrice: -1 }; break
+    case "rating": sort = { rating: -1 }; break
+  }
+
+  const products = await Product.find(query).sort(sort).lean()
+
+  // Expand into variant cards
+  const variantCards: any[] = []
+  for (const product of products) {
+    const p = product as any
+    const variants = await ProductVariant.find({ product: p._id, stock: { $gt: 0 } }).lean()
+
+    if (variants.length === 0) {
+      variantCards.push({ ...p, _id: p._id.toString() })
+      continue
+    }
+
+    const colorMap = new Map<string, any>()
+    for (const v of variants) {
+      const vAny = v as any
+      const colorName = vAny.color?.name || "Default"
+      if (!colorMap.has(colorName)) {
+        colorMap.set(colorName, {
+          ...p,
+          _id: `${p._id}-${colorName}`,
+          productId: p._id.toString(),
+          variantColor: vAny.color,
+          variantImage: vAny.images?.[0] || p.images?.[0],
+          variantPrice: p.basePrice + (vAny.priceAdjustment || 0),
+          variantSku: vAny.sku,
+          variantId: vAny._id?.toString(),
+          variantStock: vAny.stock,
+          availableSizes: [vAny.size],
+        })
+      } else {
+        const existing = colorMap.get(colorName)
+        if (!existing.availableSizes.includes(vAny.size)) {
+          existing.availableSizes.push(vAny.size)
+        }
+      }
+    }
+
+    if (searchParams.size) {
+      for (const [, card] of colorMap) {
+        if (card.availableSizes.includes(searchParams.size)) {
+          variantCards.push(card)
+        }
+      }
+    } else {
+      variantCards.push(...colorMap.values())
+    }
+  }
+
+  const serialized = JSON.parse(JSON.stringify(variantCards))
 
   return (
     <div className="container py-4 md:py-8">
@@ -84,22 +158,58 @@ export default async function CategoryPage({ params }: Props) {
         <span className="mx-1.5 text-border">/</span>
         <Link href="/shirts" className="hover:text-foreground transition-colors">Shirts</Link>
         <span className="mx-1.5 text-border">/</span>
-        <span className="text-foreground capitalize">{params.category}</span>
+        <span className="text-foreground">{meta.h1}</span>
       </nav>
 
       {/* Header */}
-      <div className="mb-6">
+      <div className="mb-5">
         <h1 className="text-xl md:text-3xl font-light tracking-tight text-foreground">{meta.h1}</h1>
-        <p className="text-xs text-muted-foreground mt-1">{serialized.length} products available · Free shipping above ₹999</p>
+        <p className="text-xs text-muted-foreground mt-1">{serialized.length} variants available · Free shipping above ₹999</p>
       </div>
 
-      {/* Products with Add to Cart */}
-      <ShirtsProductGrid products={serialized} />
+      {/* Category pills — stay on filtered pages */}
+      <div className="flex gap-2 overflow-x-auto no-scrollbar mb-5 pb-1">
+        <Link
+          href="/shirts"
+          className="px-4 py-2 text-[10px] uppercase tracking-wider font-medium border border-border text-muted-foreground hover:border-[#c4956a]/40 hover:text-foreground whitespace-nowrap transition-colors"
+        >
+          All
+        </Link>
+        {allCategories.map((cat) => {
+          const isActive = cat.slug === params.category
+          // Preserve filters when switching categories
+          const filterParams = new URLSearchParams()
+          if (searchParams.sort) filterParams.set("sort", searchParams.sort)
+          if (searchParams.price) filterParams.set("price", searchParams.price)
+          if (searchParams.size) filterParams.set("size", searchParams.size)
+          const href = `/shirts/${cat.slug}${filterParams.toString() ? `?${filterParams.toString()}` : ""}`
+
+          return (
+            <Link
+              key={cat.slug}
+              href={href}
+              className={`px-4 py-2 text-[10px] uppercase tracking-wider font-medium border whitespace-nowrap transition-colors ${
+                isActive ? "border-[#c4956a] bg-[#c4956a]/10 text-[#c4956a]" : "border-border text-muted-foreground hover:border-[#c4956a]/40 hover:text-foreground"
+              }`}
+            >
+              {cat.name}
+            </Link>
+          )
+        })}
+      </div>
+
+      {/* Filters */}
+      <Suspense fallback={null}>
+        <ProductFilters />
+      </Suspense>
+
+      {/* Products Grid — variant expanded */}
+      <ShirtsVariantGrid products={serialized} />
 
       {serialized.length === 0 && (
         <div className="text-center py-16 border border-border">
-          <p className="text-muted-foreground text-sm">No products in this category yet.</p>
-          <Link href="/shirts" className="text-xs text-[#c4956a] mt-2 inline-block hover:underline">Browse all shirts →</Link>
+          <p className="text-muted-foreground text-sm">No products match your filters.</p>
+          <Link href={`/shirts/${params.category}`} className="text-xs text-[#c4956a] mt-2 inline-block hover:underline">Clear filters →</Link>
         </div>
       )}
 
