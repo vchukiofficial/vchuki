@@ -135,10 +135,12 @@ export function getSizeGroup(size: string): SizeGroup {
 export function detectCategory(productCategory: string, productName: string): SleeveType | null {
   const cat = productCategory.toLowerCase()
   const name = productName.toLowerCase()
-  if (cat.includes("kurta") || name.includes("kurta")) return "full-sleeve-kurta"
-  if (cat.includes("half") || name.includes("half sleeve")) return "half-sleeve-shirt"
-  if (cat.includes("full") || cat.includes("linen") || name.includes("full sleeve")) return "full-sleeve-shirt"
-  if (cat.includes("shirt")) return "full-sleeve-shirt"
+  // Kurta detection first (highest priority)
+  if (name.includes("kurta") || cat.includes("kurta")) return "full-sleeve-kurta"
+  // Half sleeve shirt
+  if (name.includes("half sleeve") || cat.includes("half")) return "half-sleeve-shirt"
+  // Full sleeve shirt (includes linen shirts)
+  if (name.includes("full sleeve") || name.includes("shirt") || cat.includes("linen") || cat.includes("full") || cat.includes("shirt")) return "full-sleeve-shirt"
   return null
 }
 

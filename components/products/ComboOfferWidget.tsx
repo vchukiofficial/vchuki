@@ -1,8 +1,8 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Zap, Tag } from "lucide-react"
-import { fetchComboOffers, getOffersForProduct, type ComboOffer } from "@/lib/comboOffers"
+import { Zap, Gift, Percent } from "lucide-react"
+import { fetchComboOffers, detectCategory, type ComboOffer } from "@/lib/comboOffers"
 
 interface Props {
   category: string
@@ -13,49 +13,65 @@ export function ComboOfferWidget({ category, productName }: Props) {
   const [offers, setOffers] = useState<ComboOffer[]>([])
 
   useEffect(() => {
-    fetchComboOffers().then((dbOffers) => {
-      if (dbOffers.length > 0) {
-        // Filter relevant offers for this product
-        const type = category.toLowerCase()
-        const relevant = dbOffers.filter((o) =>
-          o.conditions.category.some((c) => type.includes(c) || c.includes(type))
-        )
-        setOffers(relevant.length > 0 ? relevant : getOffersForProduct(category, productName))
-      } else {
-        setOffers(getOffersForProduct(category, productName))
-      }
+    const productType = detectCategory(category, productName)
+    if (!productType) return
+
+    fetchComboOffers().then((allOffers) => {
+      // Only show offers where THIS product's type is in the offer's categories
+      const relevant = allOffers.filter((o) => {
+        const cats = o.conditions.category
+        // Direct match: product type is one of the offer categories
+        if (cats.includes(productType)) return true
+        // Kurta matching: "full-sleeve-kurta" should match "kurta-full-sleeve" etc
+        if (productType.includes("kurta") && cats.some((c) => c.includes("kurta"))) return true
+        if (productType.includes("half-sleeve") && cats.some((c) => c.includes("half-sleeve") && !c.includes("kurta"))) return true
+        if (productType === "full-sleeve-shirt" && cats.some((c) => c === "linen" || c === "full-sleeve-shirt")) return true
+        return false
+      })
+      setOffers(relevant)
     })
   }, [category, productName])
 
   if (offers.length === 0) return null
 
   return (
-    <div className="border border-[#c4956a]/30 bg-[#c4956a]/5 p-3">
-      <div className="flex items-center gap-1.5 mb-2">
-        <Zap className="h-3.5 w-3.5 text-[#c4956a]" />
-        <span className="text-[10px] uppercase tracking-wider font-bold text-[#c4956a]">Combo Offers</span>
+    <div className="border border-emerald-500/20 bg-gradient-to-r from-emerald-500/5 to-[#c4956a]/5 p-3 space-y-2">
+      <div className="flex items-center gap-1.5">
+        <div className="h-5 w-5 rounded-full bg-emerald-500/10 flex items-center justify-center">
+          <Zap className="h-3 w-3 text-emerald-600 dark:text-emerald-400" />
+        </div>
+        <span className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wide">
+          Available Offers
+        </span>
       </div>
-      <div className="space-y-1.5">
+      <div className="space-y-0">
         {offers.slice(0, 3).map((offer) => (
-          <OfferRow key={offer.id} offer={offer} />
+          <OfferRow key={offer.id || offer._id} offer={offer} />
         ))}
       </div>
+      {offers.length > 3 && (
+        <p className="text-[10px] text-muted-foreground">+{offers.length - 3} more offers available</p>
+      )}
     </div>
   )
 }
 
 function OfferRow({ offer }: { offer: ComboOffer }) {
   return (
-    <div className="flex items-center justify-between gap-2 py-1.5 border-b border-[#c4956a]/10 last:border-0">
-      <div className="flex items-center gap-2 min-w-0">
-        <Tag className="h-3 w-3 text-[#c4956a] flex-shrink-0" />
-        <p className="text-[11px] text-foreground truncate">{offer.description}</p>
+    <div className="flex items-start gap-2 py-2 border-b border-border/50 last:border-0">
+      <div className="mt-0.5 h-4 w-4 rounded bg-[#c4956a]/10 flex items-center justify-center flex-shrink-0">
+        {offer.conditions.minQty >= 3 ? (
+          <Gift className="h-2.5 w-2.5 text-[#c4956a]" />
+        ) : (
+          <Percent className="h-2.5 w-2.5 text-[#c4956a]" />
+        )}
       </div>
-      {offer.savedAmount && (
-        <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 whitespace-nowrap">
-          Save ₹{offer.savedAmount}
-        </span>
-      )}
+      <div className="flex-1 min-w-0">
+        <p className="text-[11px] font-medium text-foreground leading-tight">{offer.description}</p>
+        <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold mt-0.5">
+          {offer.discount}% OFF · Auto-applied at checkout
+        </p>
+      </div>
     </div>
   )
 }
