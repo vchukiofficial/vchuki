@@ -1,7 +1,7 @@
 "use client"
 
 import { useCartStore } from "@/store/cartStore"
-import { Minus, Plus, Trash2, Tag, ShoppingBag, ArrowRight, Truck, RotateCcw, Shield, ChevronDown, X, Package } from "lucide-react"
+import { Minus, Plus, Trash2, Tag, ShoppingBag, ArrowRight, Truck, RotateCcw, Shield, ChevronDown } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useState, useEffect } from "react"
