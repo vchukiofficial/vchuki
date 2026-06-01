@@ -1,16 +1,16 @@
 export const BUSINESS = {
   name: "VCHUKI",
   legalName: "Vchuki Fashion Private Limited",
-  gstin: "27AABCV1234F1Z5",
-  cin: "U18101MH2024PTC123456",
+  gstin: "08XXXXX0000X1Z5", // TODO: Replace with real GSTIN
+  cin: "U18101RJ2025PTC000000", // TODO: Replace with real CIN
   address: {
-    street: "123, Fashion Street, Andheri West",
-    city: "Mumbai",
-    state: "Maharashtra",
-    zip: "400058",
+    street: "Jodhpur",
+    city: "Jodhpur",
+    state: "Rajasthan",
+    zip: "342001",
     country: "India",
   },
-  fullAddress: "123, Fashion Street, Andheri West, Mumbai, Maharashtra 400058, India",
+  fullAddress: "Jodhpur, Rajasthan 342001, India",
   email: {
     support: "support@vchuki.com",
     hello: "hello@vchuki.com",
@@ -18,7 +18,7 @@ export const BUSINESS = {
     business: "business@vchuki.com",
     returns: "returns@vchuki.com",
   },
-  phone: "+91 98765 43210",
+  phone: "+91 XXXXX XXXXX", // TODO: Replace with real phone number
   hours: "Monday to Saturday, 10:00 AM - 7:00 PM IST",
   social: {
     instagram: "https://instagram.com/vchuki",
@@ -28,6 +28,6 @@ export const BUSINESS = {
     pinterest: "https://pinterest.com/vchuki",
   },
   domain: "https://vchuki.com",
-  founded: "2024",
-  tagline: "Premium Fashion for the Modern Man",
+  founded: "2025",
+  tagline: "Premium Linen Shirts — Crafted in Jodhpur",
 }

@@ -3,11 +3,12 @@ import Image from "next/image"
 import connectDB from "@/lib/mongodb"
 import Product from "@/models/Product"
 import ProductVariant from "@/models/ProductVariant"
-import { Star, ArrowRight, Truck, RotateCcw, Shield, CheckCircle, Gem, MapPin, ClipboardCheck, Wind } from "lucide-react"
+import { ArrowRight, Truck, RotateCcw, Shield, CheckCircle, Gem, MapPin, ClipboardCheck, Wind } from "lucide-react"
 import { HeroSection } from "@/components/home/HeroSection"
 import { AnimatedSection } from "@/components/home/AnimatedSection"
 import { ProductCarousel } from "@/components/home/ProductCarousel"
 import { RajasthanPalette } from "@/components/home/RajasthanPalette"
+import { HomePageWrapper } from "@/components/home/HomePageWrapper"
 
 async function getProducts() {
   await connectDB()
@@ -110,7 +111,7 @@ export default async function HomePage() {
   const { bestsellers, newArrivals, linen } = await getProducts()
 
   return (
-    <>
+    <HomePageWrapper>
       <HeroSection />
 
       {/* Fabric Story Strip */}
@@ -264,7 +265,7 @@ export default async function HomePage() {
               { num: "47", label: "Quality Checks", sub: "Per shirt crafted" },
               { num: "100%", label: "Premium Fabric", sub: "Finest linen mills" },
               { num: "14", label: "Day Returns", sub: "No questions asked" },
-              { num: "50K+", label: "Happy Customers", sub: "And counting" },
+              { num: "5", label: "Curated Colors", sub: "Rajasthan-inspired" },
             ].map((item) => (
               <div key={item.label} className="group">
                 <p className="text-3xl md:text-4xl font-light tracking-tight text-[#c4956a] group-hover:scale-105 transition-transform">{item.num}</p>
@@ -276,33 +277,25 @@ export default async function HomePage() {
         </AnimatedSection>
       </section>
 
-      {/* Testimonials */}
+      {/* Craftsmanship Focus — replaces testimonials pre-launch */}
       <section className="bg-card/50 dark:bg-card/20">
         <AnimatedSection className="container py-10 md:py-14">
-          <div className="text-center mb-6">
-            <p className="text-[10px] uppercase tracking-[0.25em] text-[#c4956a] mb-2">Customer Love</p>
-            <h2 className="text-2xl md:text-3xl font-light tracking-tight text-foreground">What They Say</h2>
+          <div className="text-center mb-8">
+            <p className="text-[10px] uppercase tracking-[0.25em] text-[#c4956a] mb-2">Our Promise</p>
+            <h2 className="text-2xl md:text-3xl font-light tracking-tight text-foreground">Crafted With Precision</h2>
           </div>
           <div className="grid md:grid-cols-3 gap-4 md:gap-6">
             {[
-              { name: "Rahul S.", city: "Delhi", text: "The linen shirt is now my daily wear. Fabric feels incredible — better than brands 3x the price. True Rajasthani craftsmanship." },
-              { name: "Vikram M.", city: "Mumbai", text: "Finally a brand that understands Indian body types. Perfect fit, premium feel. The Desert Sand color is absolutely stunning." },
-              { name: "Arjun K.", city: "Bangalore", text: "Breathable, stylish, and the color hasn't faded after 20 washes. VCHUKI has replaced all my other shirt brands." },
-            ].map((t, i) => (
+              { title: "47 Quality Checks", desc: "Every shirt passes through 47 rigorous quality checkpoints before it reaches you. From fabric inspection to final stitch — zero compromise." },
+              { title: "Jodhpur Heritage", desc: "Born in the heart of Rajasthan, our craft draws from generations of textile mastery. Modern design meets timeless tradition." },
+              { title: "Premium Linen", desc: "Sourced from the finest mills, our linen is breathable, durable, and gets softer with every wash. Designed for Indian summers." },
+            ].map((item, i) => (
               <div key={i} className="p-6 md:p-8 bg-background border border-border hover:border-[#c4956a]/30 transition-colors">
-                <div className="flex gap-0.5 mb-4">
-                  {Array.from({ length: 5 }, (_, j) => <Star key={j} className="h-3.5 w-3.5 fill-[#c4956a] text-[#c4956a]" />)}
+                <div className="w-8 h-8 border border-[#c4956a]/30 flex items-center justify-center mb-4">
+                  <span className="text-sm font-light text-[#c4956a]">{String(i + 1).padStart(2, "0")}</span>
                 </div>
-                <p className="text-sm leading-relaxed text-muted-foreground">&ldquo;{t.text}&rdquo;</p>
-                <div className="mt-5 flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-full bg-[#c4956a]/10 flex items-center justify-center">
-                    <span className="text-[10px] font-bold text-[#c4956a]">{t.name.charAt(0)}</span>
-                  </div>
-                  <div>
-                    <p className="text-xs font-medium text-foreground">{t.name}</p>
-                    <p className="text-[10px] text-muted-foreground">{t.city}</p>
-                  </div>
-                </div>
+                <h3 className="text-sm font-semibold text-foreground mb-2">{item.title}</h3>
+                <p className="text-sm leading-relaxed text-muted-foreground">{item.desc}</p>
               </div>
             ))}
           </div>
@@ -345,6 +338,6 @@ export default async function HomePage() {
           ))}
         </div>
       </div>
-    </>
+    </HomePageWrapper>
   )
 }
