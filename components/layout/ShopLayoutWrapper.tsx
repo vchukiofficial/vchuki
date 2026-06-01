@@ -21,9 +21,10 @@ export function ShopLayoutWrapper({ navbar, footer, cartDrawer, mobileNav, child
     setIsLaunched(new Date() >= LAUNCH_DATE)
   }, [])
 
-  // Only hide chrome on the homepage pre-launch
+  // Only hide chrome on the homepage pre-launch and /vip page
   const isHomepage = pathname === "/"
-  const showChrome = isLaunched || !isHomepage
+  const isVipPage = pathname === "/vip"
+  const showChrome = isVipPage ? false : (isLaunched || !isHomepage)
 
   if (!showChrome) {
     return <main className="min-h-screen">{children}</main>
