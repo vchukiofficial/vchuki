@@ -71,7 +71,13 @@ export default async function CategoryPage({ params, searchParams }: Props) {
 
   await connectDB()
 
-  const query: Record<string, any> = { isActive: true, category: params.category }
+  // Handle aggregate categories
+  const query: Record<string, any> = { isActive: true }
+  if (params.category === "linen") {
+    query.category = { $in: ["linen-full-sleeve", "linen-half-sleeve"] }
+  } else {
+    query.category = params.category
+  }
 
   if (searchParams.tag) {
     query.tags = { ...query.tags, $in: [searchParams.tag] }
