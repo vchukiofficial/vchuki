@@ -81,6 +81,16 @@ export function HeroSection() {
   const [activeColor, setActiveColor] = useState<Record<number, number>>({})
   const [zoom, setZoom] = useState(1)
   const [, setLoaded] = useState(false)
+  const [paused, setPaused] = useState(false)
+
+  // Auto-rotate categories every 5 seconds
+  useEffect(() => {
+    if (paused) return
+    const timer = setInterval(() => {
+      setActiveCategory((prev) => (prev + 1) % categories.length)
+    }, 5000)
+    return () => clearInterval(timer)
+  }, [categories.length, paused])
 
   // Fetch real products with in-stock variants
   useEffect(() => {
@@ -215,7 +225,7 @@ export function HeroSection() {
               {categories.map((cat, idx) => (
                 <button
                   key={cat.slug}
-                  onClick={() => setActiveCategory(idx)}
+                  onClick={() => { setActiveCategory(idx); setPaused(true); setTimeout(() => setPaused(false), 10000) }}
                   className={`px-3 py-2 text-[10px] uppercase tracking-wider font-medium border transition-all duration-300 ${
                     activeCategory === idx
                       ? "border-[#c4956a] bg-[#c4956a]/10 text-[#c4956a]"
@@ -223,6 +233,29 @@ export function HeroSection() {
                   }`}
                 >
                   {cat.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Slide indicators / progress dots */}
+            <div className="mt-3 flex items-center gap-1.5">
+              {categories.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => { setActiveCategory(idx); setPaused(true); setTimeout(() => setPaused(false), 10000) }}
+                  className="relative h-1 overflow-hidden transition-all duration-300"
+                  style={{ width: activeCategory === idx ? 24 : 8 }}
+                >
+                  <div className="absolute inset-0 bg-border rounded-full" />
+                  {activeCategory === idx && (
+                    <motion.div
+                      className="absolute inset-0 bg-[#c4956a] rounded-full origin-left"
+                      initial={{ scaleX: 0 }}
+                      animate={{ scaleX: 1 }}
+                      transition={{ duration: 5, ease: "linear" }}
+                      key={`progress-${activeCategory}`}
+                    />
+                  )}
                 </button>
               ))}
             </div>
@@ -293,8 +326,8 @@ export function HeroSection() {
             {/* Glow */}
             <div className="absolute -inset-16 bg-gradient-to-t from-[#c4956a]/15 via-[#87CEEB]/10 to-transparent rounded-full blur-3xl" />
 
-            {/* Zoom Controls */}
-            <div className="absolute top-4 right-4 z-20 flex gap-2">
+            {/* Zoom Controls — bottom left */}
+            <div className="absolute bottom-4 left-4 z-20 flex gap-2">
               <button
                 onClick={handleZoomIn}
                 className="w-8 h-8 rounded-full bg-background/80 backdrop-blur-sm border border-border flex items-center justify-center hover:border-[#c4956a]/50 transition-colors"
