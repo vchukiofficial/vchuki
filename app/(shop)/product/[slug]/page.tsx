@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const p = product as any
   return {
     title: `${p.name} — Buy Online at ₹${p.basePrice}`,
-    description: `${p.description} Shop ${p.name} at VCHUKI. Premium quality, free shipping above ₹999. Available in multiple sizes and colors.`,
+    description: `${p.description} Shop ${p.name} at VCHUKI. Premium quality, free shipping above ₹1,599. Available in multiple sizes and colors.`,
     keywords: [p.name, p.category, ...p.tags, "buy online", "vchuki"],
     alternates: { canonical: `https://vchuki.com/product/${p.slug}` },
     openGraph: {
@@ -92,7 +92,7 @@ export default async function ProductPage({ params }: Props) {
       seller: { "@type": "Organization", name: "VCHUKI" },
       shippingDetails: {
         "@type": "OfferShippingDetails",
-        shippingRate: { "@type": "MonetaryAmount", value: p.basePrice >= 999 ? 0 : 50, currency: "INR" },
+        shippingRate: { "@type": "MonetaryAmount", value: p.basePrice >= 1599 ? 0 : 50, currency: "INR" },
         deliveryTime: { "@type": "ShippingDeliveryTime", handlingTime: { "@type": "QuantitativeValue", minValue: 1, maxValue: 2, unitCode: "DAY" }, transitTime: { "@type": "QuantitativeValue", minValue: 3, maxValue: 7, unitCode: "DAY" } },
       },
     },

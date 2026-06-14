@@ -4,7 +4,7 @@ import { BUSINESS } from "@/lib/constants"
 
 export const metadata: Metadata = {
   title: "Shipping Policy — VCHUKI",
-  description: "VCHUKI shipping policy. Free shipping above ₹999. Delivery in 3-7 business days across India. Track your order in real-time.",
+  description: "VCHUKI shipping policy. Free shipping above ₹1,599. Delivery in 3-7 business days across India. Track your order in real-time.",
   alternates: { canonical: "https://vchuki.com/shipping-policy" },
 }
 
@@ -24,8 +24,8 @@ export default function ShippingPolicyPage() {
 
         <h2>Shipping Charges</h2>
         <ul className="list-disc pl-5 space-y-1">
-          <li><strong>Orders above ₹999:</strong> FREE shipping</li>
-          <li><strong>Orders below ₹999:</strong> Flat ₹49 shipping charge</li>
+          <li><strong>Orders above ₹1,599:</strong> FREE shipping</li>
+          <li><strong>Orders below ₹1,599:</strong> Flat ₹49 shipping charge</li>
           <li><strong>COD orders:</strong> Additional ₹30 COD handling fee</li>
         </ul>
 

@@ -29,7 +29,7 @@ export default function CheckoutPage() {
   })
 
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
-  const shipping = subtotal >= 999 ? 0 : 50
+  const shipping = subtotal >= 1599 ? 0 : 50
   const totalDiscount = discount + comboDiscount
   const total = subtotal - totalDiscount + shipping
 
@@ -504,7 +504,7 @@ export default function CheckoutPage() {
             </div>
 
             {shipping > 0 && (
-              <p className="text-[10px] text-muted-foreground mt-2">Add ₹{(999 - subtotal).toLocaleString()} more for free shipping</p>
+              <p className="text-[10px] text-muted-foreground mt-2">Add ₹{(1599 - subtotal).toLocaleString()} more for free shipping</p>
             )}
           </div>
 

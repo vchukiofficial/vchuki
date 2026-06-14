@@ -16,7 +16,7 @@ const ReviewSchema: Schema = new Schema({
   user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   rating: { type: Number, required: true, min: 1, max: 5 },
   comment: String,
-  images: [String],
+  images: { type: [String], required: true, validate: [(v: string[]) => v.length > 0, 'At least one review image is required'] },
   verifiedPurchase: { type: Boolean, default: false },
   status: { type: String, enum: ['pending', 'approved', 'hidden'], default: 'approved' },
   featured: { type: Boolean, default: false },

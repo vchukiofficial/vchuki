@@ -368,6 +368,16 @@ export default function ProductDetailClient({ product, variants, reviews, siblin
                   )}
                 </div>
                 {review.comment && <p className="text-xs text-muted-foreground mt-2 leading-relaxed">{review.comment}</p>}
+                {/* Review Images */}
+                {review.images && review.images.length > 0 && (
+                  <div className="flex gap-2 mt-3 overflow-x-auto no-scrollbar">
+                    {review.images.map((img: string, i: number) => (
+                      <div key={i} className="relative w-16 h-16 flex-shrink-0 border border-border overflow-hidden">
+                        <Image src={img} alt={`Review photo ${i + 1}`} fill className="object-cover" sizes="64px" />
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             ))}
           </div>

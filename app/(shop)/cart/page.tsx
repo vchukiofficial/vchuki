@@ -16,7 +16,7 @@ export default function CartPage() {
   const [recommendations, setRecommendations] = useState<any[]>([])
 
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
-  const shipping = subtotal >= 999 ? 0 : 49
+  const shipping = subtotal >= 1599 ? 0 : 49
   const total = subtotal - discount + shipping
 
   // Fetch recommendations
@@ -273,7 +273,7 @@ export default function CartPage() {
             </div>
 
             {shipping > 0 && (
-              <p className="text-[10px] text-[#c4956a] mt-2">Add ₹{(999 - subtotal).toLocaleString()} more for free shipping</p>
+              <p className="text-[10px] text-[#c4956a] mt-2">Add ₹{(1599 - subtotal).toLocaleString()} more for free shipping</p>
             )}
 
             <div className="border-t border-border mt-4 pt-4 flex justify-between font-semibold text-base">
@@ -294,7 +294,7 @@ export default function CartPage() {
           <div className="grid grid-cols-3 gap-2 text-center">
             <div className="p-2.5 border border-border">
               <Truck className="h-3.5 w-3.5 mx-auto text-[#c4956a]" />
-              <p className="text-[9px] text-muted-foreground mt-1">Free Shipping 999+</p>
+              <p className="text-[9px] text-muted-foreground mt-1">Free Shipping ₹1,599+</p>
             </div>
             <div className="p-2.5 border border-border">
               <RotateCcw className="h-3.5 w-3.5 mx-auto text-[#c4956a]" />

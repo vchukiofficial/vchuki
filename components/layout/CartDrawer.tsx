@@ -89,7 +89,7 @@ export default function CartDrawer() {
                   <span className="text-sm text-muted-foreground">Subtotal</span>
                   <span className="text-lg font-bold">₹{subtotal.toLocaleString()}</span>
                 </div>
-                <p className="text-[10px] text-muted-foreground">Free shipping on orders above ₹999</p>
+                <p className="text-[10px] text-muted-foreground">Free shipping on orders above ₹1,599</p>
                 <Link href="/checkout" onClick={() => setCartOpen(false)} className="block w-full py-3.5 bg-[#2a1f14] text-[#f5e6d3] text-center text-xs font-medium tracking-wider uppercase hover:bg-[#1a1209] transition-colors">
                   Checkout
                 </Link>

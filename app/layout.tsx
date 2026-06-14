@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     default: "VCHUKI — Premium Shirts for Men | Buy Formal, Casual & Linen Shirts Online India",
     template: "%s | VCHUKI",
   },
-  description: "Shop premium quality shirts for men at VCHUKI. Explore formal shirts, casual shirts, linen shirts, cotton shirts & oversized shirts. Free shipping above ₹999. 14-day returns.",
+  description: "Shop premium quality shirts for men at VCHUKI. Explore formal shirts, casual shirts, linen shirts, cotton shirts & oversized shirts. Free shipping above ₹1,599. 7-day returns.",
   keywords: [
     "vchuki", "vchuki shirts", "premium shirts india", "formal shirts for men",
     "linen shirts online", "casual shirts men", "cotton shirts india",

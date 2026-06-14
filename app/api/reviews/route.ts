@@ -16,6 +16,11 @@ export async function POST(request: NextRequest) {
 
   await connectDB()
   const body = await request.json()
+
+  if (!body.images || body.images.length === 0) {
+    return NextResponse.json({ error: "At least one photo is required for reviews" }, { status: 400 })
+  }
+
   const review = await Review.create({ ...body, user: session.user.id })
   return NextResponse.json(review, { status: 201 })
 }
