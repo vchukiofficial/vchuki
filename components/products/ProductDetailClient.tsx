@@ -290,12 +290,12 @@ export default function ProductDetailClient({ product, variants, reviews }: Prop
             <div className="text-center">
               <Truck className="h-4 w-4 mx-auto text-[#c4956a]" strokeWidth={1.5} />
               <p className="text-[10px] text-foreground mt-1.5 font-medium">Free Shipping</p>
-              <p className="text-[9px] text-muted-foreground">Above ₹999</p>
+              <p className="text-[9px] text-muted-foreground">Above ₹1,599</p>
             </div>
             <div className="text-center">
               <RotateCcw className="h-4 w-4 mx-auto text-[#c4956a]" strokeWidth={1.5} />
               <p className="text-[10px] text-foreground mt-1.5 font-medium">Easy Returns</p>
-              <p className="text-[9px] text-muted-foreground">14 days</p>
+              <p className="text-[9px] text-muted-foreground">7 days · Original condition</p>
             </div>
             <div className="text-center">
               <Shield className="h-4 w-4 mx-auto text-[#c4956a]" strokeWidth={1.5} />

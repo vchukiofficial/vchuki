@@ -11,7 +11,7 @@ import { ShirtsVariantGrid } from "@/components/products/ShirtsVariantGrid"
 const categoryMeta: Record<string, { title: string; description: string; h1: string; content: string }> = {
   "linen-full-sleeve": {
     title: "Linen Full Sleeve Shirts for Men — Premium Breathable Shirts | VCHUKI",
-    description: "Shop premium linen full sleeve shirts for men at VCHUKI. Breathable, lightweight & crafted in Jodhpur. Free shipping above ₹999.",
+    description: "Shop premium linen full sleeve shirts for men at VCHUKI. Breathable, lightweight & crafted in Jodhpur. Free shipping above ₹1,599.",
     h1: "Linen Full Sleeve Shirts",
     content: "Stay cool and stylish with VCHUKI's premium linen full sleeve shirts. Made from 100% natural linen, breathable and perfect for Indian summers. Crafted in Jodhpur with Rajasthan's finest textile heritage.",
   },
@@ -23,13 +23,13 @@ const categoryMeta: Record<string, { title: string; description: string; h1: str
   },
   "kurta-full-sleeve": {
     title: "Linen Short Kurtas Full Sleeve — Modern Ethnic Wear | VCHUKI",
-    description: "Shop premium linen short kurtas with full sleeves at VCHUKI. Modern ethnic wear crafted in Jodhpur. Free shipping above ₹999.",
+    description: "Shop premium linen short kurtas with full sleeves at VCHUKI. Modern ethnic wear crafted in Jodhpur. Free shipping above ₹1,599.",
     h1: "Linen Short Kurtas — Full Sleeve",
     content: "Discover VCHUKI's modern linen short kurtas with full sleeves. A perfect fusion of Rajasthani heritage and contemporary fashion. Ideal for festivals, office, and everyday ethnic style.",
   },
   "kurta-half-sleeve": {
     title: "Linen Short Kurtas Half Sleeve — Casual Ethnic | VCHUKI",
-    description: "Buy premium linen short kurtas with half sleeves at VCHUKI. Casual ethnic wear for modern men. Free shipping above ₹999.",
+    description: "Buy premium linen short kurtas with half sleeves at VCHUKI. Casual ethnic wear for modern men. Free shipping above ₹1,599.",
     h1: "Linen Short Kurtas — Half Sleeve",
     content: "VCHUKI's half sleeve linen short kurtas bring effortless ethnic style to your wardrobe. Breathable, comfortable, and crafted with premium linen for all-day ease.",
   },
@@ -151,7 +151,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
     if (searchParams.size) {
       for (const [, card] of colorMap) {
         if (card.availableSizes.includes(searchParams.size)) {
-          variantCards.push(card)
+          variantCards.push({ ...card, availableSizes: [searchParams.size] })
         }
       }
     } else {
@@ -182,7 +182,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
       {/* Header */}
       <div className="mb-5">
         <h1 className="text-xl md:text-3xl font-light tracking-tight text-foreground">{meta.h1}</h1>
-        <p className="text-xs text-muted-foreground mt-1">{serialized.length} variants available · Free shipping above ₹999</p>
+        <p className="text-xs text-muted-foreground mt-1">{serialized.length} variants available · Free shipping above ₹1,599</p>
       </div>
 
       {/* Category pills — stay on filtered pages */}

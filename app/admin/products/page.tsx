@@ -266,11 +266,10 @@ export default function AdminProductsPage() {
               <div>
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Category *</label>
                 <select name="category" required className="w-full h-9 mt-1 border border-border bg-background px-3 text-xs text-foreground focus:outline-none focus:border-[#c4956a]/50">
-                  <option value="linen">Linen</option>
-                  <option value="formal">Formal</option>
-                  <option value="casual">Casual</option>
-                  <option value="premium">Premium</option>
-                  <option value="ethnic">Ethnic</option>
+                  <option value="linen-full-sleeve">Linen Full Sleeve</option>
+                  <option value="linen-half-sleeve">Linen Half Sleeve</option>
+                  <option value="kurta-full-sleeve">Short Kurta Full Sleeve</option>
+                  <option value="kurta-half-sleeve">Short Kurta Half Sleeve</option>
                 </select>
               </div>
               <div>

@@ -72,6 +72,7 @@ export default function AdminProductDetailPage() {
         name: product.name,
         description: product.description,
         basePrice: product.basePrice,
+        comparePrice: (product as any).comparePrice || 0,
         category: product.category,
         tags: product.tags,
         images: product.images,
@@ -219,13 +220,16 @@ export default function AdminProductDetailPage() {
                 <input type="number" value={product.basePrice} onChange={e => updateField("basePrice", Number(e.target.value))} className="w-full mt-1 px-3 py-2 border border-border bg-background text-xs text-foreground focus:outline-none focus:border-[#c4956a]/50" />
               </div>
               <div>
+                <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">MRP / Compare Price (₹)</label>
+                <input type="number" value={(product as any).comparePrice || ""} onChange={e => updateField("comparePrice", Number(e.target.value) || 0)} placeholder="Original MRP for strikethrough" className="w-full mt-1 px-3 py-2 border border-border bg-background text-xs text-foreground focus:outline-none focus:border-[#c4956a]/50" />
+              </div>
+              <div>
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Category</label>
                 <select value={product.category} onChange={e => updateField("category", e.target.value)} className="w-full mt-1 px-3 py-2 border border-border bg-background text-xs text-foreground focus:outline-none focus:border-[#c4956a]/50">
-                  <option value="linen">Linen</option>
-                  <option value="formal">Formal</option>
-                  <option value="casual">Casual</option>
-                  <option value="premium">Premium</option>
-                  <option value="ethnic">Ethnic</option>
+                  <option value="linen-full-sleeve">Linen Full Sleeve</option>
+                  <option value="linen-half-sleeve">Linen Half Sleeve</option>
+                  <option value="kurta-full-sleeve">Short Kurta Full Sleeve</option>
+                  <option value="kurta-half-sleeve">Short Kurta Half Sleeve</option>
                 </select>
               </div>
               <div className="md:col-span-2">

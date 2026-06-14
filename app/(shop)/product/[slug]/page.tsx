@@ -47,10 +47,21 @@ export default async function ProductPage({ params }: Props) {
 
   const p = product as any
   const variants = await ProductVariant.find({ product: p._id }).lean()
-  const reviews = await Review.find({ product: p._id, status: { $ne: "hidden" } }).populate("user", "name").lean()
+  
+  let reviews: any[] = []
+  try {
+    reviews = await Review.find({ product: p._id, status: { $ne: "hidden" } }).populate("user", "name").lean()
+  } catch {
+    // If populate fails (deleted users), fetch without populate
+    try {
+      reviews = await Review.find({ product: p._id, status: { $ne: "hidden" } }).lean()
+    } catch {
+      reviews = []
+    }
+  }
 
-  const avgRating = reviews.length > 0
-    ? reviews.reduce((sum: number, r: any) => sum + r.rating, 0) / reviews.length
+  const avgRating = (reviews && reviews.length > 0)
+    ? reviews.reduce((sum: number, r: any) => sum + (r.rating || 0), 0) / reviews.length
     : 0
 
   const productSchema = {

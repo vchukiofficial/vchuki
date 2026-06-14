@@ -104,7 +104,7 @@ export default function AdminSettingsPage() {
           <h3 className="text-sm font-medium text-foreground flex items-center gap-2"><Settings2 className="h-3.5 w-3.5 text-[#c4956a]" /> Store Configuration</h3>
           <div className="space-y-2 text-xs">
             <Row label="Currency" value="INR (₹)" />
-            <Row label="Free Shipping Above" value="₹999" />
+            <Row label="Free Shipping Above" value="₹1,599" />
             <Row label="Shipping Fee" value="₹49" />
             <Row label="COD Fee" value="₹30" />
             <Row label="Return Window" value="30 days" />

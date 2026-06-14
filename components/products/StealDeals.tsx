@@ -37,22 +37,25 @@ export function StealDeals({ currentProductId, currentCategory }: Props) {
   useEffect(() => {
     async function fetchDeals() {
       try {
-        // Fetch products from other categories only
-        const res = await fetch(`/api/products?limit=10`)
+        // Fetch products from SAME category
+        const res = await fetch(`/api/products?category=${currentCategory}&limit=10`)
         if (!res.ok) return
         const data = await res.json()
         const products = (data.products || []).filter(
-          (p: any) => p._id !== currentProductId && p.category !== currentCategory
+          (p: any) => p._id !== currentProductId
         )
 
         const results: DealProduct[] = []
-        for (const product of products.slice(0, 6)) {
+        for (const product of products) {
           const varRes = await fetch(`/api/products/${product._id}/variants`)
           if (!varRes.ok) continue
           const varData = await varRes.json()
-          const inStockVariant = (varData.variants || []).find((v: any) => v.stock > 0)
-          if (inStockVariant) {
-            results.push({ ...product, variant: inStockVariant })
+          const variants = (varData.variants || varData || []).filter((v: any) => v.stock > 0)
+
+          if (variants.length > 0) {
+            // Pick a random variant (random color)
+            const randomVariant = variants[Math.floor(Math.random() * variants.length)]
+            results.push({ ...product, variant: randomVariant })
           }
           if (results.length >= 4) break
         }
@@ -89,7 +92,7 @@ export function StealDeals({ currentProductId, currentCategory }: Props) {
         <Zap className="h-4 w-4 text-[#c4956a] fill-[#c4956a]" />
         <div>
           <p className="text-xs font-semibold text-foreground">STEAL DEALS</p>
-          <p className="text-[10px] text-muted-foreground">Pick any one of these items</p>
+          <p className="text-[10px] text-muted-foreground">More from this collection</p>
         </div>
       </div>
 

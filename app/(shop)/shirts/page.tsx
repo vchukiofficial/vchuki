@@ -9,7 +9,7 @@ import { ShirtsVariantGrid } from "@/components/products/ShirtsVariantGrid"
 
 export const metadata: Metadata = {
   title: "Shop Premium Shirts for Men — Formal, Casual, Linen | VCHUKI",
-  description: "Browse VCHUKI's collection of premium shirts for men. Formal, casual, linen, cotton & premium shirts. Free shipping above ₹999.",
+  description: "Browse VCHUKI's collection of premium shirts for men. Formal, casual, linen, cotton & premium shirts. Free shipping above ₹1,599.",
   keywords: ["buy shirts online", "premium shirts india", "formal shirts men", "casual shirts", "linen shirts online", "vchuki shirts"],
   alternates: { canonical: "https://vchuki.com/shirts" },
 }
@@ -133,7 +133,7 @@ export default async function ShirtsPage({ searchParams }: Props) {
     if (searchParams.size) {
       for (const [, card] of colorMap) {
         if (card.availableSizes.includes(searchParams.size)) {
-          variantCards.push(card)
+          variantCards.push({ ...card, availableSizes: [searchParams.size] })
         }
       }
     } else {
@@ -158,7 +158,7 @@ export default async function ShirtsPage({ searchParams }: Props) {
       {/* Header */}
       <div className="mb-5">
         <h1 className="text-xl md:text-3xl font-light tracking-tight text-foreground">Premium Shirts for Men</h1>
-        <p className="text-xs md:text-sm text-muted-foreground mt-1">{serialized.length} variants · Free shipping above ₹999</p>
+        <p className="text-xs md:text-sm text-muted-foreground mt-1">{serialized.length} variants · Free shipping above ₹1,599</p>
       </div>
 
       {/* Category pills */}

@@ -36,7 +36,7 @@ const FALLBACK_CATEGORIES: HeroCategory[] = [
   },
   {
     label: "Full Sleeve Shirts",
-    slug: "linen",
+    slug: "linen-full-sleeve",
     tagline: "Timeless Luxury",
     basePrice: 899,
     colors: [
@@ -67,10 +67,10 @@ const FALLBACK_CATEGORIES: HeroCategory[] = [
   },
 ]
 
-const CATEGORY_SLUGS = ["linen-half-sleeve", "linen", "kurta-half-sleeve", "kurta-full-sleeve"]
+const CATEGORY_SLUGS = ["linen-half-sleeve", "linen-full-sleeve", "kurta-half-sleeve", "kurta-full-sleeve"]
 const CATEGORY_LABELS: Record<string, { label: string; tagline: string }> = {
   "linen-half-sleeve": { label: "Half Sleeve Shirts", tagline: "Summer Ease" },
-  "linen": { label: "Full Sleeve Shirts", tagline: "Timeless Luxury" },
+  "linen-full-sleeve": { label: "Full Sleeve Shirts", tagline: "Timeless Luxury" },
   "kurta-half-sleeve": { label: "Half Kurta", tagline: "Modern Ethnic" },
   "kurta-full-sleeve": { label: "Full Kurta", tagline: "Heritage Craft" },
 }

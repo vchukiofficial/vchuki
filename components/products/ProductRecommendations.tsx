@@ -41,7 +41,7 @@ export default function ProductRecommendations({ currentProductId, currentCatego
     async function fetchRecommendations() {
       try {
         // Fetch from other categories
-        const allCategories = ["linen-half-sleeve", "linen", "kurta-half-sleeve", "kurta-full-sleeve"]
+        const allCategories = ["linen-half-sleeve", "linen-full-sleeve", "kurta-half-sleeve", "kurta-full-sleeve"]
         const otherCategories = allCategories.filter((c) => c !== currentCategory)
 
         const results: RecommendedProduct[] = []
