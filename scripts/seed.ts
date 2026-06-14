@@ -282,10 +282,17 @@ async function seed() {
 
   async function createCategoryProducts(items: any[], categoryTag: string, sleeveTag: string, productType: string) {
     const products: any[] = [];
-    for (const item of items) {
+    const extraTags = ['summer', 'luxury', 'featured'];
+    for (let idx = 0; idx < items.length; idx++) {
+      const item = items[idx];
       const tags = ['linen', sleeveTag, 'new-launch', 'premium'];
       if (productType === 'kurta') tags.push('kurta');
       if (item.basePrice >= 899) tags.push('bestseller');
+      // Distribute extra tags across products so all filters have results
+      tags.push(extraTags[idx % extraTags.length]);
+      if (idx < 2) tags.push('summer');
+      if (idx >= 3) tags.push('luxury');
+      if (idx === 0 || idx === 2) tags.push('featured');
 
       const product = await Product.create({
         name: item.name,

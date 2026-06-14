@@ -80,7 +80,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   }
 
   if (searchParams.tag) {
-    query.tags = { ...query.tags, $in: [searchParams.tag] }
+    query.tags = { $in: [searchParams.tag] }
   }
   if (searchParams.price) {
     const [min, max] = searchParams.price.split("-").map(Number)
@@ -94,7 +94,22 @@ export default async function CategoryPage({ params, searchParams }: Props) {
     case "rating": sort = { rating: -1 }; break
   }
 
-  const products = await Product.find(query).sort(sort).lean()
+  let products = await Product.find(query).sort(sort).lean()
+
+  // Fallback: if tag filter returns 0, show all products in category
+  if (products.length === 0 && searchParams.tag) {
+    const fallbackQuery: Record<string, any> = { isActive: true }
+    if (params.category === "linen") {
+      fallbackQuery.category = { $in: ["linen-full-sleeve", "linen-half-sleeve"] }
+    } else {
+      fallbackQuery.category = params.category
+    }
+    if (searchParams.price) {
+      const [min, max] = searchParams.price.split("-").map(Number)
+      fallbackQuery.basePrice = { $gte: min, $lte: max }
+    }
+    products = await Product.find(fallbackQuery).sort(sort).lean()
+  }
 
   // Expand into variant cards
   const variantCards: any[] = []
@@ -142,6 +157,13 @@ export default async function CategoryPage({ params, searchParams }: Props) {
     } else {
       variantCards.push(...colorMap.values())
     }
+  }
+
+  // Shuffle variant cards for fresh display
+  const seed = new Date().toDateString().split("").reduce((a, c) => a + c.charCodeAt(0), 0)
+  for (let i = variantCards.length - 1; i > 0; i--) {
+    const j = (seed * (i + 1) * 7919) % (i + 1)
+    ;[variantCards[i], variantCards[j]] = [variantCards[j], variantCards[i]]
   }
 
   const serialized = JSON.parse(JSON.stringify(variantCards))

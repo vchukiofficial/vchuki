@@ -27,19 +27,34 @@ interface Props {
   searchParams: { search?: string; page?: string; sort?: string; price?: string; tag?: string; size?: string; category?: string }
 }
 
+// Shuffle array deterministically per-day so it changes daily but stays consistent within a session
+function shuffleArray<T>(arr: T[]): T[] {
+  const shuffled = [...arr]
+  const seed = new Date().toDateString().split("").reduce((a, c) => a + c.charCodeAt(0), 0)
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = (seed * (i + 1) * 7919) % (i + 1)
+    ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+  }
+  return shuffled
+}
+
 export default async function ShirtsPage({ searchParams }: Props) {
   await connectDB()
 
   const query: Record<string, any> = { isActive: true }
   if (searchParams.search) query.name = { $regex: searchParams.search, $options: "i" }
 
-  // Category filter — direct category field match
+  // Category filter
   if (searchParams.category) {
     query.category = searchParams.category
   }
+
+  // Tag filter — use $in so it matches products that have the tag
   if (searchParams.tag) {
-    query.tags = searchParams.tag
+    query.tags = { $in: [searchParams.tag] }
   }
+
+  // Price filter
   if (searchParams.price) {
     const [min, max] = searchParams.price.split("-").map(Number)
     query.basePrice = { $gte: min, $lte: max }
@@ -49,17 +64,32 @@ export default async function ShirtsPage({ searchParams }: Props) {
   switch (searchParams.sort) {
     case "price-asc": sort = { basePrice: 1 }; break
     case "price-desc": sort = { basePrice: -1 }; break
-    case "bestseller": query.tags = { ...(query.tags || {}), $in: [...(query.tags?.$in || []), "bestseller"] }; break
+    case "bestseller": sort = { rating: -1 }; break
     case "rating": sort = { rating: -1 }; break
   }
 
   const page = Number(searchParams.page) || 1
   const limit = 24
 
-  const [products, total] = await Promise.all([
+  let [products, total] = await Promise.all([
     Product.find(query).sort(sort).skip((page - 1) * limit).limit(limit).lean(),
     Product.countDocuments(query),
   ])
+
+  // Fallback: if tag filter returns 0 results, show all products in that category without tag filter
+  if (products.length === 0 && searchParams.tag) {
+    const fallbackQuery: Record<string, any> = { isActive: true }
+    if (searchParams.category) fallbackQuery.category = searchParams.category
+    if (searchParams.search) fallbackQuery.name = { $regex: searchParams.search, $options: "i" }
+    if (searchParams.price) {
+      const [min, max] = searchParams.price.split("-").map(Number)
+      fallbackQuery.basePrice = { $gte: min, $lte: max }
+    }
+    ;[products, total] = await Promise.all([
+      Product.find(fallbackQuery).sort(sort).skip((page - 1) * limit).limit(limit).lean(),
+      Product.countDocuments(fallbackQuery),
+    ])
+  }
 
   // Expand products into variant cards (one per unique color, in-stock only)
   const variantCards: any[] = []
@@ -68,7 +98,6 @@ export default async function ShirtsPage({ searchParams }: Props) {
     const variants = await ProductVariant.find({ product: p._id, stock: { $gt: 0 } }).lean()
 
     if (variants.length === 0) {
-      // Show product without variant expansion
       variantCards.push({ ...p, _id: p._id.toString() })
       continue
     }
@@ -112,7 +141,9 @@ export default async function ShirtsPage({ searchParams }: Props) {
     }
   }
 
-  const serialized = JSON.parse(JSON.stringify(variantCards))
+  // Shuffle variants for fresh display
+  const shuffledCards = shuffleArray(variantCards)
+  const serialized = JSON.parse(JSON.stringify(shuffledCards))
   const totalPages = Math.ceil(total / limit)
 
   return (
@@ -130,7 +161,7 @@ export default async function ShirtsPage({ searchParams }: Props) {
         <p className="text-xs md:text-sm text-muted-foreground mt-1">{serialized.length} variants · Free shipping above ₹999</p>
       </div>
 
-      {/* Category pills — these apply as filters, not navigation */}
+      {/* Category pills */}
       <div className="flex gap-2 overflow-x-auto no-scrollbar mb-5 pb-1">
         <Link
           href="/shirts"
@@ -141,7 +172,6 @@ export default async function ShirtsPage({ searchParams }: Props) {
           All
         </Link>
         {categories.map((cat) => {
-          // Build URL preserving existing filters
           const params = new URLSearchParams()
           if (searchParams.sort) params.set("sort", searchParams.sort)
           if (searchParams.price) params.set("price", searchParams.price)
@@ -169,7 +199,7 @@ export default async function ShirtsPage({ searchParams }: Props) {
         <ProductFilters />
       </Suspense>
 
-      {/* Products Grid — variant expanded */}
+      {/* Products Grid */}
       <ShirtsVariantGrid products={serialized} />
 
       {serialized.length === 0 && (
