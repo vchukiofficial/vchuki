@@ -94,8 +94,26 @@ function QuickAddVariant({ product, onSizeSelect }: { product: VariantProduct; o
 export function ShirtsVariantGrid({ products }: { products: VariantProduct[] }) {
   const [selectedSizes, setSelectedSizes] = useState<Record<string, string>>({})
   const { items: wishlistItems, toggle: toggleWishlist, load: loadWishlist } = useWishlistStore()
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false)
 
   useEffect(() => { loadWishlist() }, [loadWishlist])
+
+  async function handleWishlistToggle(e: React.MouseEvent, productId: string) {
+    e.preventDefault()
+    e.stopPropagation()
+    const prevItems = [...wishlistItems]
+    await toggleWishlist(productId)
+    // If store reverted (meaning API returned 401), show login prompt
+    setTimeout(() => {
+      const current = useWishlistStore.getState().items
+      const wasInList = prevItems.includes(productId)
+      const isInList = current.includes(productId)
+      if (wasInList === isInList && !wasInList) {
+        setShowLoginPrompt(true)
+        setTimeout(() => setShowLoginPrompt(false), 3000)
+      }
+    }, 600)
+  }
 
   function handleSizeSelect(productId: string, size: string) {
     setSelectedSizes((prev) => ({ ...prev, [productId]: size }))
@@ -156,7 +174,7 @@ export function ShirtsVariantGrid({ products }: { products: VariantProduct[] }) 
                       ? "bg-red-500/20 opacity-100"
                       : "bg-white/80 dark:bg-black/50 opacity-0 group-hover:opacity-100"
                   }`}
-                  onClick={(e) => { e.preventDefault(); toggleWishlist(product.productId || product._id.split("-")[0]) }}
+                  onClick={(e) => handleWishlistToggle(e, product.productId || product._id.split("-")[0])}
                 >
                   <Heart className={`h-3.5 w-3.5 ${
                     wishlistItems.includes(product.productId || product._id.split("-")[0])
@@ -194,6 +212,14 @@ export function ShirtsVariantGrid({ products }: { products: VariantProduct[] }) 
           </div>
         )
       })}
+
+      {/* Login prompt toast */}
+      {showLoginPrompt && (
+        <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 bg-foreground text-background px-4 py-3 text-xs font-medium shadow-xl animate-in fade-in slide-in-from-bottom-4 flex items-center gap-3">
+          <Heart className="h-3.5 w-3.5" />
+          <span>Please <a href="/auth/login" className="underline text-[#c4956a]">sign in</a> to save items to wishlist</span>
+        </div>
+      )}
     </div>
   )
 }

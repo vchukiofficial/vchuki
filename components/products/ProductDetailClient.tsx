@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react"
 import Image from "next/image"
+import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { useCartStore } from "@/store/cartStore"
 import { useWishlistStore } from "@/store/wishlistStore"
@@ -17,9 +18,10 @@ interface Props {
   product: Product
   variants: ProductVariant[]
   reviews: Review[]
+  siblingColors?: { name: string; hex: string; slug: string }[]
 }
 
-export default function ProductDetailClient({ product, variants, reviews }: Props) {
+export default function ProductDetailClient({ product, variants, reviews, siblingColors = [] }: Props) {
   const addItem = useCartStore((s) => s.addItem)
   const searchParams = useSearchParams()
   const { items: wishlistItems, toggle: toggleWishlist, load: loadWishlist } = useWishlistStore()
@@ -164,12 +166,13 @@ export default function ProductDetailClient({ product, variants, reviews }: Prop
           <p className="text-sm text-muted-foreground leading-relaxed">{product.description}</p>
 
           {/* Color Selection */}
-          {colors.length > 0 && (
+          {(colors.length > 0 || siblingColors.length > 0) && (
             <div>
               <p className="text-xs font-medium mb-2.5 text-foreground">
                 Color: <span className="text-[#c4956a] font-normal">{selectedColor}</span>
               </p>
-              <div className="flex gap-2.5">
+              <div className="flex gap-2.5 flex-wrap">
+                {/* Current product's colors */}
                 {colors.map((color) => (
                   <button
                     key={color.name}
@@ -180,10 +183,24 @@ export default function ProductDetailClient({ product, variants, reviews }: Prop
                     style={{ backgroundColor: color.hex }}
                     title={color.name}
                   >
-                    {(color.hex === "#FFFFFF" || color.hex === "#F5E6D3" || color.hex === "#f5e6d3") && (
+                    {(color.hex === "#FFFFFF" || color.hex === "#F5E6D3" || color.hex === "#f5e6d3" || color.hex === "#F5F3EE") && (
                       <span className="absolute inset-0 rounded-full border border-border" />
                     )}
                   </button>
+                ))}
+                {/* Sibling product colors (navigate to other product) */}
+                {siblingColors.map((sib) => (
+                  <Link
+                    key={sib.slug}
+                    href={`/product/${sib.slug}?color=${encodeURIComponent(sib.name)}&size=${selectedSize}`}
+                    className="h-9 w-9 rounded-full transition-all relative hover:scale-105 border-2 border-border hover:border-[#c4956a]/50"
+                    style={{ backgroundColor: sib.hex }}
+                    title={sib.name}
+                  >
+                    {(sib.hex === "#FFFFFF" || sib.hex === "#F5F3EE") && (
+                      <span className="absolute inset-0 rounded-full border border-border" />
+                    )}
+                  </Link>
                 ))}
               </div>
             </div>

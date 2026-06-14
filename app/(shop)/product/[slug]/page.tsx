@@ -60,6 +60,17 @@ export default async function ProductPage({ params }: Props) {
     }
   }
 
+  // Fetch sibling products (same category, different colors) for color swatches
+  const siblingProducts = await Product.find({ category: p.category, _id: { $ne: p._id }, isActive: true }).select("name slug").lean()
+  const siblingColors: { name: string; hex: string; slug: string }[] = []
+  for (const sib of siblingProducts) {
+    const sibAny = sib as any
+    const firstVariant = await ProductVariant.findOne({ product: sibAny._id }).select("color").lean() as any
+    if (firstVariant?.color) {
+      siblingColors.push({ name: firstVariant.color.name, hex: firstVariant.color.hex, slug: sibAny.slug })
+    }
+  }
+
   const avgRating = (reviews && reviews.length > 0)
     ? reviews.reduce((sum: number, r: any) => sum + (r.rating || 0), 0) / reviews.length
     : 0
@@ -128,6 +139,7 @@ export default async function ProductPage({ params }: Props) {
         product={JSON.parse(JSON.stringify(product))}
         variants={JSON.parse(JSON.stringify(variants))}
         reviews={JSON.parse(JSON.stringify(reviews))}
+        siblingColors={siblingColors}
       />
 
       <ProductRecommendations
