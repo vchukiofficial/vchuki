@@ -4,6 +4,7 @@ export interface Product {
   slug: string
   description: string
   basePrice: number
+  comparePrice?: number
   images: string[]
   category: string
   tags: string[]

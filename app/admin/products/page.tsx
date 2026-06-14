@@ -9,6 +9,7 @@ import { Plus, Trash2, Star, Search, Package, X, Palette, Image as ImageIcon, Do
 import Image from "next/image"
 import Link from "next/link"
 import { exportToExcel } from "@/lib/admin/exportExcel"
+import { ConfirmDialog } from "@/components/admin/ConfirmDialog"
 
 const PRESET_COLORS = [
   { name: "Desert Sand", hex: "#D4A574" },
@@ -45,6 +46,8 @@ export default function AdminProductsPage() {
   const [mainImage, setMainImage] = useState("")
   const [variants, setVariants] = useState<VariantRow[]>([])
   const [selected, setSelected] = useState<Set<string>>(new Set())
+  const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; type: "single" | "bulk"; id?: string }>({ open: false, type: "single" })
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => { fetchProducts() }, [fetchProducts])
 
@@ -62,11 +65,24 @@ export default function AdminProductsPage() {
   }
 
   async function bulkDelete() {
-    if (!confirm(`Delete ${selected.size} product(s)? This cannot be undone.`)) return
-    for (const id of selected) {
-      await deleteProduct(id)
+    setDeleteDialog({ open: true, type: "bulk" })
+  }
+
+  async function confirmDelete() {
+    setDeleting(true)
+    try {
+      if (deleteDialog.type === "bulk") {
+        for (const id of selected) {
+          await deleteProduct(id)
+        }
+        setSelected(new Set())
+      } else if (deleteDialog.id) {
+        await deleteProduct(deleteDialog.id)
+      }
+    } finally {
+      setDeleting(false)
+      setDeleteDialog({ open: false, type: "single" })
     }
-    setSelected(new Set())
   }
 
   function addVariant() {
@@ -469,7 +485,7 @@ export default function AdminProductsPage() {
                     </button>
                   </td>
                   <td className="p-3">
-                    <button onClick={() => deleteProduct(product._id)} className="text-muted-foreground hover:text-red-500 transition-colors">
+                    <button onClick={() => setDeleteDialog({ open: true, type: "single", id: product._id })} className="text-muted-foreground hover:text-red-500 transition-colors">
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>
                   </td>
@@ -484,6 +500,21 @@ export default function AdminProductsPage() {
           )}
         </div>
       )}
+
+      {/* Confirmation Dialog */}
+      <ConfirmDialog
+        open={deleteDialog.open}
+        onClose={() => setDeleteDialog({ open: false, type: "single" })}
+        onConfirm={confirmDelete}
+        title={deleteDialog.type === "bulk" ? `Delete ${selected.size} Product(s)?` : "Delete Product?"}
+        description={deleteDialog.type === "bulk"
+          ? `You are about to permanently delete ${selected.size} product(s) and all their variants. This cannot be undone.`
+          : "This product and all its variants will be permanently deleted."
+        }
+        confirmText="Delete Permanently"
+        variant="danger"
+        loading={deleting}
+      />
     </div>
   )
 }

@@ -13,6 +13,7 @@ interface VariantProduct {
   name: string
   slug: string
   basePrice: number
+  comparePrice?: number
   images: string[]
   category: string
   tags?: string[]
@@ -175,8 +176,13 @@ export function ShirtsVariantGrid({ products }: { products: VariantProduct[] }) 
                 <h2 className="text-[11px] md:text-xs font-normal line-clamp-1 text-foreground/80 group-hover:text-foreground transition-colors">{product.name}</h2>
                 <div className="flex items-center gap-2 mt-0.5">
                   <p className="text-sm font-semibold text-foreground">₹{displayPrice?.toLocaleString()}</p>
-                  {isVariant && product.availableSizes && product.availableSizes.length > 0 && (
-                    <span className="text-[10px] text-muted-foreground">{product.availableSizes.join(" · ")}</span>
+                  {product.comparePrice && product.comparePrice > (displayPrice || 0) && (
+                    <p className="text-xs text-muted-foreground line-through">₹{product.comparePrice.toLocaleString()}</p>
+                  )}
+                  {product.comparePrice && product.comparePrice > (displayPrice || 0) && (
+                    <span className="text-[9px] px-1 py-0.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold">
+                      {Math.round(((product.comparePrice - (displayPrice || 0)) / product.comparePrice) * 100)}% OFF
+                    </span>
                   )}
                 </div>
               </Link>

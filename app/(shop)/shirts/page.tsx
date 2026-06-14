@@ -33,27 +33,12 @@ export default async function ShirtsPage({ searchParams }: Props) {
   const query: Record<string, any> = { isActive: true }
   if (searchParams.search) query.name = { $regex: searchParams.search, $options: "i" }
 
-  // Build tag conditions separately then combine with $and
-  const tagConditions: any[] = []
-
+  // Category filter — direct category field match
   if (searchParams.category) {
-    let categoryTags: string[] = []
-    switch (searchParams.category) {
-      case "linen-full-sleeve": categoryTags = ["linen", "full-sleeve"]; break
-      case "linen-half-sleeve": categoryTags = ["half-sleeve"]; break
-      case "kurta-full-sleeve": categoryTags = ["kurta", "full-sleeve"]; break
-      case "kurta-half-sleeve": categoryTags = ["kurta", "half-sleeve"]; break
-      default: query.category = searchParams.category
-    }
-    if (categoryTags.length > 0) {
-      tagConditions.push({ tags: { $all: categoryTags } })
-    }
+    query.category = searchParams.category
   }
   if (searchParams.tag) {
-    tagConditions.push({ tags: searchParams.tag })
-  }
-  if (tagConditions.length > 0) {
-    query.$and = tagConditions
+    query.tags = searchParams.tag
   }
   if (searchParams.price) {
     const [min, max] = searchParams.price.split("-").map(Number)
@@ -98,6 +83,7 @@ export default async function ShirtsPage({ searchParams }: Props) {
           ...p,
           _id: `${p._id}-${colorName}`,
           productId: p._id.toString(),
+          comparePrice: p.comparePrice || 0,
           variantColor: vAny.color,
           variantImage: vAny.images?.[0] || p.images?.[0],
           variantPrice: p.basePrice + (vAny.priceAdjustment || 0),

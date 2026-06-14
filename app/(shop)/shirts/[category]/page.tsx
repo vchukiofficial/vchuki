@@ -71,18 +71,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
 
   await connectDB()
 
-  const query: Record<string, any> = { isActive: true }
-  if (params.category === "linen-full-sleeve") {
-    query.tags = { $all: ["linen", "full-sleeve"] }
-  } else if (params.category === "linen-half-sleeve") {
-    query.tags = { $all: ["half-sleeve"] }
-  } else if (params.category === "kurta-full-sleeve") {
-    query.tags = { $all: ["kurta", "full-sleeve"] }
-  } else if (params.category === "kurta-half-sleeve") {
-    query.tags = { $all: ["kurta", "half-sleeve"] }
-  } else if (params.category === "linen") {
-    query.$or = [{ tags: { $in: ["linen"] } }, { category: "linen" }]
-  }
+  const query: Record<string, any> = { isActive: true, category: params.category }
 
   if (searchParams.tag) {
     query.tags = { ...query.tags, $in: [searchParams.tag] }
@@ -121,6 +110,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
           ...p,
           _id: `${p._id}-${colorName}`,
           productId: p._id.toString(),
+          comparePrice: p.comparePrice || 0,
           variantColor: vAny.color,
           variantImage: vAny.images?.[0] || p.images?.[0],
           variantPrice: p.basePrice + (vAny.priceAdjustment || 0),

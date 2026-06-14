@@ -149,7 +149,17 @@ export default function ProductDetailClient({ product, variants, reviews }: Prop
             )}
           </div>
 
-          <p className="text-2xl font-semibold tracking-tight text-foreground">₹{price.toLocaleString()}</p>
+          <div className="flex items-center gap-3">
+            <p className="text-2xl font-semibold tracking-tight text-foreground">₹{price.toLocaleString()}</p>
+            {product.comparePrice && product.comparePrice > price && (
+              <>
+                <p className="text-lg text-muted-foreground line-through">₹{product.comparePrice.toLocaleString()}</p>
+                <span className="text-xs px-2 py-0.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold">
+                  {Math.round(((product.comparePrice - price) / product.comparePrice) * 100)}% OFF
+                </span>
+              </>
+            )}
+          </div>
 
           <p className="text-sm text-muted-foreground leading-relaxed">{product.description}</p>
 
