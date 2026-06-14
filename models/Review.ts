@@ -7,6 +7,8 @@ export interface IReview extends Document {
   comment?: string
   images?: string[]
   verifiedPurchase: boolean
+  status: 'pending' | 'approved' | 'hidden'
+  featured: boolean
 }
 
 const ReviewSchema: Schema = new Schema({
@@ -16,6 +18,8 @@ const ReviewSchema: Schema = new Schema({
   comment: String,
   images: [String],
   verifiedPurchase: { type: Boolean, default: false },
+  status: { type: String, enum: ['pending', 'approved', 'hidden'], default: 'approved' },
+  featured: { type: Boolean, default: false },
 }, { timestamps: true })
 
 ReviewSchema.index({ product: 1, user: 1 }, { unique: true })

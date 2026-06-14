@@ -47,7 +47,7 @@ export default async function ProductPage({ params }: Props) {
 
   const p = product as any
   const variants = await ProductVariant.find({ product: p._id }).lean()
-  const reviews = await Review.find({ product: p._id }).populate("user", "name").lean()
+  const reviews = await Review.find({ product: p._id, status: { $ne: "hidden" } }).populate("user", "name").lean()
 
   const avgRating = reviews.length > 0
     ? reviews.reduce((sum: number, r: any) => sum + r.rating, 0) / reviews.length

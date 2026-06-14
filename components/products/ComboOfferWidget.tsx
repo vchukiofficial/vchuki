@@ -57,6 +57,9 @@ export function ComboOfferWidget({ category, productName }: Props) {
 }
 
 function OfferRow({ offer }: { offer: ComboOffer }) {
+  const hasPrice = (offer.originalPrice || 0) > 0
+  const sellingPrice = offer.sellingPrice || (offer.originalPrice ? Math.round(offer.originalPrice * (1 - offer.discount / 100)) : 0)
+
   return (
     <div className="flex items-start gap-2 py-2 border-b border-border/50 last:border-0">
       <div className="mt-0.5 h-4 w-4 rounded bg-[#c4956a]/10 flex items-center justify-center flex-shrink-0">
@@ -68,9 +71,17 @@ function OfferRow({ offer }: { offer: ComboOffer }) {
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-[11px] font-medium text-foreground leading-tight">{offer.description}</p>
-        <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold mt-0.5">
-          {offer.discount}% OFF · Auto-applied at checkout
-        </p>
+        {hasPrice ? (
+          <div className="flex items-center gap-2 mt-0.5">
+            <span className="text-[11px] font-semibold text-foreground">₹{sellingPrice.toLocaleString()}</span>
+            <span className="text-[10px] text-muted-foreground line-through">₹{offer.originalPrice!.toLocaleString()}</span>
+            <span className="text-[9px] px-1 py-0.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold">{offer.discount}% OFF</span>
+          </div>
+        ) : (
+          <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold mt-0.5">
+            {offer.discount}% OFF · Auto-applied at checkout
+          </p>
+        )}
       </div>
     </div>
   )

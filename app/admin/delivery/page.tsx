@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { Package, Truck, CheckCircle, Clock, AlertTriangle, MapPin, Phone, RefreshCw, XCircle, Download, Trash2 } from "lucide-react"
 import { exportToExcel } from "@/lib/admin/exportExcel"
+import { ConfirmDialog } from "@/components/admin/ConfirmDialog"
 
 const COURIER_COLORS: Record<string, string> = {
   "Delhivery": "bg-blue-500/10 text-blue-600 dark:text-blue-400",
@@ -30,6 +31,8 @@ export default function AdminDeliveryPage() {
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [pincodeCheck, setPincodeCheck] = useState("")
   const [pincodeResult, setPincodeResult] = useState<string | null>(null)
+  const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; type: "single" | "bulk"; id?: string }>({ open: false, type: "single" })
+  const [deleting, setDeleting] = useState(false)
 
   function fetchOrders() {
     setLoading(true)
@@ -55,19 +58,22 @@ export default function AdminDeliveryPage() {
     else setSelected(new Set(filtered.map(o => o._id)))
   }
 
-  async function bulkDelete() {
-    if (!confirm(`Delete ${selected.size} delivery record(s)?`)) return
-    for (const id of selected) {
-      await fetch(`/api/orders/${id}`, { method: "DELETE", credentials: "include" })
+  async function confirmDelete() {
+    setDeleting(true)
+    try {
+      if (deleteDialog.type === "bulk") {
+        for (const id of selected) {
+          await fetch(`/api/orders/${id}`, { method: "DELETE", credentials: "include" })
+        }
+        setSelected(new Set())
+      } else if (deleteDialog.id) {
+        await fetch(`/api/orders/${deleteDialog.id}`, { method: "DELETE", credentials: "include" })
+      }
+      fetchOrders()
+    } finally {
+      setDeleting(false)
+      setDeleteDialog({ open: false, type: "single" })
     }
-    setSelected(new Set())
-    fetchOrders()
-  }
-
-  async function singleDelete(id: string) {
-    if (!confirm("Delete this delivery record?")) return
-    await fetch(`/api/orders/${id}`, { method: "DELETE", credentials: "include" })
-    fetchOrders()
   }
 
   async function updateStatus(id: string, status: string) {
@@ -134,7 +140,7 @@ export default function AdminDeliveryPage() {
         </div>
         <div className="flex items-center gap-2">
           {selected.size > 0 && (
-            <button onClick={bulkDelete} className="flex items-center gap-1.5 px-3 py-1.5 bg-red-500 text-white text-[10px] font-medium uppercase tracking-wider hover:bg-red-600 transition-colors">
+            <button onClick={() => setDeleteDialog({ open: true, type: "bulk" })} className="flex items-center gap-1.5 px-3 py-1.5 bg-red-500 text-white text-[10px] font-medium uppercase tracking-wider hover:bg-red-600 transition-colors">
               <Trash2 className="h-3 w-3" /> Delete ({selected.size})
             </button>
           )}
@@ -226,7 +232,7 @@ export default function AdminDeliveryPage() {
                       <option key={key} value={key}>{val.label}</option>
                     ))}
                   </select>
-                  <button onClick={() => singleDelete(order._id)} className="h-6 w-6 border border-border flex items-center justify-center text-muted-foreground hover:text-red-500 transition-colors">
+                  <button onClick={() => setDeleteDialog({ open: true, type: "single", id: order._id })} className="h-6 w-6 border border-border flex items-center justify-center text-muted-foreground hover:text-red-500 transition-colors">
                     <Trash2 className="h-2.5 w-2.5" />
                   </button>
                 </div>
@@ -247,6 +253,21 @@ export default function AdminDeliveryPage() {
           )
         })}
       </div>
+
+      {/* Confirmation Dialog */}
+      <ConfirmDialog
+        open={deleteDialog.open}
+        onClose={() => setDeleteDialog({ open: false, type: "single" })}
+        onConfirm={confirmDelete}
+        title={deleteDialog.type === "bulk" ? `Delete ${selected.size} Record(s)?` : "Delete Delivery Record?"}
+        description={deleteDialog.type === "bulk"
+          ? `You are about to permanently delete ${selected.size} delivery record(s). This will also remove the associated orders.`
+          : "This delivery record and associated order will be permanently deleted."
+        }
+        confirmText="Delete Permanently"
+        variant="danger"
+        loading={deleting}
+      />
     </div>
   )
 }

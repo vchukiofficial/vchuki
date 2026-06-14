@@ -3,12 +3,15 @@
 import { useEffect, useState } from "react"
 import { Star, Trash2, Check, Pin, Eye, EyeOff, RefreshCw, Download } from "lucide-react"
 import { exportToExcel } from "@/lib/admin/exportExcel"
+import { ConfirmDialog } from "@/components/admin/ConfirmDialog"
 
 export default function AdminReviewsPage() {
   const [reviews, setReviews] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<"all" | "pending" | "approved" | "featured">("all")
   const [selected, setSelected] = useState<Set<string>>(new Set())
+  const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; type: "single" | "bulk"; id?: string }>({ open: false, type: "single" })
+  const [deleting, setDeleting] = useState(false)
 
   function fetchReviews() {
     setLoading(true)
@@ -32,30 +35,43 @@ export default function AdminReviewsPage() {
     else setSelected(new Set(filtered.map(r => r._id)))
   }
 
-  async function bulkDelete() {
-    if (!confirm(`Delete ${selected.size} review(s)?`)) return
-    for (const id of selected) {
-      await fetch(`/api/reviews/${id}`, { method: "DELETE", credentials: "include" })
+  async function confirmDelete() {
+    setDeleting(true)
+    try {
+      if (deleteDialog.type === "bulk") {
+        for (const id of selected) {
+          await fetch(`/api/reviews/${id}`, { method: "DELETE", credentials: "include" })
+        }
+        setReviews(reviews.filter(r => !selected.has(r._id)))
+        setSelected(new Set())
+      } else if (deleteDialog.id) {
+        await fetch(`/api/reviews/${deleteDialog.id}`, { method: "DELETE", credentials: "include" })
+        setReviews(reviews.filter(r => r._id !== deleteDialog.id))
+      }
+    } finally {
+      setDeleting(false)
+      setDeleteDialog({ open: false, type: "single" })
     }
-    setReviews(reviews.filter(r => !selected.has(r._id)))
-    setSelected(new Set())
   }
 
-  async function handleDelete(id: string) {
-    await fetch(`/api/reviews/${id}`, { method: "DELETE", credentials: "include" })
-    setReviews(reviews.filter(r => r._id !== id))
-  }
-
-  function handleApprove(id: string) {
+  async function handleApprove(id: string) {
+    await fetch(`/api/reviews/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify({ status: "approved" }) })
     setReviews(reviews.map(r => r._id === id ? { ...r, status: "approved" } : r))
   }
 
-  function handleToggleFeatured(id: string) {
+  async function handleToggleFeatured(id: string) {
+    const review = reviews.find(r => r._id === id)
+    if (!review) return
+    await fetch(`/api/reviews/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify({ featured: !review.featured }) })
     setReviews(reviews.map(r => r._id === id ? { ...r, featured: !r.featured } : r))
   }
 
-  function handleToggleActive(id: string) {
-    setReviews(reviews.map(r => r._id === id ? { ...r, status: r.status === "approved" ? "hidden" : "approved" } : r))
+  async function handleToggleActive(id: string) {
+    const review = reviews.find(r => r._id === id)
+    if (!review) return
+    const newStatus = review.status === "approved" ? "hidden" : "approved"
+    await fetch(`/api/reviews/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify({ status: newStatus }) })
+    setReviews(reviews.map(r => r._id === id ? { ...r, status: newStatus } : r))
   }
 
   async function handleExport() {
@@ -92,7 +108,6 @@ export default function AdminReviewsPage() {
     filter === "approved" ? reviews.filter(r => r.status === "approved") :
     reviews.filter(r => r.featured)
 
-  // Analytics
   const avgRating = reviews.length > 0 ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1) : "0"
   const fiveStars = reviews.filter(r => r.rating === 5).length
   const verified = reviews.filter(r => r.verifiedPurchase).length
@@ -108,7 +123,7 @@ export default function AdminReviewsPage() {
         </div>
         <div className="flex items-center gap-2">
           {selected.size > 0 && (
-            <button onClick={bulkDelete} className="flex items-center gap-1.5 px-3 py-1.5 bg-red-500 text-white text-[10px] font-medium uppercase tracking-wider hover:bg-red-600 transition-colors">
+            <button onClick={() => setDeleteDialog({ open: true, type: "bulk" })} className="flex items-center gap-1.5 px-3 py-1.5 bg-red-500 text-white text-[10px] font-medium uppercase tracking-wider hover:bg-red-600 transition-colors">
               <Trash2 className="h-3 w-3" /> Delete ({selected.size})
             </button>
           )}
@@ -123,26 +138,11 @@ export default function AdminReviewsPage() {
 
       {/* Analytics */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-        <div className="p-3 border border-border bg-card">
-          <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Total</p>
-          <p className="text-xl font-light text-foreground mt-1">{reviews.length}</p>
-        </div>
-        <div className="p-3 border border-border bg-card">
-          <p className="text-[10px] uppercase tracking-wider text-[#c4956a]">Avg Rating</p>
-          <p className="text-xl font-light text-foreground mt-1">{avgRating} ★</p>
-        </div>
-        <div className="p-3 border border-border bg-card">
-          <p className="text-[10px] uppercase tracking-wider text-emerald-600">5-Star</p>
-          <p className="text-xl font-light text-foreground mt-1">{fiveStars}</p>
-        </div>
-        <div className="p-3 border border-border bg-card">
-          <p className="text-[10px] uppercase tracking-wider text-blue-600">Verified</p>
-          <p className="text-xl font-light text-foreground mt-1">{verified}</p>
-        </div>
-        <div className="p-3 border border-border bg-card">
-          <p className="text-[10px] uppercase tracking-wider text-purple-600">Featured</p>
-          <p className="text-xl font-light text-foreground mt-1">{reviews.filter(r => r.featured).length}</p>
-        </div>
+        <div className="p-3 border border-border bg-card"><p className="text-[10px] uppercase tracking-wider text-muted-foreground">Total</p><p className="text-xl font-light text-foreground mt-1">{reviews.length}</p></div>
+        <div className="p-3 border border-border bg-card"><p className="text-[10px] uppercase tracking-wider text-[#c4956a]">Avg Rating</p><p className="text-xl font-light text-foreground mt-1">{avgRating} ★</p></div>
+        <div className="p-3 border border-border bg-card"><p className="text-[10px] uppercase tracking-wider text-emerald-600">5-Star</p><p className="text-xl font-light text-foreground mt-1">{fiveStars}</p></div>
+        <div className="p-3 border border-border bg-card"><p className="text-[10px] uppercase tracking-wider text-blue-600">Verified</p><p className="text-xl font-light text-foreground mt-1">{verified}</p></div>
+        <div className="p-3 border border-border bg-card"><p className="text-[10px] uppercase tracking-wider text-purple-600">Featured</p><p className="text-xl font-light text-foreground mt-1">{reviews.filter(r => r.featured).length}</p></div>
       </div>
 
       {/* Rating Breakdown */}
@@ -217,7 +217,7 @@ export default function AdminReviewsPage() {
                 <button onClick={() => handleApprove(r._id)} title="Approve" className="h-7 w-7 border border-border flex items-center justify-center text-muted-foreground hover:text-emerald-600 hover:border-emerald-500/30 transition-colors">
                   <Check className="h-3 w-3" />
                 </button>
-                <button onClick={() => handleDelete(r._id)} title="Delete" className="h-7 w-7 border border-border flex items-center justify-center text-muted-foreground hover:text-red-500 hover:border-red-500/30 transition-colors">
+                <button onClick={() => setDeleteDialog({ open: true, type: "single", id: r._id })} title="Delete" className="h-7 w-7 border border-border flex items-center justify-center text-muted-foreground hover:text-red-500 hover:border-red-500/30 transition-colors">
                   <Trash2 className="h-3 w-3" />
                 </button>
               </div>
@@ -225,6 +225,21 @@ export default function AdminReviewsPage() {
           </div>
         ))}
       </div>
+
+      {/* Confirmation Dialog */}
+      <ConfirmDialog
+        open={deleteDialog.open}
+        onClose={() => setDeleteDialog({ open: false, type: "single" })}
+        onConfirm={confirmDelete}
+        title={deleteDialog.type === "bulk" ? `Delete ${selected.size} Review(s)?` : "Delete Review?"}
+        description={deleteDialog.type === "bulk"
+          ? `You are about to permanently delete ${selected.size} customer review(s). This will affect product ratings.`
+          : "This review will be permanently deleted. The product rating will be recalculated."
+        }
+        confirmText="Delete Review"
+        variant="danger"
+        loading={deleting}
+      />
     </div>
   )
 }

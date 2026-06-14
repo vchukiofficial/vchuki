@@ -5,6 +5,7 @@ import { useAdminStore } from "@/store/adminStore"
 import { StatusBadge, SectionHeader, EmptyState } from "@/components/admin/ui"
 import { ShoppingCart, Package, Truck, Search, Download, ChevronDown, Trash2 } from "lucide-react"
 import { exportToExcel } from "@/lib/admin/exportExcel"
+import { ConfirmDialog } from "@/components/admin/ConfirmDialog"
 
 const STATUSES = ["pending", "confirmed", "packaging", "dispatched", "shipped", "out_for_delivery", "delivered", "returned", "cancelled"] as const
 const COURIERS = ["Delhivery", "Shiprocket", "Blue Dart", "DTDC"] as const
@@ -21,6 +22,8 @@ export default function AdminOrdersPage() {
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null)
   const [assigningCourier, setAssigningCourier] = useState<string | null>(null)
   const [selected, setSelected] = useState<Set<string>>(new Set())
+  const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; type: "single" | "bulk"; id?: string }>({ open: false, type: "single" })
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => { fetchOrders() }, [fetchOrders])
 
@@ -45,19 +48,22 @@ export default function AdminOrdersPage() {
     else setSelected(new Set(filtered.map(o => o._id)))
   }
 
-  async function bulkDelete() {
-    if (!confirm(`Delete ${selected.size} order(s)? This cannot be undone.`)) return
-    for (const id of selected) {
-      await fetch(`/api/orders/${id}`, { method: "DELETE", credentials: "include" })
+  async function confirmDelete() {
+    setDeleting(true)
+    try {
+      if (deleteDialog.type === "bulk") {
+        for (const id of selected) {
+          await fetch(`/api/orders/${id}`, { method: "DELETE", credentials: "include" })
+        }
+        setSelected(new Set())
+      } else if (deleteDialog.id) {
+        await fetch(`/api/orders/${deleteDialog.id}`, { method: "DELETE", credentials: "include" })
+      }
+      fetchOrders()
+    } finally {
+      setDeleting(false)
+      setDeleteDialog({ open: false, type: "single" })
     }
-    setSelected(new Set())
-    fetchOrders()
-  }
-
-  async function singleDelete(id: string) {
-    if (!confirm("Delete this order? This cannot be undone.")) return
-    await fetch(`/api/orders/${id}`, { method: "DELETE", credentials: "include" })
-    fetchOrders()
   }
 
   async function handleExport() {
@@ -119,7 +125,7 @@ export default function AdminOrdersPage() {
         <SectionHeader title="Orders" description={`${orders.length} total orders`} />
         <div className="flex items-center gap-2">
           {selected.size > 0 && (
-            <button onClick={bulkDelete} className="flex items-center gap-1.5 px-3 py-1.5 bg-red-500 text-white text-[10px] font-medium uppercase tracking-wider hover:bg-red-600 transition-colors">
+            <button onClick={() => setDeleteDialog({ open: true, type: "bulk" })} className="flex items-center gap-1.5 px-3 py-1.5 bg-red-500 text-white text-[10px] font-medium uppercase tracking-wider hover:bg-red-600 transition-colors">
               <Trash2 className="h-3 w-3" /> Delete ({selected.size})
             </button>
           )}
@@ -183,7 +189,7 @@ export default function AdminOrdersPage() {
                   <div className="flex items-center gap-3">
                     <StatusBadge status={order.shippingStatus} />
                     <span className="text-sm font-semibold text-foreground">₹{order.finalAmount?.toLocaleString()}</span>
-                    <button onClick={() => singleDelete(order._id)} className="h-7 w-7 border border-border flex items-center justify-center text-muted-foreground hover:text-red-500 hover:border-red-500/30 transition-colors">
+                    <button onClick={() => setDeleteDialog({ open: true, type: "single", id: order._id })} className="h-7 w-7 border border-border flex items-center justify-center text-muted-foreground hover:text-red-500 hover:border-red-500/30 transition-colors">
                       <Trash2 className="h-3 w-3" />
                     </button>
                     <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform cursor-pointer ${isExpanded ? "rotate-180" : ""}`} onClick={() => setExpandedOrder(isExpanded ? null : order._id)} />
@@ -275,6 +281,21 @@ export default function AdminOrdersPage() {
           })}
         </div>
       )}
+
+      {/* Confirmation Dialog */}
+      <ConfirmDialog
+        open={deleteDialog.open}
+        onClose={() => setDeleteDialog({ open: false, type: "single" })}
+        onConfirm={confirmDelete}
+        title={deleteDialog.type === "bulk" ? `Delete ${selected.size} Order(s)?` : "Delete Order?"}
+        description={deleteDialog.type === "bulk"
+          ? `You are about to permanently delete ${selected.size} order(s). This action cannot be undone and all associated data will be lost.`
+          : "This order will be permanently deleted. All order data, shipping details, and timeline history will be removed."
+        }
+        confirmText="Delete Permanently"
+        variant="danger"
+        loading={deleting}
+      />
     </div>
   )
 }

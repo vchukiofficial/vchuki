@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Plus, Trash2, Zap, ToggleLeft, ToggleRight } from "lucide-react"
+import { Plus, Trash2, Zap, ToggleLeft, ToggleRight, Tag } from "lucide-react"
+import { ConfirmDialog } from "@/components/admin/ConfirmDialog"
 
 interface ComboOffer {
   _id: string
@@ -15,6 +16,8 @@ interface ComboOffer {
   minQty: number
   isActive: boolean
   validTo: string
+  originalPrice?: number
+  sellingPrice?: number
 }
 
 const CATEGORY_OPTIONS = [
@@ -32,6 +35,8 @@ export default function AdminComboOffersPage() {
   const [showForm, setShowForm] = useState(false)
   const [loading, setLoading] = useState(true)
   const [selectedCats, setSelectedCats] = useState<string[]>([])
+  const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; id?: string }>({ open: false })
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
     fetch("/api/combo-offers")
@@ -42,13 +47,19 @@ export default function AdminComboOffersPage() {
   async function handleCreate(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     const fd = new FormData(e.currentTarget)
+    const originalPrice = Number(fd.get("originalPrice")) || 0
+    const discount = Number(fd.get("discount"))
+    const sellingPrice = originalPrice > 0 ? Math.round(originalPrice * (1 - discount / 100)) : 0
+
     const res = await fetch("/api/combo-offers", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         title: fd.get("title"),
         description: fd.get("description"),
-        discount: Number(fd.get("discount")),
+        discount,
+        originalPrice,
+        sellingPrice,
         categories: selectedCats,
         sizeGroup: fd.get("sizeGroup"),
         minQty: Number(fd.get("minQty")) || 2,
@@ -75,10 +86,16 @@ export default function AdminComboOffersPage() {
     }
   }
 
-  async function handleDelete(id: string) {
-    if (!confirm("Delete this combo offer?")) return
-    await fetch(`/api/combo-offers/${id}`, { method: "DELETE" })
-    setOffers(offers.filter((o) => o._id !== id))
+  async function confirmDelete() {
+    if (!deleteDialog.id) return
+    setDeleting(true)
+    try {
+      await fetch(`/api/combo-offers/${deleteDialog.id}`, { method: "DELETE" })
+      setOffers(offers.filter((o) => o._id !== deleteDialog.id))
+    } finally {
+      setDeleting(false)
+      setDeleteDialog({ open: false })
+    }
   }
 
   function toggleCategory(cat: string) {
@@ -115,6 +132,16 @@ export default function AdminComboOffersPage() {
             <div>
               <label className="text-[11px] text-muted-foreground">Discount %</label>
               <Input name="discount" type="number" required className="h-8 text-xs mt-1" placeholder="15" />
+            </div>
+            <div>
+              <label className="text-[11px] text-muted-foreground">Original Price (MRP for combo)</label>
+              <Input name="originalPrice" type="number" className="h-8 text-xs mt-1" placeholder="₹2,997" />
+            </div>
+            <div>
+              <label className="text-[11px] text-muted-foreground">Price Preview</label>
+              <div className="h-8 mt-1 flex items-center text-xs text-muted-foreground">
+                Selling price = MRP - discount%
+              </div>
             </div>
             <div className="col-span-2">
               <label className="text-[11px] text-muted-foreground">Description (shown to customer)</label>
@@ -173,56 +200,88 @@ export default function AdminComboOffersPage() {
             <p className="text-[10px] text-muted-foreground/60 mt-1">Create your first offer to boost sales</p>
           </div>
         ) : (
-          offers.map((offer) => (
-            <div
-              key={offer._id}
-              className={`p-4 border transition-all ${
-                offer.isActive ? "border-[#c4956a]/30 bg-[#c4956a]/5" : "border-border opacity-60"
-              }`}
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex-1 min-w-0">
+          offers.map((offer) => {
+            const originalPrice = offer.originalPrice || 0
+            const sellingPrice = offer.sellingPrice || (originalPrice > 0 ? Math.round(originalPrice * (1 - offer.discount / 100)) : 0)
+            const savings = originalPrice - sellingPrice
+
+            return (
+              <div
+                key={offer._id}
+                className={`p-4 border transition-all ${
+                  offer.isActive ? "border-[#c4956a]/30 bg-[#c4956a]/5" : "border-border opacity-60"
+                }`}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-sm font-medium text-foreground">{offer.title}</h3>
+                      <span className="text-[10px] px-1.5 py-0.5 bg-[#c4956a]/10 text-[#c4956a] font-bold">
+                        {offer.discount}% OFF
+                      </span>
+                      {!offer.isActive && (
+                        <span className="text-[10px] px-1.5 py-0.5 bg-muted text-muted-foreground">PAUSED</span>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-0.5">{offer.description}</p>
+
+                    {/* Pricing like Zara */}
+                    {originalPrice > 0 && (
+                      <div className="flex items-center gap-3 mt-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg font-semibold text-foreground">₹{sellingPrice.toLocaleString()}</span>
+                          <span className="text-sm text-muted-foreground line-through">₹{originalPrice.toLocaleString()}</span>
+                        </div>
+                        <span className="text-[10px] px-2 py-0.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold">
+                          SAVE ₹{savings.toLocaleString()}
+                        </span>
+                      </div>
+                    )}
+
+                    <div className="flex items-center gap-3 mt-2 text-[10px] text-muted-foreground">
+                      <span className="flex items-center gap-1"><Tag className="h-2.5 w-2.5" /> {offer.categories.join(", ")}</span>
+                      <span>Size: {offer.sizeGroup}</span>
+                      <span>Min Qty: {offer.minQty}</span>
+                      <span>Expires: {new Date(offer.validTo).toLocaleDateString("en-IN")}</span>
+                    </div>
+                  </div>
                   <div className="flex items-center gap-2">
-                    <h3 className="text-sm font-medium text-foreground">{offer.title}</h3>
-                    <span className="text-[10px] px-1.5 py-0.5 bg-[#c4956a]/10 text-[#c4956a] font-bold">
-                      {offer.discount}% OFF
-                    </span>
-                    {!offer.isActive && (
-                      <span className="text-[10px] px-1.5 py-0.5 bg-muted text-muted-foreground">PAUSED</span>
-                    )}
+                    <button
+                      onClick={() => toggleActive(offer._id, offer.isActive)}
+                      className="text-muted-foreground hover:text-foreground transition-colors"
+                      title={offer.isActive ? "Pause" : "Activate"}
+                    >
+                      {offer.isActive ? (
+                        <ToggleRight className="h-5 w-5 text-[#c4956a]" />
+                      ) : (
+                        <ToggleLeft className="h-5 w-5" />
+                      )}
+                    </button>
+                    <button
+                      onClick={() => setDeleteDialog({ open: true, id: offer._id })}
+                      className="text-muted-foreground hover:text-red-500 transition-colors"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-0.5">{offer.description}</p>
-                  <div className="flex items-center gap-3 mt-2 text-[10px] text-muted-foreground">
-                    <span>Size: {offer.sizeGroup}</span>
-                    <span>Min Qty: {offer.minQty}</span>
-                    <span>Categories: {offer.categories.join(", ")}</span>
-                    <span>Expires: {new Date(offer.validTo).toLocaleDateString("en-IN")}</span>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => toggleActive(offer._id, offer.isActive)}
-                    className="text-muted-foreground hover:text-foreground transition-colors"
-                    title={offer.isActive ? "Pause" : "Activate"}
-                  >
-                    {offer.isActive ? (
-                      <ToggleRight className="h-5 w-5 text-[#c4956a]" />
-                    ) : (
-                      <ToggleLeft className="h-5 w-5" />
-                    )}
-                  </button>
-                  <button
-                    onClick={() => handleDelete(offer._id)}
-                    className="text-muted-foreground hover:text-red-500 transition-colors"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
                 </div>
               </div>
-            </div>
-          ))
+            )
+          })
         )}
       </div>
+
+      {/* Confirmation Dialog */}
+      <ConfirmDialog
+        open={deleteDialog.open}
+        onClose={() => setDeleteDialog({ open: false })}
+        onConfirm={confirmDelete}
+        title="Delete Combo Offer?"
+        description="This combo offer will be permanently removed. Customers will no longer see this deal."
+        confirmText="Delete Offer"
+        variant="danger"
+        loading={deleting}
+      />
     </div>
   )
 }

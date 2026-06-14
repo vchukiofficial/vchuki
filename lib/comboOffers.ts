@@ -11,6 +11,8 @@ export interface ComboOffer {
   title: string
   description: string
   discount: number
+  originalPrice?: number
+  sellingPrice?: number
   conditions: {
     category: string[]
     sizeGroup: SizeGroup
@@ -43,6 +45,8 @@ export async function fetchComboOffers(): Promise<ComboOffer[]> {
       title: o.title,
       description: o.description,
       discount: o.discount,
+      originalPrice: o.originalPrice || 0,
+      sellingPrice: o.sellingPrice || 0,
       isActive: o.isActive,
       conditions: { category: o.categories, sizeGroup: o.sizeGroup, minQty: o.minQty },
     }))
