@@ -1,10 +1,10 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
 import Image from "next/image"
-import { ArrowRight, Sparkles, Wind, Ruler, CheckCircle, ZoomIn, ZoomOut } from "lucide-react"
+import { ArrowRight, Sparkles, Wind, Ruler, CheckCircle } from "lucide-react"
 
 interface VariantColor {
   name: string
@@ -79,7 +79,6 @@ export function HeroSection() {
   const [categories, setCategories] = useState<HeroCategory[]>(FALLBACK_CATEGORIES)
   const [activeCategory, setActiveCategory] = useState(0)
   const [activeColor, setActiveColor] = useState<Record<number, number>>({})
-  const [zoom, setZoom] = useState(1)
   const [, setLoaded] = useState(false)
   const [paused, setPaused] = useState(false)
 
@@ -167,11 +166,7 @@ export function HeroSection() {
   const currentImage = current?.colors[colorIdx]?.image || current?.colors[0]?.image || ""
   const currentPrice = current?.colors[colorIdx]?.price || current?.basePrice || 799
 
-  const handleZoomIn = useCallback(() => setZoom((z) => Math.min(z + 0.3, 2.5)), [])
-  const handleZoomOut = useCallback(() => setZoom((z) => Math.max(z - 0.3, 1)), [])
 
-  // Reset zoom when category or color changes
-  useEffect(() => { setZoom(1) }, [activeCategory, colorIdx])
 
   if (!current) return null
 
@@ -321,31 +316,12 @@ export function HeroSection() {
             </div>
           </motion.div>
 
-          {/* Right - Product Image with Zoom & Flip Animation */}
+          {/* Right - Product Image */}
           <div className="relative flex items-center justify-center min-h-[450px] md:min-h-[580px]">
             {/* Glow */}
             <div className="absolute -inset-16 bg-gradient-to-t from-[#c4956a]/15 via-[#87CEEB]/10 to-transparent rounded-full blur-3xl" />
 
-            {/* Zoom Controls — bottom left */}
-            <div className="absolute bottom-4 left-4 z-20 flex gap-2">
-              <button
-                onClick={handleZoomIn}
-                className="w-8 h-8 rounded-full bg-background/80 backdrop-blur-sm border border-border flex items-center justify-center hover:border-[#c4956a]/50 transition-colors"
-                title="Zoom In"
-              >
-                <ZoomIn className="h-3.5 w-3.5 text-foreground" />
-              </button>
-              <button
-                onClick={handleZoomOut}
-                disabled={zoom <= 1}
-                className="w-8 h-8 rounded-full bg-background/80 backdrop-blur-sm border border-border flex items-center justify-center hover:border-[#c4956a]/50 transition-colors disabled:opacity-30"
-                title="Zoom Out"
-              >
-                <ZoomOut className="h-3.5 w-3.5 text-foreground" />
-              </button>
-            </div>
-
-            {/* Main product with flip animation — LARGER SIZE */}
+            {/* Main product with flip animation */}
             <AnimatePresence mode="wait">
               <motion.div
                 key={`${activeCategory}-${colorIdx}`}
@@ -356,19 +332,13 @@ export function HeroSection() {
                 className="relative w-[320px] h-[420px] md:w-[400px] md:h-[520px] lg:w-[450px] lg:h-[580px]"
                 style={{ perspective: "1200px" }}
               >
-                {/* Floating disabled when zoomed, scrollable container when zoomed */}
+                {/* Floating animation */}
                 <motion.div
-                  animate={zoom > 1 ? {} : { y: [-6, 6, -6] }}
+                  animate={{ y: [-6, 6, -6] }}
                   transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-                  className={`relative w-full h-full ${zoom > 1 ? "overflow-auto cursor-grab active:cursor-grabbing" : "overflow-hidden cursor-zoom-in"}`}
-                  onClick={zoom <= 1 ? handleZoomIn : undefined}
+                  className="relative w-full h-full overflow-hidden"
                 >
-                  <motion.div
-                    animate={{ scale: zoom }}
-                    transition={{ type: "spring", stiffness: 200, damping: 20 }}
-                    className="relative w-full h-full origin-center"
-                    style={{ minHeight: zoom > 1 ? `${580 * zoom}px` : undefined }}
-                  >
+                  <div className="relative w-full h-full">
                     {currentImage && (
                       <Image
                         src={currentImage}
@@ -379,7 +349,7 @@ export function HeroSection() {
                         priority
                       />
                     )}
-                  </motion.div>
+                  </div>
                 </motion.div>
               </motion.div>
             </AnimatePresence>
@@ -468,16 +438,7 @@ export function HeroSection() {
               <p className="text-[10px] text-foreground font-medium mt-0.5">S · M · L · XL · XXL</p>
             </motion.div>
 
-            {/* Zoom level indicator */}
-            {zoom > 1 && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="absolute bottom-4 right-4 px-2 py-1 bg-background/80 backdrop-blur-sm border border-border text-[9px] text-muted-foreground"
-              >
-                {Math.round(zoom * 100)}%
-              </motion.div>
-            )}
+
           </div>
         </div>
       </div>

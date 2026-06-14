@@ -216,20 +216,24 @@ export default async function CategoryPage({ params, searchParams }: Props) {
         })}
       </div>
 
-      {/* Filters */}
-      <Suspense fallback={null}>
-        <ProductFilters />
-      </Suspense>
+      {/* Filters + Products Grid */}
+      <div className="flex gap-0">
+        <Suspense fallback={null}>
+          <ProductFilters />
+        </Suspense>
 
-      {/* Products Grid — variant expanded */}
-      <ShirtsVariantGrid products={serialized} />
+        <div className="flex-1 md:pl-6">
+          {/* Products Grid */}
+          <ShirtsVariantGrid products={serialized} />
 
-      {serialized.length === 0 && (
-        <div className="text-center py-16 border border-border">
-          <p className="text-muted-foreground text-sm">No products match your filters.</p>
-          <Link href={`/shirts/${params.category}`} className="text-xs text-[#c4956a] mt-2 inline-block hover:underline">Clear filters →</Link>
+          {serialized.length === 0 && (
+            <div className="text-center py-16 border border-border">
+              <p className="text-muted-foreground text-sm">No products match your filters.</p>
+              <Link href={`/shirts/${params.category}`} className="text-xs text-[#c4956a] mt-2 inline-block hover:underline">Clear filters →</Link>
+            </div>
+          )}
         </div>
-      )}
+      </div>
 
       {/* SEO */}
       <section className="mt-12 text-sm text-muted-foreground max-w-2xl">

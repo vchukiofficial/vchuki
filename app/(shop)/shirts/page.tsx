@@ -194,44 +194,48 @@ export default async function ShirtsPage({ searchParams }: Props) {
         })}
       </div>
 
-      {/* Filters */}
-      <Suspense fallback={null}>
-        <ProductFilters />
-      </Suspense>
+      {/* Filters + Products Grid */}
+      <div className="flex gap-0">
+        <Suspense fallback={null}>
+          <ProductFilters />
+        </Suspense>
 
-      {/* Products Grid */}
-      <ShirtsVariantGrid products={serialized} />
+        <div className="flex-1 md:pl-6">
+          {/* Products Grid */}
+          <ShirtsVariantGrid products={serialized} />
 
-      {serialized.length === 0 && (
-        <div className="text-center py-16">
-          <p className="text-muted-foreground">No products match your filters.</p>
-          <Link href="/shirts" className="text-sm text-[#c4956a] mt-2 inline-block hover:underline">Clear filters →</Link>
-        </div>
-      )}
-
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex justify-center items-center gap-1 mt-8">
-          {page > 1 && (
-            <Link href={`/shirts?${new URLSearchParams({ ...searchParams, page: String(page - 1) })}`} className="h-8 px-3 flex items-center justify-center text-xs border border-border text-muted-foreground hover:border-[#c4956a]/30 transition-colors">
-              ← Prev
-            </Link>
+          {serialized.length === 0 && (
+            <div className="text-center py-16">
+              <p className="text-muted-foreground">No products match your filters.</p>
+              <Link href="/shirts" className="text-sm text-[#c4956a] mt-2 inline-block hover:underline">Clear filters →</Link>
+            </div>
           )}
-          {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
-            const p = totalPages <= 7 ? i + 1 : page <= 4 ? i + 1 : page >= totalPages - 3 ? totalPages - 6 + i : page - 3 + i
-            return (
-              <Link key={p} href={`/shirts?${new URLSearchParams({ ...searchParams, page: String(p) })}`} className={`h-8 w-8 flex items-center justify-center text-xs ${page === p ? "bg-[#2a1f14] dark:bg-[#c4956a] text-[#f5e6d3] dark:text-[#2a1f14]" : "border border-border text-muted-foreground"}`}>
-                {p}
-              </Link>
-            )
-          })}
-          {page < totalPages && (
-            <Link href={`/shirts?${new URLSearchParams({ ...searchParams, page: String(page + 1) })}`} className="h-8 px-3 flex items-center justify-center text-xs border border-border text-muted-foreground hover:border-[#c4956a]/30 transition-colors">
-              Next →
-            </Link>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex justify-center items-center gap-1 mt-8">
+              {page > 1 && (
+                <Link href={`/shirts?${new URLSearchParams({ ...searchParams, page: String(page - 1) })}`} className="h-8 px-3 flex items-center justify-center text-xs border border-border text-muted-foreground hover:border-[#c4956a]/30 transition-colors">
+                  ← Prev
+                </Link>
+              )}
+              {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
+                const p = totalPages <= 7 ? i + 1 : page <= 4 ? i + 1 : page >= totalPages - 3 ? totalPages - 6 + i : page - 3 + i
+                return (
+                  <Link key={p} href={`/shirts?${new URLSearchParams({ ...searchParams, page: String(p) })}`} className={`h-8 w-8 flex items-center justify-center text-xs ${page === p ? "bg-[#2a1f14] dark:bg-[#c4956a] text-[#f5e6d3] dark:text-[#2a1f14]" : "border border-border text-muted-foreground"}`}>
+                    {p}
+                  </Link>
+                )
+              })}
+              {page < totalPages && (
+                <Link href={`/shirts?${new URLSearchParams({ ...searchParams, page: String(page + 1) })}`} className="h-8 px-3 flex items-center justify-center text-xs border border-border text-muted-foreground hover:border-[#c4956a]/30 transition-colors">
+                  Next →
+                </Link>
+              )}
+            </div>
           )}
         </div>
-      )}
+      </div>
     </div>
   )
 }
