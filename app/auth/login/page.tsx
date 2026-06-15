@@ -16,6 +16,7 @@ export default function LoginPage() {
   const [otp, setOtp] = useState(["", "", "", ""])
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
+  const [otpSending, setOtpSending] = useState(false)
 
   async function handleCredentials(e: React.FormEvent) {
     e.preventDefault()
@@ -27,6 +28,16 @@ export default function LoginPage() {
       setError("Invalid email or password")
       setLoading(false)
     } else {
+      // Send OTP via email
+      setOtpSending(true)
+      try {
+        await fetch("/api/auth/send-otp", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, type: "login" }),
+        })
+      } catch { /* continue even if email fails */ }
+      setOtpSending(false)
       setStep("otp")
       setLoading(false)
     }
@@ -38,15 +49,13 @@ export default function LoginPage() {
     newOtp[index] = value
     setOtp(newOtp)
     if (value && index < 3) {
-      const next = document.getElementById(`otp-${index + 1}`)
-      next?.focus()
+      document.getElementById(`otp-${index + 1}`)?.focus()
     }
   }
 
   function handleOtpKeyDown(index: number, e: React.KeyboardEvent) {
     if (e.key === "Backspace" && !otp[index] && index > 0) {
-      const prev = document.getElementById(`otp-${index - 1}`)
-      prev?.focus()
+      document.getElementById(`otp-${index - 1}`)?.focus()
     }
   }
 
@@ -57,8 +66,22 @@ export default function LoginPage() {
       router.push("/")
       router.refresh()
     } else {
-      setError("Invalid OTP. Use 1111 for verification.")
+      setError("Invalid OTP. Please check your email.")
     }
+  }
+
+  async function handleResendOtp() {
+    setOtpSending(true)
+    setError("")
+    try {
+      await fetch("/api/auth/send-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, type: "login" }),
+      })
+      setError("")
+    } catch { /* silent */ }
+    setOtpSending(false)
   }
 
   return (
@@ -88,8 +111,8 @@ export default function LoginPage() {
             Join thousands of men who trust VCHUKI for quality, style, and confidence. Crafted in Jodhpur with heritage craftsmanship.
           </p>
           <div className="flex gap-6 mt-8 text-[#c4956a] text-xs font-medium">
-            <span>12+ Products</span>
-            <span>50K+ Customers</span>
+            <span>20+ Products</span>
+            <span>Premium Quality</span>
             <span>4.8★ Rating</span>
           </div>
         </div>
@@ -161,15 +184,6 @@ export default function LoginPage() {
                 </p>
               </div>
 
-              {/* Demo credentials */}
-              <div className="mt-6 p-3 border border-[#c4956a]/20 bg-[#c4956a]/5">
-                <p className="text-[10px] uppercase tracking-wider text-[#c4956a] font-medium mb-1.5">Demo Credentials</p>
-                <p className="text-xs text-muted-foreground">Admin: <span className="font-mono text-foreground">admin@vchuki.com</span></p>
-                <p className="text-xs text-muted-foreground">User: <span className="font-mono text-foreground">rahul@example.com</span></p>
-                <p className="text-xs text-muted-foreground">Password: <span className="font-mono text-foreground">password123</span></p>
-                <p className="text-xs text-muted-foreground mt-1">OTP: <span className="font-mono text-foreground">1111</span></p>
-              </div>
-
               {/* Trust */}
               <div className="mt-8 pt-6 border-t border-border flex items-center justify-center gap-4 text-[10px] text-muted-foreground">
                 <span>🔒 SSL Secured</span>
@@ -182,7 +196,7 @@ export default function LoginPage() {
               <div className="mb-8">
                 <h1 className="text-2xl font-medium tracking-tight text-foreground">Verify OTP</h1>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Enter the 6-digit code sent to<br />
+                  Enter the 4-digit code sent to<br />
                   <span className="text-foreground font-medium">{email}</span>
                 </p>
               </div>
@@ -194,7 +208,7 @@ export default function LoginPage() {
                   </div>
                 )}
 
-                <div className="flex gap-2 justify-center">
+                <div className="flex gap-3 justify-center">
                   {otp.map((digit, i) => (
                     <input
                       key={i}
@@ -205,7 +219,7 @@ export default function LoginPage() {
                       value={digit}
                       onChange={e => handleOtpChange(i, e.target.value)}
                       onKeyDown={e => handleOtpKeyDown(i, e)}
-                      className="w-11 h-13 md:w-12 md:h-14 text-center text-lg font-semibold border border-border bg-background text-foreground focus:outline-none focus:border-[#c4956a] transition-colors"
+                      className="w-14 h-16 text-center text-2xl font-semibold border border-border bg-background text-foreground focus:outline-none focus:border-[#c4956a] transition-colors"
                       autoFocus={i === 0}
                     />
                   ))}
@@ -219,17 +233,18 @@ export default function LoginPage() {
                 </button>
               </form>
 
-              <div className="mt-6 text-center space-y-2">
-                <button className="text-xs text-muted-foreground hover:text-[#c4956a] transition-colors">
-                  Resend OTP
+              <div className="mt-6 text-center">
+                <button
+                  onClick={handleResendOtp}
+                  disabled={otpSending}
+                  className="text-xs text-muted-foreground hover:text-[#c4956a] transition-colors disabled:opacity-50"
+                >
+                  {otpSending ? "Sending..." : "Resend OTP"}
                 </button>
-                <p className="text-[10px] text-muted-foreground">
-                  Demo OTP: <span className="font-mono font-medium text-foreground">1111</span>
-                </p>
               </div>
 
               <button
-                onClick={() => { setStep("credentials"); setError(""); setOtp(["","","","","",""]); }}
+                onClick={() => { setStep("credentials"); setError(""); setOtp(["","","",""]); }}
                 className="mt-4 w-full text-center text-xs text-muted-foreground hover:text-foreground transition-colors"
               >
                 ← Back to login

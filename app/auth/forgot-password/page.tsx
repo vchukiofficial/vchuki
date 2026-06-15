@@ -57,7 +57,7 @@ export default function ForgotPasswordPage() {
     if (code === "1111") {
       setStep("reset")
     } else {
-      setError("Invalid OTP. Use 1111 for verification.")
+      setError("Invalid OTP. Please check your email.")
     }
   }
 
@@ -129,11 +129,6 @@ export default function ForgotPasswordPage() {
             <div className="mt-6 text-center">
               <Link href="/auth/login" className="text-xs text-muted-foreground hover:text-[#c4956a]">← Back to Login</Link>
             </div>
-
-            <div className="mt-6 p-3 border border-[#c4956a]/20 bg-[#c4956a]/5 text-center">
-              <p className="text-[10px] uppercase tracking-wider text-[#c4956a] font-medium mb-1">Demo OTP</p>
-              <p className="text-xs text-muted-foreground">OTP: <span className="font-mono font-medium text-foreground">1111</span></p>
-            </div>
           </>
         )}
 
@@ -173,8 +168,9 @@ export default function ForgotPasswordPage() {
             </form>
 
             <div className="mt-6 text-center space-y-2">
-              <button onClick={() => {}} className="text-xs text-muted-foreground hover:text-[#c4956a]">Resend OTP</button>
-              <p className="text-[10px] text-muted-foreground">Demo OTP: <span className="font-mono font-medium text-foreground">1111</span></p>
+              <button onClick={() => handleEmailSubmit({ preventDefault: () => {} } as any)} disabled={loading} className="text-xs text-muted-foreground hover:text-[#c4956a] transition-colors disabled:opacity-50">
+                Resend OTP
+              </button>
             </div>
 
             <button onClick={() => { setStep("email"); setError(""); setOtp(["","","",""]); }} className="mt-4 w-full text-center text-xs text-muted-foreground hover:text-foreground">

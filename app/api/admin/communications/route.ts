@@ -43,6 +43,10 @@ export async function POST(request: NextRequest) {
 
   const BREVO_API_KEY = process.env.BREVO_API_KEY || ""
 
+  if (!BREVO_API_KEY) {
+    return NextResponse.json({ error: "BREVO_API_KEY not configured in environment variables" }, { status: 500 })
+  }
+
   try {
     const emails = to.split(",").map((e: string) => ({ email: e.trim() }))
     const res = await fetch("https://api.brevo.com/v3/smtp/email", {
