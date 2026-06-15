@@ -44,5 +44,24 @@ export async function POST(request: NextRequest) {
     timeline: [{ event: "Order placed", timestamp: new Date() }],
   })
 
+  // Send order confirmation email (async, non-blocking)
+  const customerEmail = session?.user?.email || body.guestEmail
+  if (customerEmail) {
+    import("@/lib/email/brevo").then(({ sendOrderConfirmationEmail }) => {
+      sendOrderConfirmationEmail(customerEmail, {
+        orderId: order._id.toString().slice(-8).toUpperCase(),
+        items: body.items.map((i: any) => ({ name: i.name, size: i.size, color: i.color, quantity: i.quantity, price: i.price })),
+        finalAmount: body.finalAmount,
+        discountAmount: body.discountAmount || 0,
+        paymentMethod: body.paymentMethod || "cod",
+        shippingAddress: body.shippingAddress,
+      }).then(() => {
+        import("@/models/CommunicationLog").then(({ default: CL }) => {
+          CL.create({ type: "order", channel: "email", to: customerEmail, subject: `Order Confirmed #${order._id.toString().slice(-8).toUpperCase()}`, status: "sent", metadata: { orderId: order._id.toString(), amount: body.finalAmount } }).catch(() => {})
+        })
+      }).catch(() => {})
+    }).catch(() => {})
+  }
+
   return NextResponse.json({ orderId: order._id, message: "Order placed successfully" }, { status: 201 })
 }

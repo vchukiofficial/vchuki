@@ -8,6 +8,20 @@ interface WishlistState {
   has: (productId: string) => boolean
 }
 
+function getLocalWishlist(): string[] {
+  if (typeof window === "undefined") return []
+  try {
+    return JSON.parse(localStorage.getItem("vchuki_wishlist") || "[]")
+  } catch {
+    return []
+  }
+}
+
+function setLocalWishlist(items: string[]) {
+  if (typeof window === "undefined") return
+  localStorage.setItem("vchuki_wishlist", JSON.stringify(items))
+}
+
 export const useWishlistStore = create<WishlistState>((set, get) => ({
   items: [],
   loaded: false,
@@ -17,17 +31,25 @@ export const useWishlistStore = create<WishlistState>((set, get) => ({
     try {
       const res = await fetch("/api/wishlist")
       const data = await res.json()
-      set({ items: data.wishlist || [], loaded: true })
-    } catch {
-      set({ loaded: true })
-    }
+      if (data.wishlist && data.wishlist.length > 0) {
+        set({ items: data.wishlist, loaded: true })
+        return
+      }
+    } catch { /* silent */ }
+    // Fallback to localStorage for non-logged-in users
+    set({ items: getLocalWishlist(), loaded: true })
   },
   toggle: async (productId: string) => {
-    // Optimistic update
     const current = get().items
     const isInList = current.includes(productId)
-    set({ items: isInList ? current.filter((id) => id !== productId) : [...current, productId] })
+    const newItems = isInList ? current.filter((id) => id !== productId) : [...current, productId]
 
+    // Optimistic update
+    set({ items: newItems })
+    // Always save to localStorage (works without login)
+    setLocalWishlist(newItems)
+
+    // Try to sync with server
     try {
       const res = await fetch("/api/wishlist", {
         method: "POST",
@@ -35,11 +57,11 @@ export const useWishlistStore = create<WishlistState>((set, get) => ({
         body: JSON.stringify({ productId }),
       })
       if (!res.ok) {
-        // Revert on error
-        set({ items: current })
+        // Server rejected (401 not logged in) — keep localStorage version, don't revert
+        // Wishlist still works locally
       }
     } catch {
-      set({ items: current })
+      // Network error — keep localStorage version
     }
   },
 }))

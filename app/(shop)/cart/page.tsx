@@ -208,7 +208,7 @@ export default function CartPage() {
                 {/* Item-level delivery & return info */}
                 <div className="px-4 pb-3 flex items-center gap-4 text-[10px] text-muted-foreground">
                   <span className="flex items-center gap-1"><Truck className="h-3 w-3 text-[#c4956a]" /> Delivery in 3-5 days</span>
-                  <span className="flex items-center gap-1"><RotateCcw className="h-3 w-3 text-[#c4956a]" /> 14-day easy returns</span>
+                  <span className="flex items-center gap-1"><RotateCcw className="h-3 w-3 text-[#c4956a]" /> 7-day easy returns</span>
                 </div>
               </div>
             )
@@ -310,7 +310,7 @@ export default function CartPage() {
           <div className="p-4 border border-border bg-card/50">
             <p className="text-[10px] uppercase tracking-wider text-[#c4956a] font-medium mb-2">Return & Exchange Policy</p>
             <ul className="space-y-1.5 text-[11px] text-muted-foreground">
-              <li className="flex items-start gap-2"><span className="text-emerald-500 mt-0.5">✓</span> 14-day hassle-free returns</li>
+              <li className="flex items-start gap-2"><span className="text-emerald-500 mt-0.5">✓</span> 7-day hassle-free returns</li>
               <li className="flex items-start gap-2"><span className="text-emerald-500 mt-0.5">✓</span> Free exchange on size issues</li>
               <li className="flex items-start gap-2"><span className="text-emerald-500 mt-0.5">✓</span> Refund within 5-7 business days</li>
               <li className="flex items-start gap-2"><span className="text-emerald-500 mt-0.5">✓</span> No questions asked policy</li>

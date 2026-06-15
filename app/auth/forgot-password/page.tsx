@@ -20,11 +20,18 @@ export default function ForgotPasswordPage() {
     setError("")
     if (!email) { setError("Enter your email"); return }
     setLoading(true)
-    // Simulate OTP send
-    setTimeout(() => {
-      setStep("otp")
-      setLoading(false)
-    }, 800)
+    fetch("/api/auth/send-otp", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, type: "reset" }),
+    })
+      .then(r => r.json())
+      .then(data => {
+        if (data.error) { setError(data.error); setLoading(false); return }
+        setStep("otp")
+        setLoading(false)
+      })
+      .catch(() => { setError("Failed to send OTP"); setLoading(false) })
   }
 
   function handleOtpChange(index: number, value: string) {

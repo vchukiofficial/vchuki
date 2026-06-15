@@ -54,6 +54,41 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   }
 
   const order = await Order.findByIdAndUpdate(params.id, update, { new: true })
+
+  // Send shipping update email (async, non-blocking)
+  if (body.shippingStatus && order) {
+    const o = order as any
+    const email = o.guestEmail || ""
+    // Try to get user email if user-based order
+    if (o.user) {
+      import("@/lib/mongodb").then(({ default: connectDB }) => connectDB()).then(() => {
+        import("@/models/User").then(({ default: User }) => {
+          User.findById(o.user).select("email").lean().then((u: any) => {
+            if (u?.email) {
+              import("@/lib/email/brevo").then(({ sendShippingUpdateEmail }) => {
+                sendShippingUpdateEmail(u.email, {
+                  orderId: params.id.slice(-8).toUpperCase(),
+                  status: body.shippingStatus,
+                  courier: body.courier || o.courier,
+                  awb: body.awb || o.awb,
+                }).catch(() => {})
+              })
+            }
+          })
+        })
+      })
+    } else if (email) {
+      import("@/lib/email/brevo").then(({ sendShippingUpdateEmail }) => {
+        sendShippingUpdateEmail(email, {
+          orderId: params.id.slice(-8).toUpperCase(),
+          status: body.shippingStatus,
+          courier: body.courier,
+          awb: body.awb,
+        }).catch(() => {})
+      })
+    }
+  }
+
   return NextResponse.json(order)
 }
 

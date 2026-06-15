@@ -4,7 +4,7 @@ import { BUSINESS } from "@/lib/constants"
 
 export const metadata: Metadata = {
   title: "Return & Exchange Policy — VCHUKI",
-  description: "VCHUKI's return and exchange policy. 14-day returns with conditions. Learn about eligibility, refund process, and exchange options.",
+  description: "VCHUKI's return and exchange policy. 7-day returns with conditions. Learn about eligibility, refund process, and exchange options.",
   alternates: { canonical: "https://vchuki.com/refund-policy" },
 }
 
@@ -24,7 +24,7 @@ export default function RefundPolicyPage() {
 
         <h2>Return & Exchange Policy</h2>
         <ol className="list-decimal pl-5 space-y-3">
-          <li>Hassle-free returns within <strong>14 days</strong> of delivery; specific conditions apply based on products and promotions.</li>
+          <li>Hassle-free returns within <strong>7 days</strong> of delivery; specific conditions apply based on products and promotions.</li>
           <li>Prepaid orders will be refunded to the original payment method. COD orders can be refunded as store credits or directly to a UPI ID of your choice.</li>
           <li>Issues with defective, incorrect, or damaged products must be reported within <strong>24 hours</strong> of delivery with photographic evidence.</li>
           <li>Items purchased during special sales with free product offers (such as BOGO, combo deals, or promotional bundles) are <strong>ineligible for returns</strong>.</li>
@@ -46,7 +46,7 @@ export default function RefundPolicyPage() {
           <li>Product must be <strong>unused, unwashed, and unaltered</strong></li>
           <li>All original tags and packaging must be intact</li>
           <li>Product must be in the same condition as received</li>
-          <li>Return request must be raised within 14 days of delivery</li>
+          <li>Return request must be raised within 7 days of delivery</li>
           <li>Products marked &quot;Final Sale&quot; or &quot;Non-Returnable&quot; cannot be returned</li>
         </ul>
 
@@ -56,7 +56,7 @@ export default function RefundPolicyPage() {
           <li>Products without original tags and VCHUKI packaging</li>
           <li>Items purchased under BOGO, combo, or promotional offers</li>
           <li>Accessories (belts, caps, pocket squares) — hygiene policy</li>
-          <li>Products returned after 14 days of delivery</li>
+          <li>Products returned after 7 days of delivery</li>
           <li>Products with customer-caused damage (stains, tears, etc.)</li>
         </ul>
 

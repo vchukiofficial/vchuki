@@ -13,7 +13,7 @@ export default function LoginPage() {
   const [step, setStep] = useState<Step>("credentials")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [otp, setOtp] = useState(["", "", "", "", "", ""])
+  const [otp, setOtp] = useState(["", "", "", ""])
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
 
@@ -37,7 +37,7 @@ export default function LoginPage() {
     const newOtp = [...otp]
     newOtp[index] = value
     setOtp(newOtp)
-    if (value && index < 5) {
+    if (value && index < 3) {
       const next = document.getElementById(`otp-${index + 1}`)
       next?.focus()
     }
@@ -53,11 +53,11 @@ export default function LoginPage() {
   function handleOtpSubmit(e: React.FormEvent) {
     e.preventDefault()
     const code = otp.join("")
-    if (code === "111111") {
+    if (code === "1111") {
       router.push("/")
       router.refresh()
     } else {
-      setError("Invalid OTP. Use 111111 for verification.")
+      setError("Invalid OTP. Use 1111 for verification.")
     }
   }
 
@@ -167,7 +167,7 @@ export default function LoginPage() {
                 <p className="text-xs text-muted-foreground">Admin: <span className="font-mono text-foreground">admin@vchuki.com</span></p>
                 <p className="text-xs text-muted-foreground">User: <span className="font-mono text-foreground">rahul@example.com</span></p>
                 <p className="text-xs text-muted-foreground">Password: <span className="font-mono text-foreground">password123</span></p>
-                <p className="text-xs text-muted-foreground mt-1">OTP: <span className="font-mono text-foreground">111111</span></p>
+                <p className="text-xs text-muted-foreground mt-1">OTP: <span className="font-mono text-foreground">1111</span></p>
               </div>
 
               {/* Trust */}
@@ -224,7 +224,7 @@ export default function LoginPage() {
                   Resend OTP
                 </button>
                 <p className="text-[10px] text-muted-foreground">
-                  Demo OTP: <span className="font-mono font-medium text-foreground">111111</span>
+                  Demo OTP: <span className="font-mono font-medium text-foreground">1111</span>
                 </p>
               </div>
 

@@ -14,5 +14,10 @@ export async function POST(req: NextRequest) {
   const user = new User({ name, email, password })
   await user.save()
 
+  // Send welcome email (async, non-blocking)
+  import("@/lib/email/brevo").then(({ sendWelcomeEmail }) => {
+    sendWelcomeEmail(email, name).catch(() => {})
+  }).catch(() => {})
+
   return NextResponse.json({ message: "Account created" }, { status: 201 })
 }
