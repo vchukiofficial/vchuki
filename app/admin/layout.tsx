@@ -24,6 +24,7 @@ const nav = [
   { href: "/admin/combo-offers", icon: Zap, label: "Combo Offers" },
   { href: "/admin/campaigns", icon: Megaphone, label: "Campaigns" },
   { href: "/admin/communications", icon: Mail, label: "Communications" },
+  { href: "/admin/email-templates", icon: Mail, label: "Email Templates" },
   { href: "/admin/analytics", icon: BarChart3, label: "Analytics" },
   { href: "/admin/settings", icon: Settings, label: "Settings" },
 ]

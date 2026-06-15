@@ -13,6 +13,9 @@ export async function POST(request: NextRequest) {
   if (type === "reset") {
     const user = await User.findOne({ email })
     if (!user) return NextResponse.json({ error: "No account found with this email" }, { status: 404 })
+  } else if (type === "register") {
+    const existing = await User.findOne({ email })
+    if (existing) return NextResponse.json({ error: "Email already registered. Please sign in." }, { status: 400 })
   }
 
   const otp = "1111"
