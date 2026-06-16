@@ -46,6 +46,7 @@ const OrderSchema: Schema = new Schema({
     product: { type: Schema.Types.ObjectId, ref: 'Product' },
     variant: { type: Schema.Types.ObjectId, ref: 'ProductVariant' },
     name: String,
+    image: String,
     price: Number,
     quantity: Number,
     size: String,

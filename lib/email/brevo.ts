@@ -1,5 +1,5 @@
 const BREVO_API_KEY = process.env.BREVO_API_KEY || ""
-const SENDER = { name: "VCHUKI", email: process.env.BREVO_SENDER_EMAIL || "aeb72d001@smtp-brevo.com" }
+const SENDER = { name: "VCHUKI", email: process.env.BREVO_SENDER_EMAIL || "support@vchuki.com" }
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "akshayneriya2001@gmail.com"
 
 // ============================================

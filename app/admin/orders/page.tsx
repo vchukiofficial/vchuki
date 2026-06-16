@@ -183,7 +183,11 @@ export default function AdminOrdersPage() {
                     </div>
                     <div className="cursor-pointer" onClick={() => setExpandedOrder(isExpanded ? null : order._id)}>
                       <p className="text-xs font-medium font-mono text-foreground">#{order._id?.slice(-8).toUpperCase()}</p>
-                      <p className="text-[10px] text-muted-foreground">{order.items?.length} items · {new Date(order.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}</p>
+                      <p className="text-[10px] text-muted-foreground">
+                        {(order as any).shippingAddress?.name || (order as any).user?.name || "Guest"}
+                        {((order as any).user?.email || (order as any).guestEmail) && <span className="ml-1 text-muted-foreground/60">· {(order as any).user?.email || (order as any).guestEmail}</span>}
+                      </p>
+                      <p className="text-[9px] text-muted-foreground/60">{order.items?.length} items · {new Date(order.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
@@ -202,10 +206,18 @@ export default function AdminOrdersPage() {
                     <div className="grid md:grid-cols-3 gap-4">
                       <div>
                         <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-2">Items</p>
-                        <div className="space-y-1.5">
+                        <div className="space-y-2">
                           {order.items?.map((item: any, i: number) => (
-                            <div key={i} className="text-xs text-foreground">
-                              {item.name} <span className="text-muted-foreground">({item.size}/{item.color}) ×{item.quantity}</span>
+                            <div key={i} className="flex items-center gap-2">
+                              {item.image && (
+                                <div className="h-10 w-10 border border-border bg-card overflow-hidden flex-shrink-0">
+                                  <img src={item.image} alt={item.name} className="h-full w-full object-cover" />
+                                </div>
+                              )}
+                              <div className="text-xs text-foreground">
+                                <p className="font-medium">{item.name}</p>
+                                <p className="text-muted-foreground">{item.size}/{item.color} ×{item.quantity} · ₹{item.price?.toLocaleString()}</p>
+                              </div>
                             </div>
                           ))}
                         </div>

@@ -92,6 +92,7 @@ export default function CheckoutPage() {
             product: item._id.split("-")[0] || item._id,
             variant: item.variantId,
             name: item.name,
+            image: item.images?.[0] || "",
             price: item.price,
             quantity: item.quantity,
             size: item.size,

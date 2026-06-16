@@ -11,7 +11,7 @@ export async function GET() {
   await connectDB()
 
   const query = session.user.role === "admin" ? {} : { user: session.user.id }
-  const orders = await Order.find(query).sort({ createdAt: -1 }).lean()
+  const orders = await Order.find(query).sort({ createdAt: -1 }).populate("user", "name email").lean()
 
   return NextResponse.json({ orders })
 }

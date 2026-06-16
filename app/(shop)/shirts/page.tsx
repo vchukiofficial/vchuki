@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "https://vchuki.com/shirts" },
 }
 
-export const revalidate = 0
+export const revalidate = 60
 
 const categories = [
   { slug: "linen-full-sleeve", name: "Linen Full Sleeve" },
@@ -91,11 +91,23 @@ export default async function ShirtsPage({ searchParams }: Props) {
     ])
   }
 
-  // Expand products into variant cards (one per unique color, in-stock only)
+  // BATCH fetch all variants for these products in ONE query (fixes N+1)
+  const productIds = products.map((p: any) => p._id)
+  const allVariants = await ProductVariant.find({ product: { $in: productIds }, stock: { $gt: 0 } }).lean()
+
+  // Group variants by product ID
+  const variantsByProduct = new Map<string, any[]>()
+  for (const v of allVariants) {
+    const pid = (v as any).product.toString()
+    if (!variantsByProduct.has(pid)) variantsByProduct.set(pid, [])
+    variantsByProduct.get(pid)!.push(v)
+  }
+
+  // Expand products into variant cards
   const variantCards: any[] = []
   for (const product of products) {
     const p = product as any
-    const variants = await ProductVariant.find({ product: p._id, stock: { $gt: 0 } }).lean()
+    const variants = variantsByProduct.get(p._id.toString()) || []
 
     if (variants.length === 0) {
       variantCards.push({ ...p, _id: p._id.toString() })

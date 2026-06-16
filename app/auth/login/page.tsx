@@ -5,6 +5,7 @@ import { signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
+import { Eye, EyeOff } from "lucide-react"
 
 type Step = "credentials" | "otp"
 
@@ -17,6 +18,7 @@ export default function LoginPage() {
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
   const [otpSending, setOtpSending] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
   async function handleCredentials(e: React.FormEvent) {
     e.preventDefault()
@@ -158,14 +160,19 @@ export default function LoginPage() {
                     <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Password</label>
                     <Link href="/auth/forgot-password" className="text-[10px] text-[#c4956a] hover:underline">Forgot Password?</Link>
                   </div>
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={e => setPassword(e.target.value)}
-                    required
-                    className="w-full mt-1.5 px-4 py-3 border border-border bg-background text-sm text-foreground focus:outline-none focus:border-[#c4956a]/50 transition-colors placeholder:text-muted-foreground/50"
-                    placeholder="••••••••"
-                  />
+                  <div className="relative">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={e => setPassword(e.target.value)}
+                      required
+                      className="w-full mt-1.5 px-4 py-3 border border-border bg-background text-sm text-foreground focus:outline-none focus:border-[#c4956a]/50 transition-colors placeholder:text-muted-foreground/50 pr-10"
+                      placeholder="••••••••"
+                    />
+                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 mt-0.5 text-muted-foreground hover:text-foreground transition-colors">
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
                 </div>
 
                 <button

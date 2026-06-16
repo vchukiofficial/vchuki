@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
       method: "POST",
       headers: { "accept": "application/json", "api-key": BREVO_API_KEY, "content-type": "application/json" },
       body: JSON.stringify({
-        sender: { name: "VCHUKI", email: "aeb72d001@smtp-brevo.com" },
+        sender: { name: "VCHUKI", email: process.env.BREVO_SENDER_EMAIL || "support@vchuki.com" },
         to: emails,
         subject,
         htmlContent: htmlBody,
