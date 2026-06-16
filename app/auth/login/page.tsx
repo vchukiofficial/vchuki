@@ -61,15 +61,28 @@ export default function LoginPage() {
     }
   }
 
-  function handleOtpSubmit(e: React.FormEvent) {
+  async function handleOtpSubmit(e: React.FormEvent) {
     e.preventDefault()
+    setLoading(true)
+    setError("")
     const code = otp.join("")
-    if (code === "1111") {
-      router.push("/")
-      router.refresh()
-    } else {
-      setError("Invalid OTP. Please check your email.")
+    try {
+      const res = await fetch("/api/auth/verify-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, otp: code, type: "login" }),
+      })
+      const data = await res.json()
+      if (res.ok && data.verified) {
+        router.push("/")
+        router.refresh()
+      } else {
+        setError(data.error || "Invalid OTP. Please try again.")
+      }
+    } catch {
+      setError("Verification failed. Please try again.")
     }
+    setLoading(false)
   }
 
   async function handleResendOtp() {

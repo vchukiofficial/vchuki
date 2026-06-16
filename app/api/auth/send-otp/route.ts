@@ -2,7 +2,12 @@ import { NextRequest, NextResponse } from "next/server"
 import { sendOTPEmail, sendPasswordResetEmail } from "@/lib/email/brevo"
 import connectDB from "@/lib/mongodb"
 import User from "@/models/User"
+import OTP from "@/models/OTP"
 import CommunicationLog from "@/models/CommunicationLog"
+
+function generateOTP(): string {
+  return Math.floor(1000 + Math.random() * 9000).toString()
+}
 
 export async function POST(request: NextRequest) {
   const { email, type } = await request.json()
@@ -18,7 +23,19 @@ export async function POST(request: NextRequest) {
     if (existing) return NextResponse.json({ error: "Email already registered. Please sign in." }, { status: 400 })
   }
 
-  const otp = "1111"
+  // Generate random 4-digit OTP
+  const otp = generateOTP()
+
+  // Delete any existing OTP for this email+type
+  await OTP.deleteMany({ email, type })
+
+  // Store OTP with 10 minute expiry
+  await OTP.create({
+    email,
+    otp,
+    type,
+    expiresAt: new Date(Date.now() + 10 * 60 * 1000),
+  })
 
   try {
     if (type === "reset") {
@@ -27,7 +44,6 @@ export async function POST(request: NextRequest) {
       await sendOTPEmail(email, otp)
     }
 
-    // Log to database
     await CommunicationLog.create({
       type: type === "reset" ? "reset" : "otp",
       channel: "email",

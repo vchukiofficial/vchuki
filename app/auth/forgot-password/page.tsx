@@ -50,14 +50,24 @@ export default function ForgotPasswordPage() {
     }
   }
 
-  function handleOtpSubmit(e: React.FormEvent) {
+  async function handleOtpSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError("")
     const code = otp.join("")
-    if (code === "1111") {
-      setStep("reset")
-    } else {
-      setError("Invalid OTP. Please check your email.")
+    try {
+      const res = await fetch("/api/auth/verify-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, otp: code, type: "reset" }),
+      })
+      const data = await res.json()
+      if (res.ok && data.verified) {
+        setStep("reset")
+      } else {
+        setError(data.error || "Invalid OTP. Please check your email.")
+      }
+    } catch {
+      setError("Verification failed.")
     }
   }
 

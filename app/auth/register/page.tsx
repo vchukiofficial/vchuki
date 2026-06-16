@@ -63,15 +63,29 @@ export default function RegisterPage() {
   async function handleOtpSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError("")
+    setLoading(true)
     const code = otp.join("")
 
-    if (code !== "1111") {
-      setError("Invalid OTP. Please check your email.")
+    // Verify OTP via API
+    try {
+      const verifyRes = await fetch("/api/auth/verify-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, otp: code, type: "register" }),
+      })
+      const verifyData = await verifyRes.json()
+      if (!verifyRes.ok || !verifyData.verified) {
+        setError(verifyData.error || "Invalid OTP. Please check your email.")
+        setLoading(false)
+        return
+      }
+    } catch {
+      setError("Verification failed.")
+      setLoading(false)
       return
     }
 
-    setLoading(true)
-    // OTP verified — now create the account
+    // OTP verified — create the account
     const res = await fetch("/api/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
