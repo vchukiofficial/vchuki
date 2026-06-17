@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { Star, Trash2, Check, Pin, Eye, EyeOff, RefreshCw, Download } from "lucide-react"
 import { exportToExcel } from "@/lib/admin/exportExcel"
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog"
+import { AdminPagination } from "@/components/admin/AdminPagination"
 
 export default function AdminReviewsPage() {
   const [reviews, setReviews] = useState<any[]>([])
@@ -12,6 +13,8 @@ export default function AdminReviewsPage() {
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; type: "single" | "bulk"; id?: string }>({ open: false, type: "single" })
   const [deleting, setDeleting] = useState(false)
+  const [page, setPage] = useState(1)
+  const PER_PAGE = 15
 
   function fetchReviews() {
     setLoading(true)
@@ -185,7 +188,7 @@ export default function AdminReviewsPage() {
             Select All ({filtered.length})
           </label>
         )}
-        {filtered.map(r => (
+        {filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE).map(r => (
           <div key={r._id} className={`p-4 border bg-card hover:border-[#c4956a]/20 transition-colors ${selected.has(r._id) ? "border-[#c4956a]/20 bg-[#c4956a]/5" : r.featured ? "border-[#c4956a]/30" : "border-border"}`}>
             <div className="flex items-start justify-between gap-3">
               <div className="flex-1">
@@ -225,6 +228,8 @@ export default function AdminReviewsPage() {
           </div>
         ))}
       </div>
+
+      <AdminPagination page={page} totalPages={Math.ceil(filtered.length / PER_PAGE)} total={filtered.length} perPage={PER_PAGE} onPageChange={setPage} />
 
       {/* Confirmation Dialog */}
       <ConfirmDialog

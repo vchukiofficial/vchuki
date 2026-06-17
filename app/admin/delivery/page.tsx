@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { Package, Truck, CheckCircle, Clock, AlertTriangle, MapPin, Phone, RefreshCw, XCircle, Download, Trash2 } from "lucide-react"
 import { exportToExcel } from "@/lib/admin/exportExcel"
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog"
+import { AdminPagination } from "@/components/admin/AdminPagination"
 
 const COURIER_COLORS: Record<string, string> = {
   "Delhivery": "bg-blue-500/10 text-blue-600 dark:text-blue-400",
@@ -33,6 +34,8 @@ export default function AdminDeliveryPage() {
   const [pincodeResult, setPincodeResult] = useState<string | null>(null)
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; type: "single" | "bulk"; id?: string }>({ open: false, type: "single" })
   const [deleting, setDeleting] = useState(false)
+  const [page, setPage] = useState(1)
+  const PER_PAGE = 15
 
   function fetchOrders() {
     setLoading(true)
@@ -194,7 +197,7 @@ export default function AdminDeliveryPage() {
         {filtered.length === 0 && (
           <div className="text-center py-12 text-muted-foreground text-sm border border-border">No shipments in this category.</div>
         )}
-        {filtered.map(order => {
+        {filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE).map(order => {
           const config = STATUS_CONFIG[order.shippingStatus] || STATUS_CONFIG.pending
           const Icon = config.icon
           const courier = order.courier
@@ -253,6 +256,8 @@ export default function AdminDeliveryPage() {
           )
         })}
       </div>
+
+      <AdminPagination page={page} totalPages={Math.ceil(filtered.length / PER_PAGE)} total={filtered.length} perPage={PER_PAGE} onPageChange={setPage} />
 
       {/* Confirmation Dialog */}
       <ConfirmDialog

@@ -6,6 +6,7 @@ import { StatusBadge, SectionHeader, EmptyState } from "@/components/admin/ui"
 import { ShoppingCart, Package, Truck, Search, Download, ChevronDown, Trash2 } from "lucide-react"
 import { exportToExcel } from "@/lib/admin/exportExcel"
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog"
+import { AdminPagination } from "@/components/admin/AdminPagination"
 
 const STATUSES = ["pending", "confirmed", "packaging", "dispatched", "shipped", "out_for_delivery", "delivered", "returned", "cancelled"] as const
 const COURIERS = ["Delhivery", "Shiprocket", "Blue Dart", "DTDC"] as const
@@ -24,6 +25,8 @@ export default function AdminOrdersPage() {
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; type: "single" | "bulk"; id?: string }>({ open: false, type: "single" })
   const [deleting, setDeleting] = useState(false)
+  const [page, setPage] = useState(1)
+  const PER_PAGE = 15
 
   useEffect(() => { fetchOrders() }, [fetchOrders])
 
@@ -170,7 +173,7 @@ export default function AdminOrdersPage() {
         <EmptyState icon={ShoppingCart} title="No orders" description="Orders will appear here when customers place them." />
       ) : (
         <div className="space-y-2">
-          {filtered.map((order) => {
+          {filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE).map((order) => {
             const isExpanded = expandedOrder === order._id
             return (
               <div key={order._id} className={`border overflow-hidden transition-colors ${selected.has(order._id) ? "border-[#c4956a]/30 bg-[#c4956a]/5" : "border-border hover:border-[#c4956a]/20"}`}>
@@ -293,6 +296,8 @@ export default function AdminOrdersPage() {
           })}
         </div>
       )}
+
+      <AdminPagination page={page} totalPages={Math.ceil(filtered.length / PER_PAGE)} total={filtered.length} perPage={PER_PAGE} onPageChange={setPage} />
 
       {/* Confirmation Dialog */}
       <ConfirmDialog

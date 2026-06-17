@@ -41,6 +41,7 @@ interface VariantRow {
 export default function AdminProductsPage() {
   const { products, loading, fetchProducts, deleteProduct, updateProduct, createProduct } = useAdminStore()
   const [search, setSearch] = useState("")
+  const [categoryFilter, setCategoryFilter] = useState("all")
   const [showForm, setShowForm] = useState(false)
   const [formImages, setFormImages] = useState<string[]>([])
   const [mainImage, setMainImage] = useState("")
@@ -207,7 +208,11 @@ export default function AdminProductsPage() {
     })
   }
 
-  const filtered = products.filter(p => p.name?.toLowerCase().includes(search.toLowerCase()))
+  const filtered = products.filter(p => {
+    if (search && !p.name?.toLowerCase().includes(search.toLowerCase())) return false
+    if (categoryFilter !== "all" && p.category !== categoryFilter) return false
+    return true
+  })
 
   if (loading.products) return <div className="text-sm text-muted-foreground animate-pulse">Loading products...</div>
 
@@ -233,10 +238,19 @@ export default function AdminProductsPage() {
         }
       />
 
-      {/* Search */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-        <Input placeholder="Search by name..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9 h-9 text-xs" />
+      {/* Search + Filters */}
+      <div className="flex gap-2 items-center">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+          <Input placeholder="Search by name..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9 h-9 text-xs" />
+        </div>
+        <select value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)} className="h-9 px-3 border border-border bg-background text-xs text-foreground focus:outline-none focus:border-[#c4956a]/50">
+          <option value="all">All Categories</option>
+          <option value="linen-full-sleeve">Linen Full Sleeve</option>
+          <option value="linen-half-sleeve">Linen Half Sleeve</option>
+          <option value="kurta-full-sleeve">Kurta Full Sleeve</option>
+          <option value="kurta-half-sleeve">Kurta Half Sleeve</option>
+        </select>
       </div>
 
       {/* Create Form */}
@@ -447,9 +461,9 @@ export default function AdminProductsPage() {
               <tr className="text-left text-muted-foreground border-b border-border">
                 <th className="p-3 w-8"><input type="checkbox" checked={selected.size === filtered.slice(0, 40).length && filtered.length > 0} onChange={toggleAll} className="accent-[#c4956a]" /></th>
                 <th className="p-3 font-medium text-[10px] uppercase tracking-wider">Product</th>
-                <th className="p-3 font-medium text-[10px] uppercase tracking-wider">Price</th>
+                <th className="p-3 font-medium text-[10px] uppercase tracking-wider">Price / MRP</th>
                 <th className="p-3 font-medium text-[10px] uppercase tracking-wider hidden md:table-cell">Category</th>
-                <th className="p-3 font-medium text-[10px] uppercase tracking-wider hidden md:table-cell">Tags</th>
+                <th className="p-3 font-medium text-[10px] uppercase tracking-wider hidden lg:table-cell">Stock</th>
                 <th className="p-3 font-medium text-[10px] uppercase tracking-wider">Featured</th>
                 <th className="p-3 font-medium text-[10px] uppercase tracking-wider w-16">Edit</th>
                 <th className="p-3 font-medium text-[10px] uppercase tracking-wider w-16">Delete</th>
@@ -470,14 +484,15 @@ export default function AdminProductsPage() {
                       </div>
                     </div>
                   </td>
-                  <td className="p-3 font-medium text-foreground">₹{product.basePrice?.toLocaleString()}</td>
+                  <td className="p-3">
+                    <p className="text-xs font-medium text-foreground">₹{product.basePrice?.toLocaleString()}</p>
+                    {(product as any).comparePrice > 0 && (
+                      <p className="text-[9px] text-muted-foreground line-through">₹{(product as any).comparePrice?.toLocaleString()}</p>
+                    )}
+                  </td>
                   <td className="p-3 hidden md:table-cell"><StatusBadge status={product.category} /></td>
-                  <td className="p-3 hidden md:table-cell">
-                    <div className="flex gap-1 flex-wrap">
-                      {product.tags?.slice(0, 2).map((tag: string) => (
-                        <span key={tag} className="text-[9px] px-1.5 py-0.5 bg-muted text-muted-foreground">{tag}</span>
-                      ))}
-                    </div>
+                  <td className="p-3 hidden lg:table-cell">
+                    <StockBadges productId={product._id} />
                   </td>
                   <td className="p-3">
                     <button onClick={() => updateProduct(product._id, { isFeatured: !product.isFeatured })}>
@@ -520,6 +535,44 @@ export default function AdminProductsPage() {
         variant="danger"
         loading={deleting}
       />
+    </div>
+  )
+}
+
+function StockBadges({ productId }: { productId: string }) {
+  const [stock, setStock] = useState<Record<string, number>>({})
+  const [loaded, setLoaded] = useState(false)
+
+  useEffect(() => {
+    fetch(`/api/products/${productId}/variants`)
+      .then(r => r.json())
+      .then(d => {
+        const variants = d.variants || d || []
+        const sizeStock: Record<string, number> = {}
+        for (const v of variants) {
+          const size = v.size || "?"
+          sizeStock[size] = (sizeStock[size] || 0) + (v.stock || 0)
+        }
+        setStock(sizeStock)
+        setLoaded(true)
+      })
+      .catch(() => setLoaded(true))
+  }, [productId])
+
+  if (!loaded) return <span className="text-[9px] text-muted-foreground">...</span>
+
+  const sizes = ["S", "M", "L", "XL", "XXL"]
+  const orderedStock = sizes.filter(s => s in stock)
+
+  if (orderedStock.length === 0) return <span className="text-[9px] text-muted-foreground">No variants</span>
+
+  return (
+    <div className="flex gap-1 flex-wrap">
+      {orderedStock.map(size => (
+        <span key={size} className={`text-[8px] px-1.5 py-0.5 font-medium ${stock[size] === 0 ? "bg-red-500/10 text-red-500" : stock[size] <= 5 ? "bg-amber-500/10 text-amber-600" : "bg-emerald-500/10 text-emerald-600"}`}>
+          {size}:{stock[size]}{(size === "XL" || size === "XXL") && <span className="text-[7px] opacity-60"> +₹{size === "XXL" ? 100 : 50}</span>}
+        </span>
+      ))}
     </div>
   )
 }

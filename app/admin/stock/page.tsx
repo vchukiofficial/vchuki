@@ -1,8 +1,9 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { PackageX, AlertTriangle, Package, RefreshCw, Check } from "lucide-react"
+import { PackageX, AlertTriangle, Package, RefreshCw, Check, Download } from "lucide-react"
 import Link from "next/link"
+import { exportToExcel } from "@/lib/admin/exportExcel"
 
 interface StockAlert {
   _id: string
@@ -71,9 +72,14 @@ export default function AdminStockPage() {
           <h1 className="text-xl font-medium tracking-tight text-foreground">Stock Management</h1>
           <p className="text-xs text-muted-foreground mt-0.5">Monitor inventory, restock sold-out items, manage availability</p>
         </div>
-        <button onClick={fetchStock} className="flex items-center gap-1.5 px-3 py-1.5 border border-border text-[10px] font-medium hover:border-[#c4956a]/30 text-foreground">
-          <RefreshCw className="h-3 w-3" /> Refresh
-        </button>
+        <div className="flex gap-2">
+          <button onClick={() => exportToExcel({ title: "Stock Report", sheetName: "Stock", filename: "VCHUKI_Stock", columns: [{ header: "Product", key: "product", width: 30 }, { header: "Color", key: "color", width: 14 }, { header: "Size", key: "size", width: 8 }, { header: "Stock", key: "stock", width: 8 }, { header: "SKU", key: "sku", width: 30 }], data: alerts.map(a => ({ product: a.product, color: a.color, size: a.size, stock: a.stock, sku: a.sku })) })} className="flex items-center gap-1.5 px-3 py-1.5 border border-border text-[10px] font-medium hover:border-[#c4956a]/30 text-foreground">
+            <Download className="h-3 w-3" /> Export
+          </button>
+          <button onClick={fetchStock} className="flex items-center gap-1.5 px-3 py-1.5 border border-border text-[10px] font-medium hover:border-[#c4956a]/30 text-foreground">
+            <RefreshCw className="h-3 w-3" /> Refresh
+          </button>
+        </div>
       </div>
 
       {/* Stats */}
