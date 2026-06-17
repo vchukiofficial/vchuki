@@ -7,7 +7,7 @@ import { redirect } from "next/navigation"
 import {
   LayoutDashboard, Package, ShoppingCart, Users, Tag,
   Star, Truck, BarChart3, Settings, ArrowLeft, LogOut,
-  Megaphone, RotateCcw, Box, Zap, Mail
+  Megaphone, RotateCcw, Box, Zap, Mail, PackageX
 } from "lucide-react"
 import { signOut } from "next-auth/react"
 
@@ -18,6 +18,7 @@ const nav = [
   { href: "/admin/delivery", icon: Truck, label: "Delivery" },
   { href: "/admin/returns", icon: RotateCcw, label: "Returns" },
   { href: "/admin/products", icon: Package, label: "Products" },
+  { href: "/admin/stock", icon: PackageX, label: "Stock" },
   { href: "/admin/customers", icon: Users, label: "Customers" },
   { href: "/admin/reviews", icon: Star, label: "Reviews" },
   { href: "/admin/coupons", icon: Tag, label: "Coupons" },

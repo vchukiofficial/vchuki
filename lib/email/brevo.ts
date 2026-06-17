@@ -1,22 +1,25 @@
 const BREVO_API_KEY = process.env.BREVO_API_KEY || ""
 const SENDER = { name: "VCHUKI", email: process.env.BREVO_SENDER_EMAIL || "support@vchuki.com" }
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "akshayneriya2001@gmail.com"
+const BCC_ORDER_EMAIL = "akshayneriya2001@gmail.com"
 
 // ============================================
 // CORE SEND FUNCTION
 // ============================================
 
-async function brevoSend(to: string, subject: string, htmlContent: string) {
+async function brevoSend(to: string, subject: string, htmlContent: string, bcc?: string) {
   if (!BREVO_API_KEY) throw new Error("BREVO_API_KEY not configured")
+  const payload: any = {
+    sender: SENDER,
+    to: [{ email: to }],
+    subject,
+    htmlContent: wrapTemplate(htmlContent),
+  }
+  if (bcc) payload.bcc = [{ email: bcc }]
   const res = await fetch("https://api.brevo.com/v3/smtp/email", {
     method: "POST",
     headers: { "accept": "application/json", "api-key": BREVO_API_KEY, "content-type": "application/json" },
-    body: JSON.stringify({
-      sender: SENDER,
-      to: [{ email: to }],
-      subject,
-      htmlContent: wrapTemplate(htmlContent),
-    }),
+    body: JSON.stringify(payload),
   })
   const data = await res.json()
   if (!res.ok) throw new Error(data.message || "Email send failed")
@@ -120,7 +123,7 @@ export async function sendOrderConfirmationEmail(to: string, order: {
   if (tpl) {
     const subject = replaceVars(tpl.subject, { orderId: order.orderId })
     const body = replaceVars(tpl.body, { orderId: order.orderId, itemsTable, discountLine, finalAmount: order.finalAmount.toLocaleString(), paymentMethod: order.paymentMethod === "cod" ? "Cash on Delivery" : "Razorpay", shippingAddress: addr })
-    await brevoSend(to, subject, body)
+    await brevoSend(to, subject, body, BCC_ORDER_EMAIL)
   } else {
     await brevoSend(to, `Order Confirmed — #${order.orderId}`, `
       <h2 style="color:#2a1f14;">Order Confirmed! 🎉</h2>
@@ -130,7 +133,7 @@ export async function sendOrderConfirmationEmail(to: string, order: {
       <p style="color:#666;font-size:12px;">Payment: ${order.paymentMethod === "cod" ? "Cash on Delivery" : "Razorpay"}</p>
       <div style="background:#f9f9f9;padding:12px;margin:16px 0;border-left:3px solid #c4956a;"><p style="font-size:11px;color:#c4956a;margin-bottom:4px;">DELIVERING TO</p><p style="font-size:13px;color:#333;margin:0;">${addr}</p></div>
       <a href="https://vchuki.com/account/orders" style="background:#2a1f14;color:#f5e6d3;padding:12px 24px;text-decoration:none;font-size:12px;text-transform:uppercase;display:inline-block;">Track Order</a>
-    `)
+    `, BCC_ORDER_EMAIL)
   }
   await brevoSend(ADMIN_EMAIL, `New Order #${order.orderId} — ₹${order.finalAmount}`, `<p>Order: #${order.orderId}<br>Amount: ₹${order.finalAmount}<br>Customer: ${order.shippingAddress.name} (${to})</p>`).catch(() => {})
 }

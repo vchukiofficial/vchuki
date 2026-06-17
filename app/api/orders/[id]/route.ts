@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import connectDB from "@/lib/mongodb"
 import Order from "@/models/Order"
+import ProductVariant from "@/models/ProductVariant"
 
 export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions)
@@ -55,6 +56,16 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
 
   const order = await Order.findByIdAndUpdate(params.id, update, { new: true })
 
+  // Restore stock if order is cancelled or returned
+  if (body.shippingStatus && (body.shippingStatus === "cancelled" || body.shippingStatus === "returned") && order) {
+    const o = order as any
+    for (const item of o.items || []) {
+      if (item.variant) {
+        await ProductVariant.findByIdAndUpdate(item.variant, { $inc: { stock: item.quantity || 1 } })
+      }
+    }
+  }
+
   // Send shipping update email (async, non-blocking)
   if (body.shippingStatus && order) {
     const o = order as any
@@ -99,6 +110,17 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
   }
 
   await connectDB()
+
+  // Restore stock before deleting
+  const order = await Order.findById(params.id).lean() as any
+  if (order && order.shippingStatus !== "delivered") {
+    for (const item of order.items || []) {
+      if (item.variant) {
+        await ProductVariant.findByIdAndUpdate(item.variant, { $inc: { stock: item.quantity || 1 } })
+      }
+    }
+  }
+
   await Order.findByIdAndDelete(params.id)
   return NextResponse.json({ message: "Deleted" })
 }

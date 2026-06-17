@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import connectDB from "@/lib/mongodb"
 import Order from "@/models/Order"
+import ProductVariant from "@/models/ProductVariant"
 
 export async function GET() {
   const session = await getServerSession(authOptions)
@@ -27,6 +28,13 @@ export async function POST(request: NextRequest) {
 
   // Check if user is logged in (optional for guest checkout)
   const session = await getServerSession(authOptions)
+
+  // Deduct stock for each item
+  for (const item of body.items) {
+    if (item.variant) {
+      await ProductVariant.findByIdAndUpdate(item.variant, { $inc: { stock: -(item.quantity || 1) } })
+    }
+  }
 
   const order = await Order.create({
     user: session?.user?.id || undefined,
