@@ -5,7 +5,7 @@ import { useAdminStore } from "@/store/adminStore"
 import { StatusBadge, FileUpload, SectionHeader, EmptyState } from "@/components/admin/ui"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Plus, Trash2, Star, Search, Package, X, Palette, Image as ImageIcon, Download } from "lucide-react"
+import { Plus, Trash2, Star, Search, Package, X, Palette, Image as ImageIcon, Download, Pencil } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { exportToExcel } from "@/lib/admin/exportExcel"
@@ -451,6 +451,7 @@ export default function AdminProductsPage() {
                 <th className="p-3 font-medium text-[10px] uppercase tracking-wider hidden md:table-cell">Category</th>
                 <th className="p-3 font-medium text-[10px] uppercase tracking-wider hidden md:table-cell">Tags</th>
                 <th className="p-3 font-medium text-[10px] uppercase tracking-wider">Featured</th>
+                <th className="p-3 font-medium text-[10px] uppercase tracking-wider w-16">Edit</th>
                 <th className="p-3 font-medium text-[10px] uppercase tracking-wider w-16">Delete</th>
               </tr>
             </thead>
@@ -482,6 +483,11 @@ export default function AdminProductsPage() {
                     <button onClick={() => updateProduct(product._id, { isFeatured: !product.isFeatured })}>
                       <Star className={`h-3.5 w-3.5 transition-colors ${product.isFeatured ? "fill-[#c4956a] text-[#c4956a]" : "text-muted-foreground/30 hover:text-[#c4956a]"}`} />
                     </button>
+                  </td>
+                  <td className="p-3">
+                    <Link href={`/admin/products/${product._id}`} className="text-muted-foreground hover:text-[#c4956a] transition-colors">
+                      <Pencil className="h-3.5 w-3.5" />
+                    </Link>
                   </td>
                   <td className="p-3">
                     <button onClick={() => setDeleteDialog({ open: true, type: "single", id: product._id })} className="text-muted-foreground hover:text-red-500 transition-colors">

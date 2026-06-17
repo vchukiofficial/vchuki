@@ -232,9 +232,13 @@ export default function AdminProductDetailPage() {
         <div className="space-y-3">
           <div className="relative aspect-[3/4] border border-border bg-card overflow-hidden">
             {product.images?.[activeImage] ? (
-              <Image src={product.images[activeImage]} alt={product.name} fill className="object-contain p-4" sizes="400px" />
+              product.images[activeImage].match(/\.(mp4|webm|mov)$/i) ? (
+                <video src={product.images[activeImage]} controls className="absolute inset-0 w-full h-full object-contain p-4" />
+              ) : (
+                <Image src={product.images[activeImage]} alt={product.name} fill className="object-contain p-4" sizes="400px" />
+              )
             ) : (
-              <div className="absolute inset-0 flex items-center justify-center text-muted-foreground text-sm">No Image</div>
+              <div className="absolute inset-0 flex items-center justify-center text-muted-foreground text-sm">No Media</div>
             )}
             <span className="absolute top-2 left-2 text-[9px] bg-background/80 backdrop-blur-sm border border-border px-2 py-0.5 text-muted-foreground">
               {activeImage + 1} / {product.images?.length || 0}
@@ -245,7 +249,11 @@ export default function AdminProductDetailPage() {
           <div className="flex gap-2 overflow-x-auto no-scrollbar">
             {product.images?.map((img, i) => (
               <button key={i} onClick={() => setActiveImage(i)} className={`relative w-16 h-20 flex-shrink-0 border overflow-hidden group ${activeImage === i ? "border-[#c4956a]" : "border-border"}`}>
-                <Image src={img} alt="" fill className="object-contain p-1" sizes="64px" />
+                {img.match(/\.(mp4|webm|mov)$/i) ? (
+                  <div className="absolute inset-0 flex items-center justify-center bg-muted"><span className="text-[9px] text-muted-foreground font-bold">▶ VID</span></div>
+                ) : (
+                  <Image src={img} alt="" fill className="object-contain p-1" sizes="64px" />
+                )}
                 <button onClick={(e) => { e.stopPropagation(); removeProductImage(i) }} className="absolute top-0.5 right-0.5 h-4 w-4 bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                   <X className="h-2.5 w-2.5" />
                 </button>
@@ -255,7 +263,7 @@ export default function AdminProductDetailPage() {
             <label className="w-16 h-20 flex-shrink-0 border border-dashed border-border flex flex-col items-center justify-center text-muted-foreground hover:border-[#c4956a]/40 cursor-pointer transition-colors">
               <Upload className="h-3.5 w-3.5" />
               <span className="text-[8px] mt-0.5">Upload</span>
-              <input type="file" multiple accept="image/*" className="hidden" onChange={handleProductImageUpload} />
+              <input type="file" multiple accept="image/*,video/*" className="hidden" onChange={handleProductImageUpload} />
             </label>
             <button onClick={addImageUrl} className="w-16 h-20 flex-shrink-0 border border-dashed border-border flex flex-col items-center justify-center text-muted-foreground hover:border-[#c4956a]/40 transition-colors">
               <Plus className="h-3.5 w-3.5" />
@@ -366,7 +374,7 @@ export default function AdminProductDetailPage() {
                         <label className="w-20 h-24 border border-dashed border-[#c4956a]/40 flex flex-col items-center justify-center text-[#c4956a] cursor-pointer hover:bg-[#c4956a]/5 transition-colors">
                           <Upload className="h-4 w-4" />
                           <span className="text-[8px] mt-1">Add Photos</span>
-                          <input type="file" multiple accept="image/*" className="hidden" onChange={(e) => handleVariantImageUpload(colorVariants[0]._id, e)} />
+                          <input type="file" multiple accept="image/*,video/*" className="hidden" onChange={(e) => handleVariantImageUpload(colorVariants[0]._id, e)} />
                         </label>
                       </div>
                       <p className="text-[9px] text-muted-foreground">Upload multiple angles: front, back, side, close-up, lifestyle shots</p>

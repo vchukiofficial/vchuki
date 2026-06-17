@@ -99,14 +99,26 @@ export default function ProductDetailClient({ product, variants, reviews, siblin
                 transition={{ duration: 0.3 }}
                 className="absolute inset-0"
               >
-                <Image
-                  src={displayImages[activeImageIndex]}
-                  alt={`${product.name} - ${selectedColor}`}
-                  fill
-                  className="object-cover"
-                  priority
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                />
+                {displayImages[activeImageIndex]?.match(/\.(mp4|webm|mov)$/i) ? (
+                  <video
+                    src={displayImages[activeImageIndex]}
+                    controls
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                ) : (
+                  <Image
+                    src={displayImages[activeImageIndex]}
+                    alt={`${product.name} - ${selectedColor}`}
+                    fill
+                    className="object-cover"
+                    priority
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                  />
+                )}
               </motion.div>
             </AnimatePresence>
             <div className="absolute bottom-3 right-3 bg-[#2a1f14]/70 backdrop-blur-sm text-[#f5e6d3] text-[10px] px-2 py-1">
@@ -127,7 +139,13 @@ export default function ProductDetailClient({ product, variants, reviews, siblin
                     activeImageIndex === i ? "border-[#c4956a] ring-1 ring-[#c4956a]/30" : "border-border opacity-60 hover:opacity-100"
                   }`}
                 >
-                  <Image src={img} alt="" fill className="object-cover" sizes="80px" />
+                  {img.match(/\.(mp4|webm|mov)$/i) ? (
+                    <div className="absolute inset-0 flex items-center justify-center bg-muted">
+                      <span className="text-[10px] text-[#c4956a] font-bold">▶</span>
+                    </div>
+                  ) : (
+                    <Image src={img} alt="" fill className="object-cover" sizes="80px" />
+                  )}
                 </button>
               ))}
             </div>
