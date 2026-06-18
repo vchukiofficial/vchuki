@@ -9,7 +9,6 @@ import { AnimatedSection } from "@/components/home/AnimatedSection"
 import { ProductCarousel } from "@/components/home/ProductCarousel"
 import { RajasthanPalette } from "@/components/home/RajasthanPalette"
 import { HomePageWrapper } from "@/components/home/HomePageWrapper"
-import { HeroVideoCarousel } from "@/components/home/HeroVideoCarousel"
 
 async function getProducts() {
   await connectDB()
