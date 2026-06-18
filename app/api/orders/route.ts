@@ -43,6 +43,7 @@ export async function POST(request: NextRequest) {
     items: body.items,
     totalAmount: body.totalAmount,
     discountAmount: body.discountAmount || 0,
+    codCharge: body.paymentMethod === "cod" ? 50 : 0,
     finalAmount: body.finalAmount,
     couponCode: body.couponCode,
     shippingAddress: body.shippingAddress,

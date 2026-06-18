@@ -104,13 +104,15 @@ export default function LoginPage() {
       {/* Left - Brand Visual */}
       <div className="hidden lg:flex lg:w-1/2 relative bg-[#2a1f14] items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
-          <Image
-            src="https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=1000&q=85"
-            alt="VCHUKI Fashion"
-            fill
-            className="object-cover opacity-40"
-            priority
-          />
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="w-full h-full object-cover opacity-40"
+          >
+            <source src="/VCHUKI_–_QUIET_LUXURY_GRWM_REE (2).mp4" type="video/mp4" />
+          </video>
           <div className="absolute inset-0 bg-gradient-to-r from-[#2a1f14]/80 to-[#2a1f14]/40" />
         </div>
         <div className="absolute inset-0 heritage-pattern opacity-20" />
@@ -202,6 +204,9 @@ export default function LoginPage() {
                   Don&apos;t have an account?{" "}
                   <Link href="/auth/register" className="text-[#c4956a] font-medium hover:underline">Create one</Link>
                 </p>
+                <Link href="/" className="inline-block mt-3 text-xs text-muted-foreground hover:text-foreground transition-colors">
+                  ← Back to Home
+                </Link>
               </div>
 
               {/* Trust */}

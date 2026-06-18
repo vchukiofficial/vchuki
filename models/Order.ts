@@ -54,6 +54,7 @@ const OrderSchema: Schema = new Schema({
   }],
   totalAmount: { type: Number, required: true },
   discountAmount: { type: Number, default: 0 },
+  codCharge: { type: Number, default: 0 },
   finalAmount: { type: Number, required: true },
   couponCode: String,
   couponDiscount: Number,

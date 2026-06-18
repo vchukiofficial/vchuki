@@ -30,8 +30,9 @@ export default function CheckoutPage() {
 
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
   const shipping = subtotal >= 1599 ? 0 : 50
+  const codCharge = paymentMethod === "cod" ? 50 : 0
   const totalDiscount = discount + comboDiscount
-  const total = subtotal - totalDiscount + shipping
+  const total = subtotal - totalDiscount + shipping + codCharge
 
   if (items.length === 0 && step !== "confirmation") {
     return (
@@ -413,21 +414,23 @@ export default function CheckoutPage() {
                   Payment Method
                 </h2>
                 <div className="space-y-2">
-                  <label className={`flex items-center gap-3 p-4 border cursor-pointer transition-all ${paymentMethod === "cod" ? "border-[#c4956a] bg-[#c4956a]/5" : "border-border hover:border-[#c4956a]/30"}`}>
-                    <input type="radio" name="payment" checked={paymentMethod === "cod"} onChange={() => setPaymentMethod("cod")} className="accent-[#c4956a]" />
-                    <Banknote className="h-4 w-4 text-muted-foreground" />
-                    <div>
-                      <span className="text-sm font-medium text-foreground">Cash on Delivery</span>
-                      <p className="text-[10px] text-muted-foreground">Pay when you receive</p>
-                    </div>
-                  </label>
                   <label className={`flex items-center gap-3 p-4 border cursor-pointer transition-all ${paymentMethod === "razorpay" ? "border-[#c4956a] bg-[#c4956a]/5" : "border-border hover:border-[#c4956a]/30"}`}>
                     <input type="radio" name="payment" checked={paymentMethod === "razorpay"} onChange={() => setPaymentMethod("razorpay")} className="accent-[#c4956a]" />
                     <CreditCard className="h-4 w-4 text-muted-foreground" />
-                    <div>
+                    <div className="flex-1">
                       <span className="text-sm font-medium text-foreground">UPI / Card / Net Banking</span>
                       <p className="text-[10px] text-muted-foreground">Razorpay secure payment</p>
                     </div>
+                    <span className="text-sm font-semibold text-foreground">₹{(subtotal - totalDiscount + shipping).toLocaleString()}</span>
+                  </label>
+                  <label className={`flex items-center gap-3 p-4 border cursor-pointer transition-all ${paymentMethod === "cod" ? "border-[#c4956a] bg-[#c4956a]/5" : "border-border hover:border-[#c4956a]/30"}`}>
+                    <input type="radio" name="payment" checked={paymentMethod === "cod"} onChange={() => setPaymentMethod("cod")} className="accent-[#c4956a]" />
+                    <Banknote className="h-4 w-4 text-muted-foreground" />
+                    <div className="flex-1">
+                      <span className="text-sm font-medium text-foreground">Cash on Delivery</span>
+                      <p className="text-[10px] text-muted-foreground">+₹50 COD charge · Pay when you receive</p>
+                    </div>
+                    <span className="text-sm font-semibold text-foreground">₹{(subtotal - totalDiscount + shipping + 50).toLocaleString()}</span>
                   </label>
                 </div>
               </div>
@@ -497,6 +500,12 @@ export default function CheckoutPage() {
                   {shipping === 0 ? "Free" : `₹${shipping}`}
                 </span>
               </div>
+              {codCharge > 0 && (
+                <div className="flex justify-between text-muted-foreground">
+                  <span>COD Charge</span>
+                  <span className="text-foreground">₹{codCharge}</span>
+                </div>
+              )}
             </div>
 
             <div className="border-t border-border mt-3 pt-3 flex justify-between font-semibold text-base">

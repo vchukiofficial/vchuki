@@ -163,8 +163,8 @@ export function HeroSection() {
 
   const current = categories[activeCategory]
   const colorIdx = activeColor[activeCategory] || 0
-  const currentImage = current?.colors[colorIdx]?.image || current?.colors[0]?.image || ""
   const currentPrice = current?.colors[colorIdx]?.price || current?.basePrice || 799
+  const currentImage = current?.colors[colorIdx]?.image || current?.colors[0]?.image || ""
 
 
 
@@ -172,13 +172,23 @@ export function HeroSection() {
 
   return (
     <section className="relative min-h-[100vh] flex items-center overflow-hidden">
-      {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#d4a574]/15 via-[#f5e6d3] to-[#e8d5c0] dark:from-[#1a1209] dark:via-[#0f0a06] dark:to-[#1a1209]" />
-      <div className="absolute inset-0 heritage-pattern opacity-40 dark:opacity-20" />
+      {/* Video Background */}
+      <div className="absolute inset-0 z-0">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="w-full h-full object-cover"
+        >
+          <source src="/VCHUKI_–_QUIET_LUXURY_GRWM_REE (2).mp4" type="video/mp4" />
+        </video>
+        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/30 dark:from-black/80 dark:via-black/60 dark:to-black/40" />
+      </div>
 
       <div className="relative container z-10">
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-          {/* Left - Text & Category Selector */}
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center min-h-[80vh]">
+          {/* Left - Text */}
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
@@ -195,7 +205,7 @@ export function HeroSection() {
               <span className="text-[10px] uppercase tracking-[0.25em] text-[#8b6914] dark:text-[#c4956a] font-medium">New Arrival — Live Now</span>
             </motion.div>
 
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-light text-foreground leading-[1.1] tracking-tight">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-light text-white leading-[1.1] tracking-tight">
               Premium Linen<br />
               <AnimatePresence mode="wait">
                 <motion.span
@@ -211,7 +221,7 @@ export function HeroSection() {
               </AnimatePresence>
             </h1>
 
-            <p className="mt-4 text-sm md:text-base text-muted-foreground leading-relaxed max-w-sm">
+            <p className="mt-4 text-sm md:text-base text-white/70 leading-relaxed max-w-sm">
               Crafted in Jodhpur with the finest linen. Breathable, soft, and designed for the modern man who values quiet luxury.
             </p>
 
@@ -224,7 +234,7 @@ export function HeroSection() {
                   className={`px-3 py-2 text-[10px] uppercase tracking-wider font-medium border transition-all duration-300 ${
                     activeCategory === idx
                       ? "border-[#c4956a] bg-[#c4956a]/10 text-[#c4956a]"
-                      : "border-border text-muted-foreground hover:border-[#c4956a]/40 hover:text-foreground"
+                      : "border-white/20 text-white/60 hover:border-[#c4956a]/40 hover:text-white"
                   }`}
                 >
                   {cat.label}
@@ -257,7 +267,7 @@ export function HeroSection() {
 
             {/* Color Swatches for active category */}
             <div className="mt-4 flex items-center gap-3">
-              <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Colors:</span>
+              <span className="text-[10px] text-white/60 uppercase tracking-wider">Colors:</span>
               <div className="flex gap-2">
                 {current.colors.map((color, idx) => (
                   <button
@@ -271,7 +281,7 @@ export function HeroSection() {
                   />
                 ))}
               </div>
-              <span className="text-[11px] text-foreground font-medium">{current.colors[colorIdx]?.name}</span>
+              <span className="text-[11px] text-white font-medium">{current.colors[colorIdx]?.name}</span>
             </div>
 
             {/* USP badges */}
@@ -284,12 +294,12 @@ export function HeroSection() {
               ].map((item) => (
                 <div key={item.label} className="flex items-center gap-2">
                   <item.icon className="h-3.5 w-3.5 text-[#c4956a]" />
-                  <span className="text-[10px] md:text-[11px] uppercase tracking-wide text-muted-foreground font-medium">{item.label}</span>
+                  <span className="text-[10px] md:text-[11px] uppercase tracking-wide text-white/70 font-medium">{item.label}</span>
                 </div>
               ))}
             </div>
 
-            {/* Price + CTA — dynamic price per selected variant */}
+            {/* Price + CTA */}
             <div className="mt-8 flex flex-wrap items-center gap-4 md:gap-6">
               <div>
                 <p className="text-[10px] uppercase tracking-wider text-[#c4956a]">Starting at</p>
@@ -300,7 +310,7 @@ export function HeroSection() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.3 }}
-                    className="text-3xl md:text-4xl font-bold text-foreground"
+                    className="text-3xl md:text-4xl font-bold text-white"
                   >
                     ₹{currentPrice.toLocaleString()}
                   </motion.p>
@@ -317,128 +327,34 @@ export function HeroSection() {
           </motion.div>
 
           {/* Right - Product Image */}
-          <div className="relative flex items-center justify-center min-h-[450px] md:min-h-[580px]">
-            {/* Glow */}
-            <div className="absolute -inset-16 bg-gradient-to-t from-[#c4956a]/15 via-[#87CEEB]/10 to-transparent rounded-full blur-3xl" />
-
-            {/* Main product with flip animation */}
+          <div className="relative hidden lg:flex items-center justify-center">
             <AnimatePresence mode="wait">
               <motion.div
                 key={`${activeCategory}-${colorIdx}`}
-                initial={{ rotateY: 90, opacity: 0, scale: 0.8 }}
-                animate={{ rotateY: 0, opacity: 1, scale: 1 }}
-                exit={{ rotateY: -90, opacity: 0, scale: 0.8 }}
-                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                className="relative w-[320px] h-[420px] md:w-[400px] md:h-[520px] lg:w-[450px] lg:h-[580px]"
-                style={{ perspective: "1200px" }}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                className="relative w-[350px] h-[450px] md:w-[400px] md:h-[520px]"
               >
-                {/* Floating animation */}
                 <motion.div
                   animate={{ y: [-6, 6, -6] }}
                   transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-                  className="relative w-full h-full overflow-hidden"
+                  className="relative w-full h-full"
                 >
-                  <div className="relative w-full h-full">
-                    {currentImage && (
-                      <Image
-                        src={currentImage}
-                        alt={`VCHUKI ${current.label} - ${current.colors[colorIdx]?.name}`}
-                        fill
-                        className="object-contain drop-shadow-2xl"
-                        sizes="(max-width: 768px) 320px, 450px"
-                        priority
-                      />
-                    )}
-                  </div>
+                  {currentImage && (
+                    <Image
+                      src={currentImage}
+                      alt={`VCHUKI ${current.label} - ${current.colors[colorIdx]?.name}`}
+                      fill
+                      className="object-contain drop-shadow-2xl"
+                      sizes="400px"
+                      priority
+                    />
+                  )}
                 </motion.div>
               </motion.div>
             </AnimatePresence>
-
-            {/* Orbiting category thumbnails — show selected variant image for each */}
-            <div className="absolute inset-0 pointer-events-none hidden md:block">
-              {categories.map((cat, idx) => {
-                if (idx === activeCategory) return null
-                const offset = ((idx - activeCategory + categories.length) % categories.length)
-                const angle = offset * (360 / (categories.length - 1)) + 30
-                const radius = 220
-                const x = Math.cos((angle * Math.PI) / 180) * radius
-                const y = Math.sin((angle * Math.PI) / 180) * radius * 0.55
-
-                // Show the currently selected color for that category, or first color
-                const catColorIdx = activeColor[idx] || 0
-                const thumbImage = cat.colors[catColorIdx]?.image || cat.colors[0]?.image
-
-                return (
-                  <motion.div
-                    key={cat.slug}
-                    className="absolute left-1/2 top-1/2 pointer-events-auto cursor-pointer"
-                    style={{ x: x - 28, y: y - 28 }}
-                    animate={{ rotate: [0, 360] }}
-                    transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-                    onClick={() => setActiveCategory(idx)}
-                    whileHover={{ scale: 1.4 }}
-                  >
-                    <motion.div
-                      animate={{ rotate: [360, 0] }}
-                      transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-                      className="w-14 h-14 md:w-16 md:h-16 rounded-full border-2 border-[#c4956a]/30 bg-background/90 backdrop-blur-sm overflow-hidden shadow-xl hover:border-[#c4956a] transition-colors"
-                    >
-                      {thumbImage && (
-                        <Image
-                          src={thumbImage}
-                          alt={cat.label}
-                          width={64}
-                          height={64}
-                          className="object-contain p-1.5 w-full h-full"
-                        />
-                      )}
-                    </motion.div>
-                    {/* Label below thumbnail */}
-                    <motion.p
-                      animate={{ rotate: [360, 0] }}
-                      transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-                      className="text-[8px] text-center text-muted-foreground mt-1 font-medium uppercase tracking-wider whitespace-nowrap"
-                    >
-                      {cat.label}
-                    </motion.p>
-                  </motion.div>
-                )
-              })}
-            </div>
-
-            {/* Corner motifs */}
-            <div className="absolute -top-4 -left-4 w-8 h-8 border-t-2 border-l-2 border-[#c4956a]/40" />
-            <div className="absolute -top-4 -right-4 w-8 h-8 border-t-2 border-r-2 border-[#c4956a]/40" />
-            <div className="absolute -bottom-4 -left-4 w-8 h-8 border-b-2 border-l-2 border-[#c4956a]/40" />
-            <div className="absolute -bottom-4 -right-4 w-8 h-8 border-b-2 border-r-2 border-[#c4956a]/40" />
-
-            {/* Category + Color badge */}
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={`${current.slug}-${colorIdx}`}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3 }}
-                className="absolute -right-2 md:right-4 top-16 px-3 py-2 bg-background/90 backdrop-blur-sm border border-[#c4956a]/20 shadow-lg"
-              >
-                <p className="text-[9px] uppercase tracking-wider text-[#c4956a] font-medium">{current.tagline}</p>
-                <p className="text-[11px] text-foreground font-medium mt-0.5">{current.colors[colorIdx]?.name}</p>
-              </motion.div>
-            </AnimatePresence>
-
-            {/* Size badge */}
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.8, duration: 0.5 }}
-              className="absolute -left-2 md:left-4 bottom-24 px-3 py-2 bg-background/90 backdrop-blur-sm border border-[#c4956a]/20 shadow-lg"
-            >
-              <p className="text-[9px] uppercase tracking-wider text-[#c4956a] font-medium">In Stock</p>
-              <p className="text-[10px] text-foreground font-medium mt-0.5">S · M · L · XL · XXL</p>
-            </motion.div>
-
-
           </div>
         </div>
       </div>
