@@ -115,7 +115,7 @@ export default async function HomePage() {
     <HomePageWrapper>
       <HeroSection />
 
-      {/* Fabric Story Strip */}}
+      {/* Fabric Story Strip */}
       <section className="border-y border-[#c4956a]/20 bg-[#2a1f14] dark:bg-[#1a1209]">
         <div className="container py-5 md:py-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
