@@ -23,7 +23,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     product: params.id,
     color: body.color,
     size: body.size,
-    fabric: body.fabric || "Premium Linen",
+    fabric: body.fabric || "Premium Linen Blend",
     fit: body.fit || "regular",
     stock: body.stock || 0,
     priceAdjustment: body.priceAdjustment || 0,

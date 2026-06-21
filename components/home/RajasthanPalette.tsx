@@ -229,7 +229,7 @@ export function RajasthanPalette() {
               >
                 <Image
                   src={shade.image}
-                  alt={`VCHUKI ${shade.name} Premium Linen Shirt`}
+                  alt={`VCHUKI ${shade.name} Premium Linen Blend Shirt`}
                   fill
                   className="object-contain"
                   sizes="(max-width: 768px) 80vw, 420px"
@@ -247,7 +247,7 @@ export function RajasthanPalette() {
               className="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 bg-background/80 backdrop-blur-md border border-[#c4956a]/20"
             >
               <p className="text-[9px] uppercase tracking-[0.2em] text-[#c4956a] font-medium text-center">{shade.name}</p>
-              <p className="text-[10px] text-muted-foreground text-center mt-0.5">100% Premium Linen · ₹799</p>
+              <p className="text-[10px] text-muted-foreground text-center mt-0.5">Premium Linen Blend · ₹799</p>
             </motion.div>
           </div>
         </div>

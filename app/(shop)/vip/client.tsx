@@ -38,15 +38,15 @@ export function EarlyAccessClient() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0f0a06] text-[#f5e6d3] relative">
-      <div className="absolute inset-0 heritage-pattern opacity-10" />
+    <div className="min-h-screen flex flex-col bg-background text-foreground relative">
+      <div className="absolute inset-0 heritage-pattern opacity-10 dark:opacity-10" />
 
       {/* Minimal header */}
       <header className="relative z-10 flex items-center justify-center py-8">
         <div className="flex items-center gap-2">
-          <Image src="/marko.png" alt="VCHUKI" width={36} height={36} className="invert" />
+          <Image src="/marko.png" alt="VCHUKI" width={36} height={36} className="dark:invert" />
           <div>
-            <span className="text-sm font-bold tracking-[0.3em] block leading-none">VCHUKI</span>
+            <span className="text-sm font-bold tracking-[0.3em] block leading-none text-foreground">VCHUKI</span>
             <span className="text-[7px] tracking-[0.15em] text-[#c4956a] block mt-0.5">PREMIUM MENSWEAR</span>
           </div>
         </div>
@@ -59,12 +59,12 @@ export function EarlyAccessClient() {
           className="text-center max-w-md mx-auto w-full"
         >
           {/* Headline */}
-          <h1 className="text-3xl md:text-4xl font-light tracking-tight">
+          <h1 className="text-3xl md:text-4xl font-light tracking-tight text-foreground">
             VIP <span className="font-semibold text-[#c4956a]">Early Access</span>
           </h1>
 
-          <p className="mt-4 text-sm text-[#f5e6d3]/50 leading-relaxed">
-            Premium linen shirts handcrafted in Jodhpur. Our debut collection drops <span className="text-[#c4956a] font-medium">July 7</span>.
+          <p className="mt-4 text-sm text-muted-foreground leading-relaxed">
+            Premium linen blend shirts handcrafted in Jodhpur. Our debut collection drops <span className="text-[#c4956a] font-medium">July 7</span>.
           </p>
 
           {/* Scarcity — always visible */}
@@ -75,8 +75,8 @@ export function EarlyAccessClient() {
               transition={{ delay: 0.3 }}
               className="mt-5 inline-flex items-center gap-2 px-4 py-2.5 border border-amber-500/30 bg-amber-500/5"
             >
-              <Lock className="h-3.5 w-3.5 text-amber-400" />
-              <span className="text-[11px] text-amber-300 font-medium">
+              <Lock className="h-3.5 w-3.5 text-amber-500" />
+              <span className="text-[11px] text-amber-600 dark:text-amber-300 font-medium">
                 First 100 get 10% off + Free Shipping — {spotsLeft} spots left
               </span>
             </motion.div>
@@ -93,9 +93,9 @@ export function EarlyAccessClient() {
                 <Check className="h-8 w-8 text-[#c4956a] mx-auto mb-3" />
                 <p className="text-sm text-[#c4956a] font-medium">{response?.message}</p>
                 {response?.position && (
-                  <p className="text-[11px] text-[#f5e6d3]/50 mt-2">Your position: #{response.position}</p>
+                  <p className="text-[11px] text-muted-foreground mt-2">Your position: #{response.position}</p>
                 )}
-                <p className="text-[11px] text-[#f5e6d3]/30 mt-3">We&apos;ll notify you 2 hours before the public drop.</p>
+                <p className="text-[11px] text-muted-foreground/60 mt-3">We&apos;ll notify you 2 hours before the public drop.</p>
               </motion.div>
             ) : (
               <motion.form
@@ -112,14 +112,14 @@ export function EarlyAccessClient() {
                   placeholder="Enter your email address"
                   required
                   autoFocus
-                  className="w-full px-4 py-4 bg-[#1a1209] border border-[#c4956a]/40 text-sm text-[#f5e6d3] placeholder:text-[#f5e6d3]/35 outline-none focus:border-[#c4956a] transition-colors"
+                  className="w-full px-4 py-4 bg-card border border-[#c4956a]/40 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-[#c4956a] transition-colors"
                 />
                 <input
                   type="tel"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="WhatsApp number (optional, for launch alert)"
-                  className="w-full px-4 py-4 bg-[#1a1209] border border-[#c4956a]/40 text-sm text-[#f5e6d3] placeholder:text-[#f5e6d3]/35 outline-none focus:border-[#c4956a] transition-colors"
+                  className="w-full px-4 py-4 bg-card border border-[#c4956a]/40 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-[#c4956a] transition-colors"
                 />
                 <button
                   type="submit"
@@ -145,9 +145,9 @@ export function EarlyAccessClient() {
                 "2-hour early access before public launch",
                 "Free shipping on your first order",
               ].map((perk, i) => (
-                <div key={i} className="flex items-center gap-3 px-4 py-2.5 border border-[#c4956a]/10 bg-[#c4956a]/3">
+                <div key={i} className="flex items-center gap-3 px-4 py-2.5 border border-[#c4956a]/10 bg-[#c4956a]/5">
                   <Check className="h-3.5 w-3.5 text-[#c4956a] flex-shrink-0" />
-                  <span className="text-[11px] text-[#f5e6d3]/70">{perk}</span>
+                  <span className="text-[11px] text-muted-foreground">{perk}</span>
                 </div>
               ))}
             </motion.div>
@@ -156,23 +156,23 @@ export function EarlyAccessClient() {
           {/* Trust badges */}
           <div className="mt-10 grid grid-cols-3 gap-4 text-center">
             {[
-              { icon: Gem, label: "Premium Linen" },
+              { icon: Gem, label: "Premium Linen Blend" },
               { icon: MapPin, label: "Made in Jodhpur" },
               { icon: ClipboardCheck, label: "47 QC Checks" },
             ].map((item) => (
               <div key={item.label} className="flex flex-col items-center gap-1">
                 <item.icon className="h-4 w-4 text-[#c4956a]/60" />
-                <p className="text-[9px] uppercase tracking-wider text-[#f5e6d3]/40">{item.label}</p>
+                <p className="text-[9px] uppercase tracking-wider text-muted-foreground">{item.label}</p>
               </div>
             ))}
           </div>
 
-          <p className="mt-8 text-[10px] text-[#f5e6d3]/20">No spam. Unsubscribe anytime.</p>
+          <p className="mt-8 text-[10px] text-muted-foreground/50">No spam. Unsubscribe anytime.</p>
         </motion.div>
       </main>
 
       {/* Minimal footer — no nav links */}
-      <footer className="relative z-10 text-center py-4 text-[10px] text-[#f5e6d3]/20">
+      <footer className="relative z-10 text-center py-4 text-[10px] text-muted-foreground/50">
         © 2025 Vchuki Fashion Private Limited
       </footer>
     </div>

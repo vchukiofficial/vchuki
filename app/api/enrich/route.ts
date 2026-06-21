@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
           product: product._id,
           color: { name: color.name, hex: color.hex },
           size,
-          fabric: product.tags?.includes("linen") ? "100% Premium Linen" : product.tags?.includes("cotton") ? "100% Organic Cotton" : "Premium Cotton Blend",
+          fabric: product.tags?.includes("linen") ? "Premium Linen Blend" : product.tags?.includes("cotton") ? "100% Organic Cotton" : "Premium Cotton Blend",
           fit: product.tags?.includes("oversized") ? "relaxed" : Math.random() > 0.5 ? "slim" : "regular",
           stock: Math.floor(Math.random() * 80) + 10,
           priceAdjustment: size === "XXL" ? 100 : 0,

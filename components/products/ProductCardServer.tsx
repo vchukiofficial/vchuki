@@ -7,6 +7,7 @@ interface Props {
     name: string
     slug: string
     basePrice: number
+    comparePrice?: number
     images: string[]
     category: string
     isFeatured: boolean
@@ -40,7 +41,17 @@ export default function ProductCardServer({ product }: Props) {
       </div>
       <div className="pt-3">
         <h3 className="text-xs font-normal truncate text-foreground/80 group-hover:text-foreground transition-colors">{product.name}</h3>
-        <p className="text-sm font-semibold text-foreground mt-0.5">₹{product.basePrice.toLocaleString()}</p>
+        <div className="flex items-center gap-2 mt-0.5">
+          <p className="text-sm font-semibold text-foreground">₹{product.basePrice.toLocaleString()}</p>
+          {product.comparePrice && product.comparePrice > product.basePrice && (
+            <>
+              <p className="text-[10px] text-muted-foreground line-through">₹{product.comparePrice.toLocaleString()}</p>
+              <span className="text-[9px] font-semibold text-emerald-600 dark:text-emerald-400">
+                {Math.round(((product.comparePrice - product.basePrice) / product.comparePrice) * 100)}% off
+              </span>
+            </>
+          )}
+        </div>
       </div>
     </Link>
   )

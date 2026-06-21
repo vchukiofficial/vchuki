@@ -310,7 +310,7 @@ export function LaunchCountdown() {
       <footer className="relative z-10 border-t border-[#c4956a]/10 mt-12">
         <div className="container py-6 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
           {[
-            { icon: Gem, label: "100% Premium Linen" },
+            { icon: Gem, label: "Premium Linen Blend" },
             { icon: MapPin, label: "Crafted in Jodhpur" },
             { icon: ClipboardCheck, label: "47 Quality Checks" },
             { icon: Wind, label: "Breathable Comfort" },

@@ -9,6 +9,7 @@ import { AnimatedSection } from "@/components/home/AnimatedSection"
 import { ProductCarousel } from "@/components/home/ProductCarousel"
 import { RajasthanPalette } from "@/components/home/RajasthanPalette"
 import { HomePageWrapper } from "@/components/home/HomePageWrapper"
+import { DroppingJulyBanner } from "@/components/home/DroppingJulyBanner"
 
 async function getProducts() {
   await connectDB()
@@ -119,7 +120,7 @@ export default async function HomePage() {
         <div className="container py-5 md:py-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
             {[
-              { icon: Gem, label: "100% Premium Linen", sub: "Finest mills" },
+              { icon: Gem, label: "Premium Linen Blend", sub: "Finest mills" },
               { icon: MapPin, label: "Crafted in Jodhpur", sub: "Rajasthan heritage" },
               { icon: ClipboardCheck, label: "47 Quality Checks", sub: "Zero compromise" },
               { icon: Wind, label: "Breathable Comfort", sub: "All-day ease" },
@@ -179,6 +180,9 @@ export default async function HomePage() {
         </AnimatedSection>
       )}
 
+      {/* Dropping July */}
+      <DroppingJulyBanner />
+
       {/* Brand Story — Heritage Editorial */}
       <section className="relative py-14 md:py-24 overflow-hidden">
         <div className="absolute inset-0 bg-[#2a1f14] dark:bg-[#0f0a06]" />
@@ -205,7 +209,7 @@ export default async function HomePage() {
               <div className="absolute -inset-2 border border-[#c4956a]/20" />
               <Image
                 src="https://u1kwkwq0sju0a3pp.public.blob.vercel-storage.com/products/vchuki/linenproductwity6imagelayout.png"
-                alt="VCHUKI Premium Linen Shirt Collection - Multiple Views"
+                alt="VCHUKI Premium Linen Blend Shirt Collection - Multiple Views"
                 fill
                 className="object-cover"
                 sizes="(max-width: 768px) 100vw, 50vw"
@@ -288,7 +292,7 @@ export default async function HomePage() {
             {[
               { title: "47 Quality Checks", desc: "Every shirt passes through 47 rigorous quality checkpoints before it reaches you. From fabric inspection to final stitch — zero compromise." },
               { title: "Jodhpur Heritage", desc: "Born in the heart of Rajasthan, our craft draws from generations of textile mastery. Modern design meets timeless tradition." },
-              { title: "Premium Linen", desc: "Sourced from the finest mills, our linen is breathable, durable, and gets softer with every wash. Designed for Indian summers." },
+              { title: "Premium Linen Blend", desc: "Sourced from the finest mills, our linen is breathable, durable, and gets softer with every wash. Designed for Indian summers." },
             ].map((item, i) => (
               <div key={i} className="p-6 md:p-8 bg-background border border-border hover:border-[#c4956a]/30 transition-colors">
                 <div className="w-8 h-8 border border-[#c4956a]/30 flex items-center justify-center mb-4">

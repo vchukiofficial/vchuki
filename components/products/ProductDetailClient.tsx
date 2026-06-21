@@ -346,7 +346,7 @@ export default function ProductDetailClient({ product, variants, reviews, siblin
               <span className="text-muted-foreground group-open:rotate-180 transition-transform">▾</span>
             </summary>
             <div className="mt-3 space-y-1.5 text-xs text-muted-foreground">
-              <p>Fabric: {selectedVariant?.fabric || "Premium Linen"}</p>
+              <p>Fabric: {selectedVariant?.fabric || "Premium Linen Blend"}</p>
               <p>Fit: <span className="capitalize">{selectedVariant?.fit || "Regular"}</span></p>
               <p>SKU: {selectedVariant?.sku || "—"}</p>
               <p>Care: Machine wash cold, tumble dry low</p>

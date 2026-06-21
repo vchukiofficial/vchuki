@@ -77,18 +77,28 @@ export default function AdminAnalyticsPage() {
           <h3 className="text-sm font-medium text-foreground mb-4 flex items-center gap-2"><Activity className="h-3.5 w-3.5 text-[#c4956a]" /> Top Pages</h3>
           {tracking?.pageBreakdown?.length > 0 ? (
             <div className="space-y-2">
-              {tracking.pageBreakdown.slice(0, 10).map((page: any, i: number) => (
-                <div key={page._id} className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 flex-1 min-w-0">
-                    <span className="text-[10px] text-muted-foreground w-4">{i + 1}.</span>
-                    <span className="text-xs text-foreground truncate">{page._id}</span>
+              {tracking.pageBreakdown.slice(0, 10).map((page: any, i: number) => {
+                const maxViews = tracking.pageBreakdown[0]?.views || 1
+                const barWidth = (page.views / maxViews) * 100
+                return (
+                  <div key={page._id} className="group">
+                    <div className="flex items-center justify-between mb-0.5">
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                        <span className="text-[10px] text-muted-foreground w-4">{i + 1}.</span>
+                        <span className="text-xs text-foreground truncate">{page._id}</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        {page.uniqueVisitors > 0 && <span className="text-[9px] text-muted-foreground">{page.uniqueVisitors} unique</span>}
+                        {page.avgDuration > 0 && <span className="text-[9px] text-muted-foreground">{Math.round(page.avgDuration)}s avg</span>}
+                        <span className="text-xs font-medium text-foreground">{page.views}</span>
+                      </div>
+                    </div>
+                    <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                      <div className="h-full bg-[#c4956a]/60 rounded-full transition-all" style={{ width: `${barWidth}%` }} />
+                    </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    {page.avgDuration > 0 && <span className="text-[9px] text-muted-foreground">{Math.round(page.avgDuration)}s avg</span>}
-                    <span className="text-xs font-medium text-foreground">{page.views}</span>
-                  </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           ) : (
             <p className="text-xs text-muted-foreground text-center py-6">No page views recorded yet</p>

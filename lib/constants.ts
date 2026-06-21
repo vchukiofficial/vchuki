@@ -29,5 +29,5 @@ export const BUSINESS = {
   },
   domain: "https://vchuki.com",
   founded: "2025",
-  tagline: "Premium Linen Shirts — Crafted in Jodhpur",
+  tagline: "Premium Linen Blend Shirts — Crafted in Jodhpur",
 }

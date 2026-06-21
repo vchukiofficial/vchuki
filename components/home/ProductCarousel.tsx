@@ -126,11 +126,13 @@ export function ProductCarousel({ products, autoScroll = false }: Props) {
                 <h3 className="text-[11px] md:text-xs font-normal line-clamp-1 text-foreground/80 group-hover:text-foreground transition-colors">{product.name}</h3>
                 <div className="flex items-center gap-2 mt-0.5">
                   <p className="text-xs md:text-sm font-semibold text-foreground">₹{displayPrice?.toLocaleString()}</p>
-                  {/* Available sizes for variant cards */}
-                  {isVariantCard && product.availableSizes?.length > 0 && (
-                    <span className="text-[9px] text-muted-foreground">
-                      {product.availableSizes.join(" · ")}
-                    </span>
+                  {product.comparePrice > 0 && product.comparePrice > (displayPrice || 0) && (
+                    <>
+                      <p className="text-[10px] text-muted-foreground line-through">₹{product.comparePrice.toLocaleString()}</p>
+                      <span className="text-[9px] font-semibold text-emerald-600 dark:text-emerald-400">
+                        {Math.round(((product.comparePrice - (displayPrice || 0)) / product.comparePrice) * 100)}% off
+                      </span>
+                    </>
                   )}
                 </div>
               </Link>

@@ -21,6 +21,7 @@ interface RecommendedProduct {
   name: string
   slug: string
   basePrice: number
+  comparePrice: number
   images: string[]
   category: string
   variants: Variant[]
@@ -161,7 +162,17 @@ export default function ProductRecommendations({ currentProductId, currentCatego
               {/* Info */}
               <Link href={`/product/${product.slug}`} className="block">
                 <h3 className="text-[11px] md:text-xs font-normal line-clamp-1 text-foreground/80">{product.name}</h3>
-                <p className="text-xs md:text-sm font-semibold mt-0.5 text-foreground">₹{(product.basePrice + (firstVariant?.priceAdjustment || 0)).toLocaleString()}</p>
+                <div className="flex items-center gap-2 mt-0.5">
+                  <p className="text-xs md:text-sm font-semibold text-foreground">₹{(product.basePrice + (firstVariant?.priceAdjustment || 0)).toLocaleString()}</p>
+                  {product.comparePrice > 0 && product.comparePrice > product.basePrice && (
+                    <>
+                      <p className="text-[10px] md:text-xs text-muted-foreground line-through">₹{product.comparePrice.toLocaleString()}</p>
+                      <span className="text-[9px] md:text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
+                        {Math.round(((product.comparePrice - product.basePrice) / product.comparePrice) * 100)}% off
+                      </span>
+                    </>
+                  )}
+                </div>
               </Link>
 
               {/* Color dots */}

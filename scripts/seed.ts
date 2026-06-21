@@ -318,7 +318,7 @@ async function seed() {
           product: product._id,
           color: { name: item.color.name, hex: item.color.hex },
           size,
-          fabric: '100% Premium Linen',
+          fabric: 'Premium Linen Blend',
           fit: 'regular',
           stock,
           priceAdjustment: priceAdj,

@@ -18,6 +18,7 @@ interface HeroCategory {
   slug: string
   tagline: string
   basePrice: number
+  comparePrice: number
   colors: VariantColor[]
 }
 
@@ -28,6 +29,7 @@ const FALLBACK_CATEGORIES: HeroCategory[] = [
     slug: "linen-half-sleeve",
     tagline: "Summer Ease",
     basePrice: 799,
+    comparePrice: 1499,
     colors: [
       { name: "Beige", hex: "#d4a574", image: "https://u1kwkwq0sju0a3pp.public.blob.vercel-storage.com/products/vchuki/beige.png", price: 799 },
       { name: "Sky Blue", hex: "#87CEEB", image: "https://u1kwkwq0sju0a3pp.public.blob.vercel-storage.com/products/vchuki/sky-blue.png", price: 799 },
@@ -39,6 +41,7 @@ const FALLBACK_CATEGORIES: HeroCategory[] = [
     slug: "linen-full-sleeve",
     tagline: "Timeless Luxury",
     basePrice: 899,
+    comparePrice: 1699,
     colors: [
       { name: "Sky Blue", hex: "#87CEEB", image: "https://u1kwkwq0sju0a3pp.public.blob.vercel-storage.com/products/vchuki/skyblue.png", price: 899 },
       { name: "Olive Green", hex: "#6b7c5e", image: "https://u1kwkwq0sju0a3pp.public.blob.vercel-storage.com/products/vchuki/olive-green.png", price: 899 },
@@ -50,6 +53,7 @@ const FALLBACK_CATEGORIES: HeroCategory[] = [
     slug: "kurta-half-sleeve",
     tagline: "Modern Ethnic",
     basePrice: 999,
+    comparePrice: 1899,
     colors: [
       { name: "Golden Dune", hex: "#c4956a", image: "https://u1kwkwq0sju0a3pp.public.blob.vercel-storage.com/products/vchuki/shortsleevgoldenduneshortkurta.png", price: 999 },
       { name: "White", hex: "#f5f5f5", image: "https://u1kwkwq0sju0a3pp.public.blob.vercel-storage.com/products/vchuki/white.png", price: 999 },
@@ -60,6 +64,7 @@ const FALLBACK_CATEGORIES: HeroCategory[] = [
     slug: "kurta-full-sleeve",
     tagline: "Heritage Craft",
     basePrice: 1099,
+    comparePrice: 1999,
     colors: [
       { name: "Olive Green", hex: "#6b7c5e", image: "https://u1kwkwq0sju0a3pp.public.blob.vercel-storage.com/products/vchuki/fullsleevolivegreenshortshirts.png", price: 1099 },
       { name: "Beige", hex: "#d4a574", image: "https://u1kwkwq0sju0a3pp.public.blob.vercel-storage.com/products/vchuki/beige.png", price: 1099 },
@@ -132,11 +137,13 @@ export function HeroSection() {
 
           if (colorsMap.size > 0) {
             const meta = CATEGORY_LABELS[slug] || { label: slug, tagline: "" }
+            const productComparePrice = products[0]?.comparePrice || 0
             results.push({
               label: meta.label,
               slug,
               tagline: meta.tagline,
               basePrice: lowestPrice === Infinity ? 799 : lowestPrice,
+              comparePrice: productComparePrice,
               colors: Array.from(colorsMap.values()),
             })
           }
@@ -164,6 +171,7 @@ export function HeroSection() {
   const current = categories[activeCategory]
   const colorIdx = activeColor[activeCategory] || 0
   const currentPrice = current?.colors[colorIdx]?.price || current?.basePrice || 799
+  const currentComparePrice = current?.comparePrice || 0
   const currentImage = current?.colors[colorIdx]?.image || current?.colors[0]?.image || ""
 
 
@@ -206,7 +214,7 @@ export function HeroSection() {
             </motion.div>
 
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-light text-white leading-[1.1] tracking-tight">
-              Premium Linen<br />
+              Premium Linen Blend<br />
               <AnimatePresence mode="wait">
                 <motion.span
                   key={current.label}
@@ -287,7 +295,7 @@ export function HeroSection() {
             {/* USP badges */}
             <div className="mt-6 grid grid-cols-2 gap-3 max-w-sm">
               {[
-                { icon: Sparkles, label: "Premium Linen Fabric" },
+                { icon: Sparkles, label: "Premium Linen Blend" },
                 { icon: Wind, label: "Soft & Breathable" },
                 { icon: Ruler, label: "Perfect Modern Fit" },
                 { icon: CheckCircle, label: "Lightweight Comfort" },
@@ -303,18 +311,28 @@ export function HeroSection() {
             <div className="mt-8 flex flex-wrap items-center gap-4 md:gap-6">
               <div>
                 <p className="text-[10px] uppercase tracking-wider text-[#c4956a]">Starting at</p>
-                <AnimatePresence mode="wait">
-                  <motion.p
-                    key={currentPrice}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.3 }}
-                    className="text-3xl md:text-4xl font-bold text-white"
-                  >
-                    ₹{currentPrice.toLocaleString()}
-                  </motion.p>
-                </AnimatePresence>
+                <div className="flex items-center gap-3">
+                  <AnimatePresence mode="wait">
+                    <motion.p
+                      key={currentPrice}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.3 }}
+                      className="text-3xl md:text-4xl font-bold text-white"
+                    >
+                      ₹{currentPrice.toLocaleString()}
+                    </motion.p>
+                  </AnimatePresence>
+                  {currentComparePrice > currentPrice && (
+                    <>
+                      <p className="text-lg text-white/40 line-through">₹{currentComparePrice.toLocaleString()}</p>
+                      <span className="text-xs font-semibold text-emerald-400 bg-emerald-400/10 px-2 py-0.5">
+                        {Math.round(((currentComparePrice - currentPrice) / currentComparePrice) * 100)}% OFF
+                      </span>
+                    </>
+                  )}
+                </div>
               </div>
               <Link
                 href={`/shirts/${current.slug}`}

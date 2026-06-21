@@ -55,6 +55,39 @@ export async function POST(request: NextRequest) {
 
   // Send order confirmation email (async, non-blocking)
   const customerEmail = session?.user?.email || body.guestEmail
+  const customerPhone = body.shippingAddress?.phone || body.guestPhone
+
+  // Auto-create user account for guest orders
+  let autoCreatedUser = false
+  if (!session && customerEmail) {
+    try {
+      const { default: User } = await import("@/models/User")
+      const existingUser = await User.findOne({ email: customerEmail })
+      if (!existingUser) {
+        const bcrypt = await import("bcryptjs")
+        const tempPassword = customerPhone || Math.random().toString(36).slice(-8)
+        const hashedPassword = await bcrypt.hash(tempPassword, 10)
+        const newUser = await User.create({
+          name: body.shippingAddress?.name || customerEmail.split("@")[0],
+          email: customerEmail,
+          phone: customerPhone,
+          password: hashedPassword,
+          role: "customer",
+        })
+        // Link order to new user
+        await Order.findByIdAndUpdate(order._id, { user: newUser._id })
+        autoCreatedUser = true
+        // Send account created email
+        import("@/lib/email/brevo").then(({ sendAccountCreatedEmail }) => {
+          sendAccountCreatedEmail(customerEmail, body.shippingAddress?.name || "", tempPassword).catch(() => {})
+        })
+      } else {
+        // Link order to existing user
+        await Order.findByIdAndUpdate(order._id, { user: existingUser._id })
+      }
+    } catch { /* silent */ }
+  }
+
   if (customerEmail) {
     import("@/lib/email/brevo").then(({ sendOrderConfirmationEmail }) => {
       sendOrderConfirmationEmail(customerEmail, {
@@ -72,5 +105,5 @@ export async function POST(request: NextRequest) {
     }).catch(() => {})
   }
 
-  return NextResponse.json({ orderId: order._id, message: "Order placed successfully" }, { status: 201 })
+  return NextResponse.json({ orderId: order._id, message: "Order placed successfully", autoCreatedUser }, { status: 201 })
 }

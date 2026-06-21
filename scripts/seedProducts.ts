@@ -94,7 +94,7 @@ async function main() {
         product: product._id,
         color: { name: color.name, hex: color.hex },
         size,
-        fabric: "100% Premium Linen",
+        fabric: "Premium Linen Blend",
         fit: "regular",
         stock,
         priceAdjustment: priceAdj,

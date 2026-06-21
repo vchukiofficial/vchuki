@@ -34,6 +34,12 @@ export async function POST(req: NextRequest) {
       earlyAccess,
     })
 
+    // Send confirmation email
+    try {
+      const { sendWaitlistConfirmation } = await import("@/lib/email/brevo")
+      await sendWaitlistConfirmation(email.toLowerCase(), position, earlyAccess)
+    } catch { /* non-blocking */ }
+
     return NextResponse.json({
       message: earlyAccess
         ? `You're #${position}! You've unlocked 10% off + free shipping on launch day.`

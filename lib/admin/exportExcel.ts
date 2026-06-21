@@ -32,7 +32,7 @@ export async function exportToExcel({ title, sheetName, columns, data, filename 
   // Row 1: Brand Title
   worksheet.mergeCells(1, 1, 1, columns.length)
   const titleCell = worksheet.getCell("A1")
-  titleCell.value = "VCHUKI — Premium Linen Menswear"
+  titleCell.value = "VCHUKI — Premium Linen Blend Menswear"
   titleCell.font = { name: "Arial", size: 14, bold: true, color: { argb: THEME.titleFont } }
   titleCell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: THEME.titleBg } }
   titleCell.alignment = { horizontal: "center", vertical: "middle" }

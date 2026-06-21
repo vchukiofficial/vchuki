@@ -162,7 +162,7 @@ export default function AdminProductsPage() {
               color: { name: variant.color, hex: variant.hex },
               size: sizeData.size,
               stock: sizeData.stock,
-              fabric: fd.get("fabric") || "Premium Linen",
+              fabric: fd.get("fabric") || "Premium Linen Blend",
               fit: fd.get("fit") || "regular",
               priceAdjustment: sizeData.size === "XXL" ? 50 : sizeData.size === "3XL" ? 100 : 0,
               sku: `VC-${product.slug}-${variant.color.toLowerCase().replace(/\s/g, "-")}-${sizeData.size}`,
@@ -289,7 +289,7 @@ export default function AdminProductsPage() {
               <div>
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Fabric</label>
                 <select name="fabric" className="w-full h-9 mt-1 border border-border bg-background px-3 text-xs text-foreground">
-                  <option value="100% Premium Linen">100% Premium Linen</option>
+                  <option value="Premium Linen Blend">Premium Linen Blend</option>
                   <option value="Premium Cotton">Premium Cotton</option>
                   <option value="Cotton-Linen Blend">Cotton-Linen Blend</option>
                   <option value="Egyptian Cotton">Egyptian Cotton</option>

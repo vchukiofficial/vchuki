@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Megaphone, Calendar, Zap, Gift, Clock, Plus, Trash2, Download } from "lucide-react"
+import { Megaphone, Calendar, Zap, Gift, Clock, Plus, Trash2, Download, Pencil } from "lucide-react"
 import { exportToExcel } from "@/lib/admin/exportExcel"
 
 interface Campaign {
@@ -24,6 +24,8 @@ const MOCK_CAMPAIGNS: Campaign[] = [
 export default function AdminCampaignsPage() {
   const [campaigns, setCampaigns] = useState<Campaign[]>(MOCK_CAMPAIGNS)
   const [showCreate, setShowCreate] = useState(false)
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editForm, setEditForm] = useState<Partial<Campaign>>({})
   const [selected, setSelected] = useState<Set<string>>(new Set())
 
   function toggleSelect(id: string) {
@@ -47,6 +49,18 @@ export default function AdminCampaignsPage() {
   function singleDelete(id: string) {
     if (!confirm("Delete this campaign?")) return
     setCampaigns(campaigns.filter(c => c.id !== id))
+  }
+
+  function startEdit(campaign: Campaign) {
+    setEditingId(campaign.id)
+    setEditForm({ ...campaign })
+  }
+
+  function saveEdit() {
+    if (!editingId) return
+    setCampaigns(campaigns.map(c => c.id === editingId ? { ...c, ...editForm } as Campaign : c))
+    setEditingId(null)
+    setEditForm({})
   }
 
   function handleCreate(e: React.FormEvent<HTMLFormElement>) {
@@ -171,10 +185,26 @@ export default function AdminCampaignsPage() {
                   </p>
                 </div>
               </div>
+              <div className="flex items-center gap-1">
+              <button onClick={() => startEdit(campaign)} className="h-7 w-7 border border-border flex items-center justify-center text-muted-foreground hover:text-[#c4956a] hover:border-[#c4956a]/30 transition-colors">
+                <Pencil className="h-3 w-3" />
+              </button>
               <button onClick={() => singleDelete(campaign.id)} className="h-7 w-7 border border-border flex items-center justify-center text-muted-foreground hover:text-red-500 hover:border-red-500/30 transition-colors">
                 <Trash2 className="h-3 w-3" />
               </button>
+              </div>
             </div>
+            {/* Edit Form */}
+            {editingId === campaign.id && (
+              <div className="mt-3 pt-3 border-t border-border grid grid-cols-2 md:grid-cols-3 gap-2">
+                <div><label className="text-[9px] uppercase text-muted-foreground">Name</label><input value={editForm.name || ""} onChange={e => setEditForm({...editForm, name: e.target.value})} className="w-full mt-0.5 px-2 py-1.5 border border-border bg-background text-xs text-foreground" /></div>
+                <div><label className="text-[9px] uppercase text-muted-foreground">Discount</label><input value={editForm.discount || ""} onChange={e => setEditForm({...editForm, discount: e.target.value})} className="w-full mt-0.5 px-2 py-1.5 border border-border bg-background text-xs text-foreground" /></div>
+                <div><label className="text-[9px] uppercase text-muted-foreground">Status</label><select value={editForm.status || ""} onChange={e => setEditForm({...editForm, status: e.target.value as Campaign["status"]})} className="w-full mt-0.5 px-2 py-1.5 border border-border bg-background text-xs text-foreground"><option value="active">Active</option><option value="scheduled">Scheduled</option><option value="ended">Ended</option></select></div>
+                <div><label className="text-[9px] uppercase text-muted-foreground">Start</label><input type="date" value={editForm.startDate || ""} onChange={e => setEditForm({...editForm, startDate: e.target.value})} className="w-full mt-0.5 px-2 py-1.5 border border-border bg-background text-xs text-foreground" /></div>
+                <div><label className="text-[9px] uppercase text-muted-foreground">End</label><input type="date" value={editForm.endDate || ""} onChange={e => setEditForm({...editForm, endDate: e.target.value})} className="w-full mt-0.5 px-2 py-1.5 border border-border bg-background text-xs text-foreground" /></div>
+                <div className="flex items-end gap-2"><button onClick={saveEdit} className="px-3 py-1.5 bg-emerald-600 text-white text-[10px] font-medium uppercase">Save</button><button onClick={() => setEditingId(null)} className="px-3 py-1.5 border border-border text-[10px] text-muted-foreground">Cancel</button></div>
+              </div>
+            )}
           </div>
         ))}
       </div>

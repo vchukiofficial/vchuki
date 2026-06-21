@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { useSession } from "next-auth/react"
+import { useSession, signIn } from "next-auth/react"
 import { useCartStore } from "@/store/cartStore"
 import Image from "next/image"
 import Link from "next/link"
@@ -121,6 +121,10 @@ export default function CheckoutPage() {
       if (res.ok) {
         setOrderId(data.orderId)
         clearCart()
+        // Auto-login if account was created for guest
+        if (data.autoCreatedUser && form.email && form.phone) {
+          await signIn("credentials", { email: form.email, password: form.phone, redirect: false })
+        }
         setStep("confirmation")
       } else {
         alert(data.error || "Order failed. Please try again.")
