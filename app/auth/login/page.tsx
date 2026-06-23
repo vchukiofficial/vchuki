@@ -74,7 +74,14 @@ export default function LoginPage() {
       })
       const data = await res.json()
       if (res.ok && data.verified) {
-        router.push("/")
+        // Redirect admin to dashboard, customer to account
+        const sessionRes = await fetch("/api/auth/session")
+        const sessionData = await sessionRes.json()
+        if (sessionData?.user?.role === "admin") {
+          router.push("/admin")
+        } else {
+          router.push("/account")
+        }
         router.refresh()
       } else {
         setError(data.error || "Invalid OTP. Please try again.")

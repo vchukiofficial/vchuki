@@ -14,7 +14,7 @@ export async function GET() {
 
   await connectDB()
 
-  const [totalOrders, totalProducts, totalUsers, revenueAgg] = await Promise.all([
+  const [totalOrders, totalProducts, totalUsers, revenueAgg, codRevenueAgg] = await Promise.all([
     Order.countDocuments(),
     Product.countDocuments({ isActive: true }),
     User.countDocuments(),
@@ -22,9 +22,15 @@ export async function GET() {
       { $match: { paymentStatus: "paid" } },
       { $group: { _id: null, total: { $sum: "$finalAmount" } } },
     ]),
+    Order.aggregate([
+      { $match: { paymentMethod: "cod", shippingStatus: { $nin: ["cancelled", "returned"] } } },
+      { $group: { _id: null, total: { $sum: "$finalAmount" } } },
+    ]),
   ])
 
-  const revenue = revenueAgg[0]?.total || 0
+  const paidRevenue = revenueAgg[0]?.total || 0
+  const codRevenue = codRevenueAgg[0]?.total || 0
+  const revenue = paidRevenue + codRevenue
   const recentOrders = await Order.find().sort({ createdAt: -1 }).limit(5).lean()
 
   return NextResponse.json({
