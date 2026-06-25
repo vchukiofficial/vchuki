@@ -168,7 +168,30 @@ export default async function CategoryPage({ params, searchParams }: Props) {
 
   const serialized = JSON.parse(JSON.stringify(variantCards))
 
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: "https://vchuki.com" },
+      { "@type": "ListItem", position: 2, name: "Shirts", item: "https://vchuki.com/shirts" },
+      { "@type": "ListItem", position: 3, name: meta.h1, item: `https://vchuki.com/shirts/${params.category}` },
+    ],
+  }
+
+  const collectionSchema = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: meta.h1,
+    description: meta.description,
+    url: `https://vchuki.com/shirts/${params.category}`,
+    isPartOf: { "@type": "WebSite", name: "VCHUKI", url: "https://vchuki.com" },
+    breadcrumb: breadcrumbSchema,
+  }
+
   return (
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema) }} />
     <div className="container py-4 md:py-8">
       {/* Breadcrumb */}
       <nav className="text-xs text-muted-foreground mb-4">
@@ -241,5 +264,6 @@ export default async function CategoryPage({ params, searchParams }: Props) {
         <p>{meta.content}</p>
       </section>
     </div>
+    </>
   )
 }

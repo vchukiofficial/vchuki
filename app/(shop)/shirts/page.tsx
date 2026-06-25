@@ -158,7 +158,36 @@ export default async function ShirtsPage({ searchParams }: Props) {
   const serialized = JSON.parse(JSON.stringify(shuffledCards))
   const totalPages = Math.ceil(total / limit)
 
+  // ItemList schema for Google rich results (product carousel)
+  const itemListSchema = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: "Premium Shirts for Men - VCHUKI",
+    description: "Browse VCHUKI's collection of premium linen shirts for men.",
+    url: "https://vchuki.com/shirts",
+    numberOfItems: serialized.length,
+    itemListElement: serialized.slice(0, 20).map((p: any, i: number) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      item: {
+        "@type": "Product",
+        name: p.name + (p.variantColor?.name ? ` - ${p.variantColor.name}` : ""),
+        url: `https://vchuki.com/product/${p.slug}`,
+        image: p.variantImage || p.images?.[0] || "",
+        brand: { "@type": "Brand", name: "VCHUKI" },
+        offers: {
+          "@type": "Offer",
+          price: p.variantPrice || p.basePrice,
+          priceCurrency: "INR",
+          availability: "https://schema.org/InStock",
+        },
+      },
+    })),
+  }
+
   return (
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }} />
     <div className="container py-4 md:py-8">
       {/* Breadcrumb */}
       <nav className="text-xs text-muted-foreground mb-4">
@@ -249,5 +278,6 @@ export default async function ShirtsPage({ searchParams }: Props) {
         </div>
       </div>
     </div>
+    </>
   )
 }

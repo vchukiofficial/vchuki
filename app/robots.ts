@@ -8,7 +8,18 @@ export default function robots(): MetadataRoute.Robots {
         allow: "/",
         disallow: ["/admin/", "/api/", "/auth/", "/account/", "/checkout/", "/cart/"],
       },
+      {
+        userAgent: "Googlebot",
+        allow: "/",
+        disallow: ["/admin/", "/api/", "/auth/", "/account/", "/checkout/", "/cart/"],
+      },
+      {
+        userAgent: "Bingbot",
+        allow: "/",
+        disallow: ["/admin/", "/api/", "/auth/", "/account/", "/checkout/", "/cart/"],
+      },
     ],
     sitemap: "https://vchuki.com/sitemap.xml",
+    host: "https://vchuki.com",
   }
 }
