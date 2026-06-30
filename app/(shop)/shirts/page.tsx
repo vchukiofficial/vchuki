@@ -27,16 +27,6 @@ interface Props {
   searchParams: { search?: string; page?: string; sort?: string; price?: string; tag?: string; size?: string; category?: string }
 }
 
-// Shuffle array deterministically per-day so it changes daily but stays consistent within a session
-function shuffleArray<T>(arr: T[]): T[] {
-  const shuffled = [...arr]
-  const seed = new Date().toDateString().split("").reduce((a, c) => a + c.charCodeAt(0), 0)
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = (seed * (i + 1) * 7919) % (i + 1)
-    ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
-  }
-  return shuffled
-}
 
 export default async function ShirtsPage({ searchParams }: Props) {
   await connectDB()
@@ -153,9 +143,8 @@ export default async function ShirtsPage({ searchParams }: Props) {
     }
   }
 
-  // Shuffle variants for fresh display
-  const shuffledCards = shuffleArray(variantCards)
-  const serialized = JSON.parse(JSON.stringify(shuffledCards))
+  // Stable sort for SEO consistency (no random shuffle server-side)
+  const serialized = JSON.parse(JSON.stringify(variantCards))
   const totalPages = Math.ceil(total / limit)
 
   // ItemList schema for Google rich results (product carousel)

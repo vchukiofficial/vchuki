@@ -11,22 +11,24 @@ import { RajasthanPalette } from "@/components/home/RajasthanPalette"
 import { HomePageWrapper } from "@/components/home/HomePageWrapper"
 import { DroppingJulyBanner } from "@/components/home/DroppingJulyBanner"
 
-async function getProducts() {
-  await connectDB()
-  const bestsellers = await Product.find({ isFeatured: true, isActive: true }).limit(8).lean()
-  const newArrivals = await Product.find({ isActive: true, tags: { $in: ["new-launch"] } }).sort({ createdAt: -1 }).limit(8).lean()
-  const linen = await Product.find({ isActive: true, tags: { $in: ["linen"] } }).limit(4).lean()
+// FIX #5: Enable ISR caching - revalidate every 60 seconds
+export const revalidate = 60
 
-  // For bestsellers, expand each product into variant cards (one per unique color with stock > 0)
-  const bestsellersWithVariants = []
-  for (const product of bestsellers) {
+// FIX #2: Batch all variant queries into single DB calls (eliminates N+1)
+function expandProductsToVariantCards(products: any[], allVariants: any[]) {
+  const variantsByProduct = new Map<string, any[]>()
+  for (const v of allVariants) {
+    const pid = (v as any).product.toString()
+    if (!variantsByProduct.has(pid)) variantsByProduct.set(pid, [])
+    variantsByProduct.get(pid)!.push(v)
+  }
+
+  const cards: any[] = []
+  for (const product of products) {
     const p = product as any
-    const variants = await ProductVariant.find({ product: p._id, stock: { $gt: 0 } }).lean()
-    if (variants.length === 0) {
-      // No variants in stock, skip
-      continue
-    }
-    // Group by color
+    const variants = variantsByProduct.get(p._id.toString()) || []
+    if (variants.length === 0) continue
+
     const colorMap = new Map<string, any>()
     for (const v of variants) {
       const vAny = v as any
@@ -48,65 +50,39 @@ async function getProducts() {
         colorMap.get(colorName).availableSizes.push(vAny.size)
       }
     }
-    bestsellersWithVariants.push(...colorMap.values())
+    cards.push(...colorMap.values())
   }
-
-  // Expand linen into variant cards
-  const linenWithVariants = []
-  for (const product of linen) {
-    const p = product as any
-    const variants = await ProductVariant.find({ product: p._id, stock: { $gt: 0 } }).lean()
-    if (variants.length === 0) continue
-    const colorMap = new Map<string, any>()
-    for (const v of variants) {
-      const vAny = v as any
-      const colorName = vAny.color?.name || "Default"
-      if (!colorMap.has(colorName)) {
-        colorMap.set(colorName, {
-          ...p, _id: `${p._id}-${colorName}`, productId: p._id,
-          variantColor: vAny.color, variantImage: vAny.images?.[0] || p.images?.[0],
-          variantPrice: p.basePrice + (vAny.priceAdjustment || 0),
-          variantSku: vAny.sku, variantId: vAny._id, availableSizes: [vAny.size],
-        })
-      } else {
-        colorMap.get(colorName).availableSizes.push(vAny.size)
-      }
-    }
-    linenWithVariants.push(...colorMap.values())
-  }
-
-  // Expand newArrivals into variant cards
-  const newArrivalsWithVariants = []
-  for (const product of newArrivals) {
-    const p = product as any
-    const variants = await ProductVariant.find({ product: p._id, stock: { $gt: 0 } }).lean()
-    if (variants.length === 0) continue
-    const colorMap = new Map<string, any>()
-    for (const v of variants) {
-      const vAny = v as any
-      const colorName = vAny.color?.name || "Default"
-      if (!colorMap.has(colorName)) {
-        colorMap.set(colorName, {
-          ...p, _id: `${p._id}-${colorName}`, productId: p._id,
-          variantColor: vAny.color, variantImage: vAny.images?.[0] || p.images?.[0],
-          variantPrice: p.basePrice + (vAny.priceAdjustment || 0),
-          variantSku: vAny.sku, variantId: vAny._id, availableSizes: [vAny.size],
-        })
-      } else {
-        colorMap.get(colorName).availableSizes.push(vAny.size)
-      }
-    }
-    newArrivalsWithVariants.push(...colorMap.values())
-  }
-
-  return {
-    bestsellers: JSON.parse(JSON.stringify(bestsellersWithVariants)),
-    newArrivals: JSON.parse(JSON.stringify(newArrivalsWithVariants)),
-    linen: JSON.parse(JSON.stringify(linenWithVariants)),
-  }
+  return cards
 }
 
-export const revalidate = 0
+async function getProducts() {
+  await connectDB()
+
+  // Fetch all product groups in parallel
+  const [bestsellers, newArrivals, linen] = await Promise.all([
+    Product.find({ isFeatured: true, isActive: true }).limit(8).lean(),
+    Product.find({ isActive: true, tags: { $in: ["new-launch"] } }).sort({ createdAt: -1 }).limit(8).lean(),
+    Product.find({ isActive: true, tags: { $in: ["linen"] } }).limit(4).lean(),
+  ])
+
+  // FIX #2: Single batch query for ALL variants across all products
+  const allProductIds = [
+    ...bestsellers.map((p: any) => p._id),
+    ...newArrivals.map((p: any) => p._id),
+    ...linen.map((p: any) => p._id),
+  ]
+
+  const allVariants = await ProductVariant.find({
+    product: { $in: allProductIds },
+    stock: { $gt: 0 },
+  }).lean()
+
+  return {
+    bestsellers: JSON.parse(JSON.stringify(expandProductsToVariantCards(bestsellers, allVariants))),
+    newArrivals: JSON.parse(JSON.stringify(expandProductsToVariantCards(newArrivals, allVariants))),
+    linen: JSON.parse(JSON.stringify(expandProductsToVariantCards(linen, allVariants))),
+  }
+}
 
 export default async function HomePage() {
   const { bestsellers, newArrivals, linen } = await getProducts()
@@ -146,7 +122,7 @@ export default async function HomePage() {
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
           {[
-            { name: "Linen Full Sleeve Shirts", slug: "linen", img: "https://u1kwkwq0sju0a3pp.public.blob.vercel-storage.com/products/vchuki/skyblue.png", desc: "Breathable luxury" },
+            { name: "Linen Full Sleeve Shirts", slug: "linen-full-sleeve", img: "https://u1kwkwq0sju0a3pp.public.blob.vercel-storage.com/products/vchuki/skyblue.png", desc: "Breathable luxury" },
             { name: "Linen Half Sleeve Shirts", slug: "linen-half-sleeve", img: "https://u1kwkwq0sju0a3pp.public.blob.vercel-storage.com/products/vchuki/beige.png", desc: "Summer ease" },
             { name: "Linen Short Kurtas Half Sleeve", slug: "kurta-half-sleeve", img: "https://u1kwkwq0sju0a3pp.public.blob.vercel-storage.com/products/vchuki/shortsleevgoldenduneshortkurta.png", desc: "Ethnic modern" },
             { name: "Linen Short Kurtas Full Sleeve", slug: "kurta-full-sleeve", img: "https://u1kwkwq0sju0a3pp.public.blob.vercel-storage.com/products/vchuki/fullsleevolivegreenshortshirts.png", desc: "Heritage craft" },
@@ -225,10 +201,10 @@ export default async function HomePage() {
         </AnimatedSection>
       </section>
 
-      {/* Color Story Experience — Luxury Interactive Palette */}
+      {/* Color Story Experience */}
       <RajasthanPalette />
 
-      {/* Linen Collection with Quick Add */}
+      {/* Linen Collection */}
       {linen.length > 0 && (
         <AnimatedSection className="py-10 md:py-16 bg-card/40 dark:bg-card/20 border-y border-border">
           <div className="container">
@@ -242,7 +218,7 @@ export default async function HomePage() {
         </AnimatedSection>
       )}
 
-      {/* New Arrivals with Quick Add */}
+      {/* New Arrivals */}
       {newArrivals.length > 0 && (
         <AnimatedSection className="py-10 md:py-16">
           <div className="container">
@@ -260,7 +236,7 @@ export default async function HomePage() {
         </AnimatedSection>
       )}
 
-      {/* Why VCHUKI — Premium Trust */}
+      {/* Why VCHUKI */}
       <section className="border-y border-border">
         <AnimatedSection className="container py-10 md:py-16">
           <div className="text-center mb-8">
@@ -284,7 +260,7 @@ export default async function HomePage() {
         </AnimatedSection>
       </section>
 
-      {/* Craftsmanship Focus — replaces testimonials pre-launch */}
+      {/* Craftsmanship */}
       <section className="bg-card/50 dark:bg-card/20">
         <AnimatedSection className="container py-10 md:py-14">
           <div className="text-center mb-8">

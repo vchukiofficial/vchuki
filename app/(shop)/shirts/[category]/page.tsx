@@ -111,11 +111,22 @@ export default async function CategoryPage({ params, searchParams }: Props) {
     products = await Product.find(fallbackQuery).sort(sort).lean()
   }
 
+  // FIX #9: Batch fetch all variants in ONE query (eliminates N+1)
+  const productIds = products.map((p: any) => p._id)
+  const allVariants = await ProductVariant.find({ product: { $in: productIds }, stock: { $gt: 0 } }).lean()
+
+  const variantsByProduct = new Map<string, any[]>()
+  for (const v of allVariants) {
+    const pid = (v as any).product.toString()
+    if (!variantsByProduct.has(pid)) variantsByProduct.set(pid, [])
+    variantsByProduct.get(pid)!.push(v)
+  }
+
   // Expand into variant cards
   const variantCards: any[] = []
   for (const product of products) {
     const p = product as any
-    const variants = await ProductVariant.find({ product: p._id, stock: { $gt: 0 } }).lean()
+    const variants = variantsByProduct.get(p._id.toString()) || []
 
     if (variants.length === 0) {
       variantCards.push({ ...p, _id: p._id.toString() })
