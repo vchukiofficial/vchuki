@@ -193,8 +193,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <link rel="icon" href="/marko.png" type="image/png" />
-        <link rel="apple-touch-icon" href="/marko.png" />
+        <link rel="icon" href="/vchukitransparentlogo.png" type="image/png" />
+        <link rel="apple-touch-icon" href="/vchukitransparentlogo.png" />
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#2a1f14" />
         <meta name="apple-mobile-web-app-title" content="VCHUKI" />
