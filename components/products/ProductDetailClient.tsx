@@ -6,11 +6,10 @@ import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { useCartStore } from "@/store/cartStore"
 import { useWishlistStore } from "@/store/wishlistStore"
-import { Star, ShoppingCart, Heart, Check, Truck, RotateCcw, Shield, MessageCircle, Camera } from "lucide-react"
+import { Star, ShoppingCart, Heart, Check, Truck, RotateCcw, Shield, MessageCircle } from "lucide-react"
 import type { Product, ProductVariant, Review } from "@/types"
 import { motion, AnimatePresence } from "framer-motion"
 import { SizeGuide } from "./SizeGuide"
-import { VirtualTryOn } from "./VirtualTryOn"
 import { ComboOfferWidget } from "./ComboOfferWidget"
 import { StealDeals } from "./StealDeals"
 
@@ -43,7 +42,6 @@ export default function ProductDetailClient({ product, variants, reviews, siblin
   const [activeImageIndex, setActiveImageIndex] = useState(0)
   const [added, setAdded] = useState(false)
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false)
-  const [tryOnOpen, setTryOnOpen] = useState(false)
 
   const selectedVariant = useMemo(
     () => variants.find((v) => v.size === selectedSize && v.color.name === selectedColor),
@@ -302,13 +300,6 @@ export default function ProductDetailClient({ product, variants, reviews, siblin
 
           {/* WhatsApp Styling Help */}
           <div className="flex gap-2">
-            <button
-              onClick={() => setTryOnOpen(true)}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 border border-[#c4956a]/30 bg-[#c4956a]/5 text-[#c4956a] text-xs font-medium hover:bg-[#c4956a]/10 transition-colors"
-            >
-              <Camera className="h-4 w-4" />
-              Virtual Try-On
-            </button>
             <a
               href="https://wa.me/919876543210?text=Hi! I need styling help with the product"
               target="_blank"
@@ -423,14 +414,6 @@ export default function ProductDetailClient({ product, variants, reviews, siblin
 
       {/* Size Guide Modal */}
       <SizeGuide isOpen={sizeGuideOpen} onClose={() => setSizeGuideOpen(false)} />
-
-      {/* Virtual Try-On */}
-      <VirtualTryOn
-        isOpen={tryOnOpen}
-        onClose={() => setTryOnOpen(false)}
-        shirtImage={displayImages[0]}
-        productName={`${product.name} — ${selectedColor}`}
-      />
     </div>
   )
 }
