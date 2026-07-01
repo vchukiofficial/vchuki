@@ -73,10 +73,10 @@ export function EarlyAccessClient() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="mt-5 inline-flex items-center gap-2 px-4 py-2.5 border border-amber-500/30 bg-amber-500/5"
+              className="mt-5 inline-flex items-center gap-2 px-4 py-2.5 border border-amber-500/30 bg-amber-500/5 dark:bg-amber-500/10"
             >
-              <Lock className="h-3.5 w-3.5 text-amber-500" />
-              <span className="text-[11px] text-amber-600 dark:text-amber-300 font-medium">
+              <Lock className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
+              <span className="text-[11px] text-amber-700 dark:text-amber-300 font-medium">
                 First 100 get 10% off + Free Shipping — {spotsLeft} spots left
               </span>
             </motion.div>
@@ -112,18 +112,18 @@ export function EarlyAccessClient() {
                   placeholder="Enter your email address"
                   required
                   autoFocus
-                  className="w-full px-4 py-4 bg-card border border-[#c4956a]/40 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-[#c4956a] transition-colors"
+                  className="w-full px-4 py-4 bg-background border border-border text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-[#c4956a] transition-colors"
                 />
                 <input
                   type="tel"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="WhatsApp number (optional, for launch alert)"
-                  className="w-full px-4 py-4 bg-card border border-[#c4956a]/40 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-[#c4956a] transition-colors"
+                  className="w-full px-4 py-4 bg-background border border-border text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-[#c4956a] transition-colors"
                 />
                 <button
                   type="submit"
-                  className="w-full py-4 bg-[#c4956a] text-[#2a1f14] text-sm font-bold tracking-wider hover:bg-[#d4a574] transition-colors"
+                  className="w-full py-4 bg-[#2a1f14] dark:bg-[#c4956a] text-[#f5e6d3] dark:text-[#2a1f14] text-sm font-bold tracking-wider hover:opacity-90 transition-opacity"
                 >
                   CLAIM MY VIP SPOT
                 </button>
@@ -173,7 +173,7 @@ export function EarlyAccessClient() {
 
       {/* Minimal footer — no nav links */}
       <footer className="relative z-10 text-center py-4 text-[10px] text-muted-foreground/50">
-        © 2025 Vchuki Fashion Private Limited
+        © 2026 Vchuki Fashion Private Limited
       </footer>
     </div>
   )
