@@ -1,135 +1,46 @@
 import { Metadata } from "next"
 import { notFound } from "next/navigation"
 import Link from "next/link"
+import connectDB from "@/lib/mongodb"
+import Blog from "@/models/Blog"
+import { ArrowRight } from "lucide-react"
 
-const articles: Record<string, { title: string; description: string; content: string; date: string; category: string }> = {
-  "best-formal-shirts-for-men": {
-    title: "10 Best Formal Shirts for Men in 2026",
-    description: "Discover the top formal shirts every man needs. From classic Oxford to slim-fit designs, find the perfect formal shirt for office, meetings & events.",
-    date: "2026-05-15",
-    category: "Style Guide",
-    content: `
-      <h2>Why Every Man Needs Quality Formal Shirts</h2>
-      <p>A well-fitted formal shirt is the cornerstone of any professional wardrobe. Whether you're heading to the office, attending a business meeting, or dressing up for a formal event, the right shirt makes all the difference.</p>
-      
-      <h2>Top Formal Shirt Styles for 2026</h2>
-      <h3>1. Classic Oxford Shirt</h3>
-      <p>The Oxford shirt remains timeless. Its button-down collar and slightly textured fabric make it versatile enough for both formal and smart-casual settings. VCHUKI's Oxford shirts are crafted from premium long-staple cotton for exceptional comfort.</p>
-      
-      <h3>2. French Cuff Dress Shirt</h3>
-      <p>For the most formal occasions, nothing beats a French cuff shirt paired with elegant cufflinks. Our formal white shirt with French cuffs is a bestseller for good reason.</p>
-      
-      <h3>3. Slim Fit Formal Shirt</h3>
-      <p>Modern professionals prefer a slimmer silhouette. Our slim-fit formal shirts are tailored to follow the body's natural lines without being restrictive.</p>
-      
-      <h2>How to Choose the Right Formal Shirt</h2>
-      <p>Consider these factors: fabric quality (100% cotton is ideal), collar style (spread collar for ties, button-down for casual), fit (slim, regular, or relaxed), and color (white and light blue are most versatile).</p>
-      
-      <h2>Care Tips for Formal Shirts</h2>
-      <p>Always wash in cold water, hang dry when possible, and iron while slightly damp for the crispest finish. Store on wooden hangers to maintain collar shape.</p>
-    `,
+// Static fallback articles (for when DB has no content yet)
+const STATIC_ARTICLES: Record<string, { title: string; description: string; content: string; date: string; category: string }> = {
+  "best-linen-shirts-for-indian-summers": {
+    title: "Best Linen Shirts for Indian Summers 2026",
+    description: "Discover why linen is the ultimate fabric for Indian heat. Our guide to choosing, styling, and caring for linen shirts.",
+    date: "2026-06-15",
+    category: "Fabric Guide",
+    content: `<h2>Why Linen is Perfect for Indian Summers</h2><p>When temperatures cross 40°C, linen becomes your best friend. Its natural fibers allow maximum airflow, wick moisture instantly, and keep you cool all day. VCHUKI's premium linen blend shirts are specifically designed for the Indian climate — breathable, soft, and naturally textured.</p><h2>How to Choose the Right Linen Shirt</h2><p>Look for a linen-cotton blend (60/40 or 70/30) for the perfect balance of breathability and structure. Pure linen wrinkles more but breathes better. VCHUKI uses a premium blend that gives you the best of both worlds.</p><h2>Styling Your Linen Shirt</h2><p>For a casual look, wear it untucked with chinos or shorts. For semi-formal, tuck it into tailored trousers. Roll the sleeves once for an effortless vibe. Our shirts come in 5 Rajasthan-inspired colors that pair with everything.</p><h2>Care Tips</h2><p>Wash in cold water, hang dry in shade, and embrace the natural wrinkles — they're part of linen's charm. Iron while slightly damp for a crisp finish. Your VCHUKI linen shirt gets softer with every wash.</p>`,
   },
   "linen-vs-cotton-shirts": {
-    title: "Linen vs Cotton Shirts: Which is Better for Indian Summers?",
-    description: "Detailed comparison of linen and cotton shirts for Indian weather. Learn about breathability, comfort, durability, and styling tips for both fabrics.",
-    date: "2026-05-10",
+    title: "Linen vs Cotton: Which Fabric Wins for Summer?",
+    description: "Detailed comparison of linen and cotton shirts for Indian weather. Breathability, comfort, durability, and styling tips.",
+    date: "2026-06-10",
     category: "Fabric Guide",
-    content: `
-      <h2>The Great Fabric Debate</h2>
-      <p>When temperatures soar above 40°C in Indian summers, choosing the right shirt fabric becomes crucial. Both linen and cotton have their strengths, but which one is truly better for our climate?</p>
-      
-      <h2>Linen Shirts: The Summer Champion</h2>
-      <p>Linen is made from flax fibers and is naturally the most breathable fabric available. It absorbs moisture quickly and dries fast, making it ideal for humid Indian summers.</p>
-      <p><strong>Pros:</strong> Extremely breathable, gets softer with washes, natural texture looks premium, eco-friendly</p>
-      <p><strong>Cons:</strong> Wrinkles easily, slightly rough initially, limited color options</p>
-      
-      <h2>Cotton Shirts: The All-Rounder</h2>
-      <p>Cotton is versatile, comfortable, and available in countless weaves. From crisp poplin to soft Oxford, cotton adapts to every occasion.</p>
-      <p><strong>Pros:</strong> Wrinkle-resistant options available, soft from day one, huge variety, easy to maintain</p>
-      <p><strong>Cons:</strong> Less breathable than linen, can feel heavy in extreme heat</p>
-      
-      <h2>Our Recommendation</h2>
-      <p>For peak summer (April-June): Choose linen. For monsoon and mild summers: Cotton works perfectly. For year-round versatility: A cotton-linen blend offers the best of both worlds.</p>
-    `,
+    content: `<h2>The Great Fabric Debate</h2><p>When temperatures soar in Indian summers, choosing the right shirt fabric is crucial. Both linen and cotton have strengths, but which one is truly better for our climate?</p><h2>Linen: The Summer Champion</h2><p>Linen is made from flax fibers and is naturally the most breathable fabric available. It absorbs moisture quickly and dries fast, making it ideal for humid Indian summers.</p><p><strong>Pros:</strong> Extremely breathable, gets softer with washes, natural texture looks premium, eco-friendly.</p><h2>Cotton: The All-Rounder</h2><p>Cotton is versatile, comfortable, and available in countless weaves. From crisp poplin to soft Oxford, cotton adapts to every occasion.</p><p><strong>Pros:</strong> Wrinkle-resistant options available, soft from day one, huge variety, easy to maintain.</p><h2>Our Recommendation</h2><p>For peak summer (April-June): Choose linen. For monsoon: Cotton works perfectly. For year-round: A cotton-linen blend like VCHUKI's premium fabric offers the best of both worlds — breathable yet structured.</p>`,
+  },
+  "how-to-style-short-kurta": {
+    title: "How to Style a Short Kurta for Every Occasion",
+    description: "From festivals to office Fridays — learn how to style your linen short kurta with confidence.",
+    date: "2026-06-05",
+    category: "Style Tips",
+    content: `<h2>The Modern Short Kurta</h2><p>The short kurta is the perfect fusion of Indian heritage and modern fashion. VCHUKI's linen short kurtas are designed to be versatile — wear them to the office, festivals, or casual outings.</p><h2>For the Office</h2><p>Pair a neutral-toned short kurta (beige, white, or olive) with tailored chinos and leather sandals or loafers. Keep accessories minimal — a watch and simple bracelet work perfectly.</p><h2>For Festivals & Celebrations</h2><p>Go bold with Golden Dune or Royal Indigo. Pair with white churidar or slim-fit pants. Add a statement watch and kolhapuri chappals for the complete look.</p><h2>Weekend Casual</h2><p>Wear it loose over shorts or joggers. Roll the sleeves, add sunglasses, and you're ready for brunch, beach, or a casual hangout. The linen fabric keeps you cool all day.</p>`,
+  },
+  "jodhpur-textile-heritage": {
+    title: "The Textile Heritage of Jodhpur: Why We Craft Here",
+    description: "Explore Jodhpur's rich textile history and why VCHUKI chose this city as our home for handcrafted menswear.",
+    date: "2026-05-28",
+    category: "Heritage",
+    content: `<h2>Jodhpur: The Blue City of Textiles</h2><p>Jodhpur isn't just famous for its blue houses and Mehrangarh Fort. For centuries, it has been a hub of textile craftsmanship — from bandhani to block printing, from fine cotton weaving to premium linen processing.</p><h2>Why VCHUKI Chose Jodhpur</h2><p>We chose Jodhpur because of its unmatched textile heritage. The artisans here have generations of knowledge in fabric handling, stitching precision, and quality control. Every VCHUKI shirt benefits from this inherited expertise.</p><h2>Our 47 Quality Checks</h2><p>Inspired by Jodhpur's tradition of perfection, every VCHUKI shirt passes through 47 quality checkpoints — from fabric inspection to final packaging. This isn't just a number; it's our commitment to the heritage of this city.</p><h2>Supporting Local Artisans</h2><p>By manufacturing in Jodhpur, we support local artisan families and keep traditional textile skills alive. When you buy a VCHUKI shirt, you're supporting Rajasthan's craft heritage.</p>`,
   },
   "summer-fashion-trends-2026": {
     title: "Summer Fashion Trends 2026: What's Hot This Season",
-    description: "Stay ahead with the latest summer fashion trends for men in 2026. Discover trending colors, patterns, and shirt styles dominating this season.",
-    date: "2026-05-05",
+    description: "Stay ahead with the latest summer fashion trends for men. Colors, patterns, and styles dominating 2026.",
+    date: "2026-05-20",
     category: "Trends",
-    content: `
-      <h2>2026 Summer Trends for Men</h2>
-      <p>This summer is all about effortless sophistication. The key trends combine comfort with style, making it easier than ever to look put-together in the heat.</p>
-      
-      <h2>Trending Colors</h2>
-      <p>Earth tones dominate this season — think sage green, terracotta, sand beige, and dusty blue. These natural hues pair beautifully with both light and dark bottoms.</p>
-      
-      <h2>Pattern Play</h2>
-      <p>Micro-prints are replacing bold patterns. Subtle geometric prints, tone-on-tone textures, and minimalist stripes are the way to go in 2026.</p>
-      
-      <h2>Fabric Innovations</h2>
-      <p>Performance fabrics that look premium are trending. Moisture-wicking cotton blends, wrinkle-free linen, and sustainable bamboo fabrics are gaining popularity.</p>
-      
-      <h2>Fit Evolution</h2>
-      <p>The oversized trend is maturing into a "relaxed fit" — not baggy, but comfortably loose. Think structured shoulders with a slightly wider body for airflow.</p>
-    `,
-  },
-  "how-to-style-premium-shirts": {
-    title: "How to Style Premium Shirts for Every Occasion",
-    description: "Learn how to style premium shirts for office, dates, casual outings & formal events. Expert styling tips from VCHUKI's fashion team.",
-    date: "2026-04-28",
-    category: "Style Tips",
-    content: `
-      <h2>The Art of Shirt Styling</h2>
-      <p>A premium shirt is an investment piece that can be styled in multiple ways. Here's how to get maximum versatility from your VCHUKI shirts.</p>
-      
-      <h2>For the Office</h2>
-      <p>Pair a crisp white or light blue formal shirt with tailored trousers and leather shoes. Keep the collar sharp and sleeves at the right length — showing about 1cm of cuff beyond your jacket sleeve.</p>
-      
-      <h2>For a Date Night</h2>
-      <p>A mandarin collar shirt in navy or black creates a sophisticated yet relaxed look. Roll the sleeves once, pair with dark jeans and clean sneakers or loafers.</p>
-      
-      <h2>Weekend Casual</h2>
-      <p>Wear your linen shirt unbuttoned over a quality t-shirt with chinos or shorts. This layered look is effortlessly cool and perfect for brunches or beach outings.</p>
-      
-      <h2>Formal Events</h2>
-      <p>French cuff shirts with cufflinks, tucked into well-fitted suit trousers. Add a silk tie for weddings or keep it open-collar for cocktail parties.</p>
-    `,
-  },
-  "top-casual-shirts-india": {
-    title: "Top 8 Casual Shirts Every Indian Man Should Own",
-    description: "Build the perfect casual wardrobe with these 8 essential shirt styles. From denim to Hawaiian prints, find shirts for every body type and occasion.",
-    date: "2026-04-20",
-    category: "Essentials",
-    content: `
-      <h2>Building Your Casual Shirt Collection</h2>
-      <p>A well-curated casual shirt collection means you're always ready for any occasion — from weekend outings to impromptu dinner plans.</p>
-      
-      <h2>The Essential 8</h2>
-      <h3>1. Classic Denim Shirt</h3>
-      <p>The most versatile casual shirt. Works with chinos, joggers, or layered under a jacket.</p>
-      
-      <h3>2. White Linen Shirt</h3>
-      <p>The ultimate summer essential. Looks great with everything from shorts to tailored trousers.</p>
-      
-      <h3>3. Flannel Check Shirt</h3>
-      <p>Perfect for winters and layering. Choose a neutral check pattern for maximum versatility.</p>
-      
-      <h3>4. Polo T-Shirt</h3>
-      <p>Smart casual perfection. A premium polo bridges the gap between t-shirts and shirts.</p>
-      
-      <h3>5. Hawaiian/Printed Shirt</h3>
-      <p>For vacations and bold days. Choose subtle prints for everyday wear.</p>
-      
-      <h3>6. Mandarin Collar Shirt</h3>
-      <p>A modern alternative to traditional collars. Great for Indian occasions and date nights.</p>
-      
-      <h3>7. Oxford Button-Down</h3>
-      <p>The smart-casual workhorse. Dress it up or down effortlessly.</p>
-      
-      <h3>8. Oversized Relaxed Shirt</h3>
-      <p>For the trend-conscious. Perfect for streetwear-inspired looks.</p>
-    `,
+    content: `<h2>2026 Summer Trends for Men</h2><p>This summer is all about effortless sophistication. The key trends combine comfort with style, making it easier than ever to look put-together in the heat.</p><h2>Trending Colors</h2><p>Earth tones dominate — sage green, terracotta, sand beige, and dusty blue. These natural hues pair beautifully with both light and dark bottoms. VCHUKI's 5 curated colors are perfectly aligned with this trend.</p><h2>Fabric is King</h2><p>Premium natural fabrics are replacing synthetics. Linen, organic cotton, and bamboo blends are what style-conscious men are choosing. Breathability and sustainability matter more than ever.</p><h2>The Relaxed Fit</h2><p>The oversized trend is maturing into a "relaxed fit" — not baggy, but comfortably loose. Structured shoulders with a slightly wider body for airflow. VCHUKI's regular fit hits this sweet spot perfectly.</p>`,
   },
 }
 
@@ -137,39 +48,48 @@ interface Props {
   params: { slug: string }
 }
 
+export const revalidate = 60
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const article = articles[params.slug]
+  await connectDB()
+  const dbArticle = await Blog.findOne({ slug: params.slug, isPublished: true }).lean() as any
+  const article = dbArticle || STATIC_ARTICLES[params.slug]
   if (!article) return { title: "Not Found" }
 
   return {
-    title: article.title,
-    description: article.description,
+    title: dbArticle ? (dbArticle.seoTitle || dbArticle.title) : article.title,
+    description: dbArticle ? (dbArticle.seoDescription || dbArticle.description) : article.description,
     alternates: { canonical: `https://vchuki.com/blog/${params.slug}` },
     openGraph: {
-      title: article.title + " | VCHUKI Blog",
-      description: article.description,
+      title: (dbArticle?.seoTitle || article.title) + " | VCHUKI Journal",
+      description: dbArticle?.seoDescription || article.description,
       url: `https://vchuki.com/blog/${params.slug}`,
       type: "article",
-      publishedTime: article.date,
+      publishedTime: dbArticle?.createdAt || article.date,
     },
   }
 }
 
-export function generateStaticParams() {
-  return Object.keys(articles).map((slug) => ({ slug }))
-}
+export default async function BlogArticlePage({ params }: Props) {
+  await connectDB()
+  const dbArticle = await Blog.findOne({ slug: params.slug, isPublished: true }).lean() as any
+  const staticArticle = STATIC_ARTICLES[params.slug]
 
-export default function BlogArticlePage({ params }: Props) {
-  const article = articles[params.slug]
-  if (!article) notFound()
+  if (!dbArticle && !staticArticle) notFound()
+
+  const title = dbArticle?.title || staticArticle?.title
+  const content = dbArticle?.content || staticArticle?.content
+  const category = dbArticle?.category || staticArticle?.category
+  const date = dbArticle ? new Date(dbArticle.createdAt).toISOString().split("T")[0] : staticArticle?.date
+  const description = dbArticle?.seoDescription || dbArticle?.excerpt || staticArticle?.description
 
   const articleSchema = {
     "@context": "https://schema.org",
     "@type": "Article",
-    headline: article.title,
-    description: article.description,
-    datePublished: article.date,
-    author: { "@type": "Organization", name: "VCHUKI" },
+    headline: title,
+    description,
+    datePublished: date,
+    author: { "@type": "Organization", name: "VCHUKI", url: "https://vchuki.com" },
     publisher: { "@type": "Organization", name: "VCHUKI", logo: { "@type": "ImageObject", url: "https://vchuki.com/logo.svg" } },
     mainEntityOfPage: `https://vchuki.com/blog/${params.slug}`,
   }
@@ -178,31 +98,49 @@ export default function BlogArticlePage({ params }: Props) {
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }} />
 
-      <article className="container py-4 md:py-8 max-w-3xl">
-        <nav className="text-xs text-muted-foreground mb-4">
-          <Link href="/" className="hover:text-foreground">Home</Link>
-          <span className="mx-1.5">/</span>
-          <Link href="/blog" className="hover:text-foreground">Blog</Link>
-          <span className="mx-1.5">/</span>
-          <span className="text-foreground truncate">{article.title}</span>
+      <article className="container py-6 md:py-10 px-5 max-w-3xl mx-auto">
+        {/* Breadcrumb */}
+        <nav className="text-xs text-muted-foreground mb-6">
+          <Link href="/" className="hover:text-foreground transition-colors">Home</Link>
+          <span className="mx-1.5 text-border">/</span>
+          <Link href="/blog" className="hover:text-foreground transition-colors">Journal</Link>
+          <span className="mx-1.5 text-border">/</span>
+          <span className="text-foreground">{category}</span>
         </nav>
 
-        <div className="mb-6">
-          <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded">{article.category}</span>
-          <h1 className="text-xl md:text-3xl font-bold mt-3">{article.title}</h1>
-          <p className="text-sm text-muted-foreground mt-2">{article.date} · VCHUKI Fashion Team</p>
-        </div>
+        {/* Header */}
+        <header className="mb-8 md:mb-10">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="px-2 py-0.5 bg-[#c4956a]/10 text-[#c4956a] text-[10px] font-medium uppercase tracking-wider">{category}</span>
+            <span className="text-[10px] text-muted-foreground">{date}</span>
+          </div>
+          <h1 className="text-2xl md:text-3xl font-light tracking-tight text-foreground leading-snug">{title}</h1>
+          <p className="text-xs text-muted-foreground mt-3">By VCHUKI Team</p>
+        </header>
 
+        {/* Content */}
         <div
-          className="prose prose-sm md:prose-base max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-strong:text-foreground prose-h2:text-lg prose-h2:font-bold prose-h2:mt-8 prose-h3:text-base prose-h3:font-semibold"
-          dangerouslySetInnerHTML={{ __html: article.content }}
+          className="prose prose-sm md:prose-base max-w-none
+            prose-headings:font-light prose-headings:tracking-tight prose-headings:text-foreground
+            prose-h2:text-lg prose-h2:md:text-xl prose-h2:mt-10 prose-h2:mb-3 prose-h2:border-l-2 prose-h2:border-[#c4956a] prose-h2:pl-4
+            prose-h3:text-base prose-h3:font-medium prose-h3:mt-6
+            prose-p:text-muted-foreground prose-p:leading-[1.8] prose-p:text-sm prose-p:md:text-[15px]
+            prose-strong:text-foreground
+            prose-li:text-muted-foreground prose-li:text-sm
+            prose-a:text-[#c4956a] prose-a:no-underline hover:prose-a:underline"
+          dangerouslySetInnerHTML={{ __html: content || '' }}
         />
 
-        <div className="mt-12 p-6 rounded-xl border bg-card text-center">
-          <p className="font-bold">Shop the looks mentioned in this article</p>
-          <p className="text-sm text-muted-foreground mt-1">Explore our premium shirt collection</p>
-          <Link href="/shirts" className="inline-block mt-3 px-6 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:opacity-90 transition-opacity">
-            Shop Now
+        {/* CTA */}
+        <div className="mt-12 md:mt-16 p-6 md:p-8 border border-[#c4956a]/20 bg-[#c4956a]/5 text-center">
+          <p className="text-[9px] uppercase tracking-[0.3em] text-[#c4956a] font-medium mb-2">Shop the Look</p>
+          <p className="text-base md:text-lg font-light text-foreground">Explore our premium linen collection</p>
+          <p className="text-xs text-muted-foreground mt-1">Handcrafted in Jodhpur. Free shipping above ₹1,599.</p>
+          <Link
+            href="/shirts"
+            className="inline-flex items-center gap-2 mt-5 px-7 py-3 bg-[#2a1f14] dark:bg-[#c4956a] text-[#f5e6d3] dark:text-[#2a1f14] text-xs font-bold tracking-wider uppercase hover:opacity-90 transition-opacity"
+          >
+            Shop Now <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
       </article>

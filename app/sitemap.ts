@@ -23,19 +23,34 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.9,
   }))
 
-  const blogSlugs = [
-    "best-formal-shirts-for-men",
-    "linen-vs-cotton-shirts",
-    "summer-fashion-trends-2026",
-    "how-to-style-premium-shirts",
-    "top-casual-shirts-india",
-  ]
-  const blogUrls = blogSlugs.map((slug) => ({
-    url: `${BASE_URL}/blog/${slug}`,
-    lastModified: new Date(),
-    changeFrequency: "monthly" as const,
-    priority: 0.6,
-  }))
+  let blogUrls: MetadataRoute.Sitemap = []
+  try {
+    const Blog = (await import("@/models/Blog")).default
+    const dbBlogs = await Blog.find({ isPublished: true }).select("slug updatedAt").lean()
+    blogUrls = dbBlogs.map((b: any) => ({
+      url: `${BASE_URL}/blog/${b.slug}`,
+      lastModified: b.updatedAt || new Date(),
+      changeFrequency: "weekly" as const,
+      priority: 0.7,
+    }))
+  } catch { /* fallback */ }
+
+  // Fallback static blog slugs if DB is empty
+  if (blogUrls.length === 0) {
+    const staticSlugs = [
+      "best-linen-shirts-for-indian-summers",
+      "linen-vs-cotton-shirts",
+      "how-to-style-short-kurta",
+      "jodhpur-textile-heritage",
+      "summer-fashion-trends-2026",
+    ]
+    blogUrls = staticSlugs.map((slug) => ({
+      url: `${BASE_URL}/blog/${slug}`,
+      lastModified: new Date(),
+      changeFrequency: "monthly" as const,
+      priority: 0.6,
+    }))
+  }
 
   return [
     { url: BASE_URL, lastModified: new Date(), changeFrequency: "daily", priority: 1 },
