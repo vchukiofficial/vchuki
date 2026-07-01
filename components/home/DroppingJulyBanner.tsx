@@ -69,14 +69,15 @@ export function DroppingJulyBanner() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setShowPopup(false)}
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-sm bg-background border border-border z-50 p-6"
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
             >
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                onClick={(e) => e.stopPropagation()}
+                className="w-full max-w-sm bg-background border border-border z-50 p-6 relative"
+              >
               <button onClick={() => setShowPopup(false)} className="absolute top-3 right-3 text-muted-foreground hover:text-foreground">
                 <X className="h-4 w-4" />
               </button>
@@ -123,6 +124,7 @@ export function DroppingJulyBanner() {
                   <button onClick={() => setShowPopup(false)} className="mt-4 text-xs text-[#c4956a] font-medium hover:underline">Close</button>
                 </div>
               )}
+              </motion.div>
             </motion.div>
           </>
         )}
