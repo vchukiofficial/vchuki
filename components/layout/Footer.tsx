@@ -5,7 +5,7 @@ import { Truck, RotateCcw, Shield, CheckCircle } from "lucide-react"
 
 export default function Footer() {
   return (
-    <footer className="border-t border-[#c4956a]/15 bg-[#2a1f14] text-[#f5e6d3] pb-20 md:pb-6">
+    <footer className="border-t border-[#c4956a]/15 bg-[#2a1f14] text-[#f5e6d3] pb-24 md:pb-6">
       <div className="container py-12 md:py-16">
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8 md:gap-10">
           {/* Brand */}

@@ -289,18 +289,18 @@ export default async function HomePage() {
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-[#2a1f14] dark:bg-[#0f0a06]" />
         <div className="absolute inset-0 heritage-pattern opacity-20" />
-        <div className="container relative z-10 py-16 md:py-24 text-center max-w-lg mx-auto">
-          <Image src="/marko.png" alt="VCHUKI" width={56} height={56} className="mx-auto mb-4 invert" />
+        <div className="container relative z-10 py-12 md:py-24 text-center max-w-lg mx-auto px-6">
+          <Image src="/marko.png" alt="VCHUKI" width={48} height={48} className="mx-auto mb-4 invert" />
           <p className="text-[10px] uppercase tracking-[0.3em] text-[#c4956a] mb-3">Exclusive Access</p>
-          <h2 className="text-xl md:text-3xl font-light tracking-tight text-[#f5e6d3]">Join the VCHUKI Club</h2>
-          <p className="text-sm text-[#f5e6d3]/50 mt-3">Get 10% off your first order. Early access to drops. Style tips from our team.</p>
-          <form className="flex mt-8 border border-[#c4956a]/30 overflow-hidden max-w-sm mx-auto">
-            <input type="email" placeholder="Your email" className="flex-1 px-4 py-3.5 bg-transparent text-sm text-[#f5e6d3] placeholder:text-[#f5e6d3]/30 outline-none" />
-            <button type="submit" className="px-6 py-3.5 bg-[#c4956a] text-[#2a1f14] text-xs font-bold tracking-wider hover:bg-[#d4a574] transition-colors">
+          <h2 className="text-lg md:text-3xl font-light tracking-tight text-[#f5e6d3]">Join the VCHUKI Club</h2>
+          <p className="text-xs md:text-sm text-[#f5e6d3]/50 mt-3">Get 10% off your first order. Early access to drops.</p>
+          <form className="flex mt-6 md:mt-8 border border-[#c4956a]/30 overflow-hidden max-w-sm mx-auto">
+            <input type="email" placeholder="Your email" className="flex-1 min-w-0 px-3 md:px-4 py-3 bg-transparent text-sm text-[#f5e6d3] placeholder:text-[#f5e6d3]/30 outline-none" />
+            <button type="submit" className="px-4 md:px-6 py-3 bg-[#c4956a] text-[#2a1f14] text-[10px] md:text-xs font-bold tracking-wider hover:bg-[#d4a574] transition-colors whitespace-nowrap">
               JOIN
             </button>
           </form>
-          <p className="text-[10px] text-[#f5e6d3]/30 mt-3">No spam. Unsubscribe anytime.</p>
+          <p className="text-[9px] text-[#f5e6d3]/30 mt-3">No spam. Unsubscribe anytime.</p>
         </div>
       </section>
 

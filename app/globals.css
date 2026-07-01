@@ -101,6 +101,8 @@
 @layer base {
   * { @apply border-border; }
   body { @apply bg-background text-foreground antialiased; }
+  html { -webkit-text-size-adjust: 100%; overflow-x: hidden; }
+  body { overflow-x: hidden; }
   ::selection { background: hsl(35 55% 48% / 0.15); }
 }
 
@@ -154,6 +156,12 @@
 /* Mobile touch */
 @media (max-width: 768px) {
   button, a { -webkit-tap-highlight-color: transparent; }
+  .container { @apply px-4; }
+}
+
+/* Safe area for bottom nav */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 /* Luxury scrollbar */

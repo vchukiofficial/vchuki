@@ -70,8 +70,8 @@ export default function Navbar() {
     <>
       <nav className={`sticky top-0 z-50 w-full transition-all duration-300 ${scrolled ? "bg-background/98 backdrop-blur-md border-b shadow-sm" : "bg-transparent border-b border-transparent"}`}>
         {/* Top announcement bar */}
-        <div className="bg-[#2a1f14] text-[#f5e6d3] text-center py-1.5">
-          <p className="text-[9px] md:text-[10px] uppercase tracking-[0.2em] font-medium">
+        <div className="bg-[#2a1f14] text-[#f5e6d3] text-center py-1.5 px-4">
+          <p className="text-[8px] md:text-[10px] uppercase tracking-[0.15em] md:tracking-[0.2em] font-medium truncate">
             ✨ Archive Debut Dropping July 7th • Join the VIP Waitlist
           </p>
         </div>

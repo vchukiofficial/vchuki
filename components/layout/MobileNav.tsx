@@ -20,7 +20,7 @@ export default function MobileNav() {
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 bg-background/98 backdrop-blur-md border-t border-[#c4956a]/15 md:hidden safe-area-bottom">
-      <div className="grid grid-cols-5 h-14">
+      <div className="grid grid-cols-5 h-[56px]">
         {tabs.map((tab) => {
           const active = pathname === tab.href
           return (

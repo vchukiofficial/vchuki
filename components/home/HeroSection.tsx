@@ -75,7 +75,7 @@ export function HeroSection() {
       </div>
 
       {/* Content - Left Aligned, No Product Image Overlap */}
-      <div className="relative container z-10 py-16 md:py-24">
+      <div className="relative container z-10 py-20 md:py-24 px-5 md:px-8">
         <div className="max-w-2xl">
           {/* Badge */}
           <motion.div
@@ -94,7 +94,7 @@ export function HeroSection() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.8 }}
           >
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-light text-white leading-[1.05] tracking-tight">
+            <h1 className="text-3xl md:text-6xl lg:text-7xl font-light text-white leading-[1.1] tracking-tight">
               Premium Linen
               <br />
               <AnimatePresence mode="wait">
@@ -127,13 +127,13 @@ export function HeroSection() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6, duration: 0.6 }}
-            className="mt-8 flex flex-wrap gap-2"
+            className="mt-6 md:mt-8 flex flex-wrap gap-1.5 md:gap-2"
           >
             {CATEGORIES.map((cat, idx) => (
               <button
                 key={cat.slug}
                 onClick={() => { setActiveCategory(idx); setPaused(true); setTimeout(() => setPaused(false), 10000) }}
-                className={`px-4 py-2.5 text-[10px] uppercase tracking-[0.15em] font-medium border transition-all duration-300 backdrop-blur-sm ${
+                className={`px-3 md:px-4 py-2 md:py-2.5 text-[9px] md:text-[10px] uppercase tracking-[0.12em] md:tracking-[0.15em] font-medium border transition-all duration-300 backdrop-blur-sm ${
                   activeCategory === idx
                     ? "border-[#c4956a] bg-[#c4956a]/15 text-[#c4956a]"
                     : "border-white/15 text-white/50 hover:border-[#c4956a]/40 hover:text-white/80"
@@ -192,7 +192,7 @@ export function HeroSection() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.8, duration: 0.6 }}
-            className="mt-10 flex flex-wrap items-center gap-6"
+            className="mt-8 md:mt-10 flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-4 md:gap-6"
           >
             <div>
               <p className="text-[10px] uppercase tracking-wider text-[#c4956a] mb-1">Starting at</p>
@@ -222,7 +222,7 @@ export function HeroSection() {
 
             <Link
               href={`/shirts/${current.slug}`}
-              className="group inline-flex items-center gap-3 px-8 py-4 bg-[#c4956a] text-[#1a1209] text-sm font-bold tracking-wider uppercase hover:bg-[#d4a574] transition-all duration-300 shadow-lg shadow-[#c4956a]/20"
+              className="group inline-flex items-center gap-3 px-6 md:px-8 py-3.5 md:py-4 bg-[#c4956a] text-[#1a1209] text-xs md:text-sm font-bold tracking-wider uppercase hover:bg-[#d4a574] transition-all duration-300 shadow-lg shadow-[#c4956a]/20"
             >
               Shop Now
               <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
@@ -241,7 +241,7 @@ export function HeroSection() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1, duration: 0.6 }}
-            className="mt-10 flex items-center gap-4 text-[10px] text-white/30"
+            className="mt-8 md:mt-10 flex flex-wrap items-center gap-2 md:gap-4 text-[9px] md:text-[10px] text-white/30"
           >
             <span>Free Shipping above ₹1,599</span>
             <span className="w-1 h-1 rounded-full bg-white/20" />
