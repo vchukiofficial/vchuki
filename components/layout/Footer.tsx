@@ -83,13 +83,11 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="mt-6 pt-4 border-t border-[#f5e6d3]/10 flex flex-col md:flex-row items-center justify-between gap-2 text-[10px] text-[#f5e6d3]/30">
           <div className="text-center md:text-left">
-            <p>© 2025 {BUSINESS.legalName}. All rights reserved.</p>
+            <p>© 2026 {BUSINESS.legalName}. All rights reserved.</p>
           </div>
           <div className="flex items-center gap-4 text-[#f5e6d3]/40">
-            <span>Visa</span>
-            <span>Mastercard</span>
+            <span>Cash on Delivery</span>
             <span>UPI</span>
-            <span>Razorpay</span>
           </div>
         </div>
       </div>

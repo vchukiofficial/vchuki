@@ -145,9 +145,18 @@ export default function RegisterPage() {
       {/* Right - Form */}
       <div className="flex-1 flex items-center justify-center p-6 md:p-12">
         <div className="w-full max-w-sm">
-          <div className="lg:hidden flex items-center gap-2 mb-10">
-            <Image src="/marko.png" alt="VCHUKI" width={24} height={24} className="dark:invert" />
-            <span className="text-base font-semibold tracking-[0.18em]">VCHUKI</span>
+          <div className="lg:hidden flex items-center justify-between mb-10">
+            <button onClick={() => router.back()} className="h-9 w-9 flex items-center justify-center border border-border text-muted-foreground hover:text-foreground transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            </button>
+            <div className="flex items-center gap-2">
+              <Image src="/marko.png" alt="VCHUKI" width={36} height={36} className="dark:invert" />
+              <div>
+                <span className="text-sm font-bold tracking-[0.3em] text-foreground block leading-none">VCHUKI</span>
+                <span className="text-[7px] tracking-[0.12em] text-[#c4956a] block mt-0.5">PREMIUM MENSWEAR</span>
+              </div>
+            </div>
+            <div className="w-9" />
           </div>
 
           {step === "form" ? (

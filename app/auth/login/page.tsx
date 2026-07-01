@@ -146,9 +146,12 @@ export default function LoginPage() {
       <div className="flex-1 flex items-center justify-center p-6 md:p-12 bg-background">
         <div className="w-full max-w-sm">
           {/* Mobile Logo */}
-          <div className="lg:hidden flex items-center gap-2 mb-10">
-            <Image src="/marko.png" alt="VCHUKI" width={24} height={24} className="dark:invert" />
-            <span className="text-base font-semibold tracking-[0.25em] text-foreground">VCHUKI</span>
+          <div className="lg:hidden flex items-center justify-center gap-2 mb-10">
+            <Image src="/marko.png" alt="VCHUKI" width={36} height={36} className="dark:invert" />
+            <div>
+              <span className="text-sm font-bold tracking-[0.3em] text-foreground block leading-none">VCHUKI</span>
+              <span className="text-[7px] tracking-[0.12em] text-[#c4956a] block mt-0.5">PREMIUM MENSWEAR</span>
+            </div>
           </div>
 
           {step === "credentials" ? (
@@ -217,9 +220,9 @@ export default function LoginPage() {
               </div>
 
               {/* Trust */}
-              <div className="mt-8 pt-6 border-t border-border flex items-center justify-center gap-4 text-[10px] text-muted-foreground">
-                <span>🔒 SSL Secured</span>
-                <span>•</span>
+              <div className="mt-8 pt-6 border-t border-border flex items-center justify-center gap-3 text-[10px] text-muted-foreground">
+                <span className="flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> SSL Secured</span>
+                <span className="w-1 h-1 rounded-full bg-border" />
                 <span>256-bit Encryption</span>
               </div>
             </>

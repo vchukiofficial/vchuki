@@ -203,57 +203,121 @@ export default function Navbar() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
               onClick={() => setMobileOpen(false)}
             />
             <motion.div
               initial={{ x: "-100%" }}
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
-              transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="absolute left-0 top-0 h-full w-80 bg-background p-6 shadow-2xl overflow-y-auto"
+              transition={{ type: "spring", damping: 28, stiffness: 220 }}
+              className="absolute left-0 top-0 h-full w-[85vw] max-w-[320px] bg-[#2a1f14] overflow-y-auto"
             >
-              <div className="flex items-center justify-between mb-10">
-                <div>
-                  <span className="text-sm font-bold tracking-[0.25em] block">VCHUKI</span>
-                  <span className="text-[8px] tracking-[0.15em] text-muted-foreground">PREMIUM MENSWEAR</span>
+              {/* Header */}
+              <div className="flex items-center justify-between p-5 border-b border-[#c4956a]/15">
+                <div className="flex items-center gap-2.5">
+                  <Image src="/marko.png" alt="VCHUKI" width={32} height={32} className="invert" />
+                  <div>
+                    <span className="text-[11px] font-bold tracking-[0.25em] text-[#f5e6d3] block leading-none">VCHUKI</span>
+                    <span className="text-[7px] tracking-[0.12em] text-[#c4956a] block mt-0.5">PREMIUM MENSWEAR</span>
+                  </div>
                 </div>
-                <button onClick={() => setMobileOpen(false)}><X className="h-5 w-5" /></button>
+                <button onClick={() => setMobileOpen(false)} className="h-8 w-8 flex items-center justify-center border border-[#f5e6d3]/10 text-[#f5e6d3]/60 hover:text-[#f5e6d3]">
+                  <X className="h-4 w-4" />
+                </button>
               </div>
-              <div className="space-y-6">
-                <Link href="/shirts" onClick={() => setMobileOpen(false)} className="block text-sm tracking-wide text-foreground/80 hover:text-foreground font-medium">
-                  Shop All
-                </Link>
-                {CATEGORIES.map((cat, i) => (
-                  <motion.div
-                    key={cat.slug}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.1 + i * 0.05 }}
+
+              {/* Navigation */}
+              <div className="p-5">
+                {/* Main Links */}
+                <div className="space-y-1">
+                  <Link
+                    href="/shirts"
+                    onClick={() => setMobileOpen(false)}
+                    className="flex items-center justify-between py-3.5 px-4 text-[#f5e6d3] text-sm font-medium tracking-wide hover:bg-[#c4956a]/10 transition-colors"
                   >
-                    <p className="text-sm tracking-wide text-foreground font-medium mb-2">{cat.label}</p>
-                    <div className="ml-3 space-y-2">
-                      {cat.subcategories.map((sub) => (
-                        <Link key={sub.slug} href={`/shirts/${sub.slug}`} onClick={() => setMobileOpen(false)} className="block text-xs text-muted-foreground hover:text-foreground transition-colors">
-                          {sub.name}
-                        </Link>
-                      ))}
-                    </div>
-                    {/* Color swatches in mobile */}
-                    <div className="flex gap-2 ml-3 mt-2">
-                      {cat.colors.map((c) => (
-                        <div key={c.name} className="w-4 h-4 rounded-full border border-border" style={{ backgroundColor: c.hex }} title={c.name} />
-                      ))}
-                    </div>
-                  </motion.div>
-                ))}
-                <div className="border-t border-[#c4956a]/20 pt-5 mt-6 space-y-4">
-                  <Link href="/about" onClick={() => setMobileOpen(false)} className="block text-xs uppercase tracking-[0.12em] text-muted-foreground">Our Story</Link>
-                  <Link href="/blog" onClick={() => setMobileOpen(false)} className="block text-xs uppercase tracking-[0.12em] text-muted-foreground">Journal</Link>
-                  <Link href="/contact" onClick={() => setMobileOpen(false)} className="block text-xs uppercase tracking-[0.12em] text-muted-foreground">Contact</Link>
+                    Shop All
+                    <ChevronDown className="h-3.5 w-3.5 text-[#c4956a] -rotate-90" />
+                  </Link>
+
+                  {CATEGORIES.map((cat, i) => (
+                    <motion.div
+                      key={cat.slug}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.05 + i * 0.04 }}
+                    >
+                      <div className="py-3 px-4">
+                        <p className="text-[9px] uppercase tracking-[0.2em] text-[#c4956a] font-medium mb-2">{cat.label}</p>
+                        <div className="space-y-0.5">
+                          {cat.subcategories.map((sub) => (
+                            <Link
+                              key={sub.slug}
+                              href={`/shirts/${sub.slug}`}
+                              onClick={() => setMobileOpen(false)}
+                              className="flex items-center gap-3 py-2.5 px-3 text-[#f5e6d3]/70 text-[13px] hover:text-[#f5e6d3] hover:bg-[#c4956a]/5 transition-colors rounded"
+                            >
+                              <div className="w-8 h-8 rounded border border-[#c4956a]/20 overflow-hidden flex-shrink-0">
+                                <Image src={sub.image} alt={sub.name} width={32} height={32} className="object-contain" />
+                              </div>
+                              {sub.name}
+                            </Link>
+                          ))}
+                        </div>
+                        {/* Color dots */}
+                        <div className="flex gap-1.5 mt-2 px-3">
+                          {cat.colors.slice(0, 5).map((c) => (
+                            <div key={c.name} className="w-4 h-4 rounded-full border border-[#f5e6d3]/10" style={{ backgroundColor: c.hex }} title={c.name} />
+                          ))}
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+
+                {/* Divider */}
+                <div className="my-5 border-t border-[#c4956a]/15" />
+
+                {/* Secondary Links */}
+                <div className="space-y-0.5">
+                  {[
+                    { href: "/about", label: "Our Story" },
+                    { href: "/blog", label: "Journal" },
+                    { href: "/contact", label: "Contact" },
+                  ].map((link) => (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      onClick={() => setMobileOpen(false)}
+                      className="block py-2.5 px-4 text-[12px] uppercase tracking-[0.12em] text-[#f5e6d3]/40 hover:text-[#f5e6d3]/80 transition-colors"
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
                   {session?.user?.role === "admin" && (
-                    <Link href="/admin" onClick={() => setMobileOpen(false)} className="block text-xs uppercase tracking-[0.12em] text-[#c4956a] font-medium">Admin</Link>
+                    <Link href="/admin" onClick={() => setMobileOpen(false)} className="block py-2.5 px-4 text-[12px] uppercase tracking-[0.12em] text-[#c4956a] font-medium">
+                      Admin Panel
+                    </Link>
                   )}
+                </div>
+
+                {/* Divider */}
+                <div className="my-5 border-t border-[#c4956a]/15" />
+
+                {/* CTA */}
+                <Link
+                  href="/shirts"
+                  onClick={() => setMobileOpen(false)}
+                  className="block w-full py-3 text-center bg-[#c4956a] text-[#2a1f14] text-[10px] font-bold tracking-[0.15em] uppercase hover:bg-[#d4a574] transition-colors"
+                >
+                  Shop Collection
+                </Link>
+
+                {/* Trust */}
+                <div className="mt-6 flex items-center justify-center gap-3 text-[9px] text-[#f5e6d3]/25">
+                  <span>Free Shipping ₹1,599+</span>
+                  <span className="w-1 h-1 rounded-full bg-[#f5e6d3]/15" />
+                  <span>COD Available</span>
                 </div>
               </div>
             </motion.div>

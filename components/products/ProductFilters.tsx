@@ -161,14 +161,14 @@ export default function ProductFilters() {
       </aside>
 
       {/* Mobile: Filter button + slide-in drawer */}
-      <div className="md:hidden mb-4">
+      <div className="md:hidden">
         <button
           onClick={() => setMobileOpen(true)}
-          className="flex items-center gap-1.5 px-4 py-2.5 border border-border text-xs font-medium hover:border-[#c4956a]/30 transition-colors"
+          className="fixed bottom-[72px] right-4 z-40 flex items-center gap-1.5 px-4 py-2.5 bg-[#2a1f14] dark:bg-[#c4956a] text-[#f5e6d3] dark:text-[#2a1f14] text-[10px] font-bold tracking-wider uppercase shadow-lg shadow-black/20 rounded-full"
         >
           <SlidersHorizontal className="h-3.5 w-3.5" />
           Filters
-          {hasFilters && <span className="h-1.5 w-1.5 rounded-full bg-[#c4956a]" />}
+          {hasFilters && <span className="h-1.5 w-1.5 rounded-full bg-[#c4956a] dark:bg-[#2a1f14]" />}
         </button>
       </div>
 
@@ -176,14 +176,22 @@ export default function ProductFilters() {
       {mobileOpen && (
         <div className="fixed inset-0 z-50 md:hidden">
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
-          <div className="absolute left-0 top-0 bottom-0 w-72 bg-background border-r border-border overflow-y-auto p-5 animate-in slide-in-from-left duration-300">
+          <div className="absolute right-0 top-0 bottom-0 w-[280px] bg-background border-l border-border overflow-y-auto p-5 animate-in slide-in-from-right duration-300">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-sm font-medium text-foreground">Filters</h2>
-              <button onClick={() => setMobileOpen(false)} className="h-7 w-7 flex items-center justify-center text-muted-foreground hover:text-foreground">
+              <h2 className="text-sm font-medium text-foreground">Filters & Sort</h2>
+              <button onClick={() => setMobileOpen(false)} className="h-8 w-8 flex items-center justify-center border border-border text-muted-foreground hover:text-foreground">
                 <X className="h-4 w-4" />
               </button>
             </div>
             {filterContent}
+            <div className="mt-6 pt-4 border-t border-border">
+              <button
+                onClick={() => setMobileOpen(false)}
+                className="w-full py-3 bg-[#2a1f14] dark:bg-[#c4956a] text-[#f5e6d3] dark:text-[#2a1f14] text-xs font-medium tracking-wider uppercase"
+              >
+                Apply Filters
+              </button>
+            </div>
           </div>
         </div>
       )}

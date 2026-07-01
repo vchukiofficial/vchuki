@@ -36,23 +36,24 @@ export function DroppingJulyBanner() {
       <section className="relative overflow-hidden border-y border-[#c4956a]/20">
         <div className="absolute inset-0 bg-gradient-to-r from-[#2a1f14] via-[#1a1209] to-[#2a1f14]" />
         <div className="absolute inset-0 heritage-pattern opacity-20" />
-        <div className="container relative z-10 py-10 md:py-14 text-center">
+        <div className="container relative z-10 py-8 md:py-14 text-center px-5">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <p className="text-[10px] uppercase tracking-[0.4em] text-[#c4956a] font-medium mb-3">Coming Soon</p>
-            <h2 className="text-2xl md:text-4xl font-light text-[#f5e6d3] tracking-tight">
-              New Collection <span className="font-semibold text-[#c4956a]">Dropping July</span>
+            <p className="text-[9px] md:text-[10px] uppercase tracking-[0.3em] md:tracking-[0.4em] text-[#c4956a] font-medium mb-2 md:mb-3">Coming Soon</p>
+            <h2 className="text-xl md:text-4xl font-light text-[#f5e6d3] tracking-tight leading-tight">
+              New Collection{" "}
+              <span className="font-semibold text-[#c4956a]">Dropping July 7th</span>
             </h2>
-            <p className="text-sm text-[#f5e6d3]/50 mt-3 max-w-md mx-auto">
+            <p className="text-xs md:text-sm text-[#f5e6d3]/60 mt-2 md:mt-3 max-w-md mx-auto leading-relaxed">
               Fresh colors, new styles. Be the first to know when they drop.
             </p>
             <button
               onClick={() => setShowPopup(true)}
-              className="mt-6 inline-flex items-center gap-2 px-6 py-3 bg-[#c4956a] text-[#2a1f14] text-xs font-bold tracking-wider uppercase hover:bg-[#d4a574] transition-colors"
+              className="mt-5 md:mt-6 inline-flex items-center gap-2 px-5 md:px-6 py-2.5 md:py-3 bg-[#c4956a] text-[#2a1f14] text-[10px] md:text-xs font-bold tracking-wider uppercase hover:bg-[#d4a574] transition-colors"
             >
               <Bell className="h-3.5 w-3.5" /> Notify Me
             </button>
