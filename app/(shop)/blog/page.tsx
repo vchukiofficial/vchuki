@@ -69,7 +69,7 @@ export default async function BlogPage() {
 
         {/* Posts */}
         <div className="space-y-4 md:space-y-6">
-          {posts.map((post, i) => (
+          {posts.map((post) => (
             <Link
               key={post.slug}
               href={`/blog/${post.slug}`}

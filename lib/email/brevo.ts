@@ -115,7 +115,7 @@ export async function sendOrderConfirmationEmail(to: string, order: {
   const itemsHtml = order.items.map(i => `<tr><td style="padding:8px;border-bottom:1px solid #eee;font-size:13px;">${i.name} (${i.size}/${i.color})</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:center;">×${i.quantity}</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">₹${i.price.toLocaleString()}</td></tr>`).join("")
   const itemsTable = `<table style="width:100%;border-collapse:collapse;margin:16px 0;"><thead><tr style="background:#f5e6d3;"><th style="padding:8px;text-align:left;font-size:11px;">Item</th><th style="padding:8px;font-size:11px;">Qty</th><th style="padding:8px;text-align:right;font-size:11px;">Price</th></tr></thead><tbody>${itemsHtml}</tbody></table>`
   const discountLine = order.discountAmount > 0 ? `<p style="color:#059669;font-size:13px;">Discount: -₹${order.discountAmount}</p>` : ""
-  const addr = `${order.shippingAddress.name}<br>${order.shippingAddress.street}<br>${order.shippingAddress.city}, ${order.shippingAddress.state} - ${order.shippingAddress.zip}<br>📞 ${order.shippingAddress.phone}`
+  const addr = `${order.shippingAddress.name}<br>${order.shippingAddress.street}<br>${order.shippingAddress.city}, ${order.shippingAddress.state} - ${order.shippingAddress.zip}<br> ${order.shippingAddress.phone}`
 
   await sendViaTemplate("order-confirmation", to, {
     orderId: order.orderId, itemsTable, discountLine,
@@ -124,7 +124,7 @@ export async function sendOrderConfirmationEmail(to: string, order: {
     shippingAddress: addr
   },
     "Order Confirmed — #{{orderId}}",
-    `<h2 style="color:#2a1f14;">Order Confirmed! 🎉</h2>
+    `<h2 style="color:#2a1f14;">Order Confirmed! </h2>
     <p style="color:#c4956a;font-size:12px;font-weight:bold;">Order #{{orderId}}</p>
     {{itemsTable}}{{discountLine}}
     <p style="font-size:16px;font-weight:bold;color:#2a1f14;">Total: ₹{{finalAmount}}</p>
@@ -160,10 +160,10 @@ export async function sendShippingUpdateEmail(to: string, data: { orderId: strin
 
 export async function sendWaitlistConfirmation(to: string, position: number, earlyAccess: boolean) {
   const perks = earlyAccess
-    ? `<div style="background:#f5e6d3;padding:16px;margin:16px 0;border-left:4px solid #c4956a;"><p style="font-size:14px;color:#2a1f14;margin:0;font-weight:bold;">🎉 You've unlocked early access!</p><p style="font-size:12px;color:#666;margin:8px 0 0;">10% off + free shipping on launch day.</p></div>`
+    ? `<div style="background:#f5e6d3;padding:16px;margin:16px 0;border-left:4px solid #c4956a;"><p style="font-size:14px;color:#2a1f14;margin:0;font-weight:bold;"> You've unlocked early access!</p><p style="font-size:12px;color:#666;margin:8px 0 0;">10% off + free shipping on launch day.</p></div>`
     : ""
   return sendViaTemplate("waitlist-confirmation", to, { position: String(position), perks },
-    "You're on the VCHUKI Waitlist! 🎉",
+    "You're on the VCHUKI Waitlist! ",
     `<h2 style="color:#2a1f14;">You're In!</h2>
     <p style="color:#666;font-size:14px;">You're <strong>#{{position}}</strong> on our waitlist for the July collection drop.</p>
     {{perks}}
@@ -243,7 +243,7 @@ export async function sendReviewRequestEmail(to: string, data: { name: string; o
     <p style="color:#666;font-size:14px;">Hi {{name}}, we hope you're loving your <strong>{{productName}}</strong>!</p>
     <p style="color:#666;font-size:13px;">Your feedback helps other customers. It only takes a minute.</p>
     <div style="margin:24px 0;"><a href="{{reviewLink}}" style="background:#2a1f14;color:#f5e6d3;padding:12px 24px;text-decoration:none;font-size:12px;text-transform:uppercase;">Write a Review</a></div>
-    <p style="color:#c4956a;font-size:12px;">⭐ Reviewers get 5% off their next order!</p>`
+    <p style="color:#c4956a;font-size:12px;"> Reviewers get 5% off their next order!</p>`
   )
 }
 
@@ -252,7 +252,7 @@ export async function sendBackInStockEmail(to: string, data: { name: string; pro
     ...data, productLink: `https://vchuki.com/product/${data.productSlug}`
   },
     "Good News! {{productName}} is Back in Stock",
-    `<h2 style="color:#2a1f14;">It's Back! 🎉</h2>
+    `<h2 style="color:#2a1f14;">It's Back! </h2>
     <p style="color:#666;font-size:14px;">Hi {{name}}, great news! <strong>{{productName}}</strong> is back in stock.</p>
     <p style="color:#666;font-size:13px;">Don't miss it this time — our popular items sell out fast.</p>
     <div style="margin:24px 0;"><a href="{{productLink}}" style="background:#2a1f14;color:#f5e6d3;padding:12px 24px;text-decoration:none;font-size:12px;text-transform:uppercase;">Shop Now</a></div>`
@@ -270,8 +270,8 @@ export async function sendPromoEmail(to: string, data: { subject: string; headin
 
 export async function sendVIPLaunchAlert(to: string, data: { name: string; discountCode: string }) {
   return sendViaTemplate("vip-launch-alert", to, { ...data, shopLink: "https://vchuki.com/shirts" },
-    "🚨 VIP Early Access is LIVE — 2 Hours Before Everyone!",
-    `<h2 style="color:#2a1f14;">It's GO Time! 🚀</h2>
+    " VIP Early Access is LIVE — 2 Hours Before Everyone!",
+    `<h2 style="color:#2a1f14;">It's GO Time! </h2>
     <p style="color:#666;font-size:14px;">Hi {{name}}, your VIP early access is now <strong>LIVE</strong>.</p>
     <div style="background:#f5e6d3;padding:20px;margin:20px 0;border-left:4px solid #c4956a;text-align:center;"><p style="font-size:11px;color:#c4956a;margin:0;text-transform:uppercase;letter-spacing:2px;">Your VIP Code</p><p style="font-size:28px;font-weight:bold;color:#2a1f14;margin:8px 0;letter-spacing:4px;">{{discountCode}}</p><p style="font-size:12px;color:#666;margin:0;">10% off + Free Shipping</p></div>
     <div style="margin:24px 0;text-align:center;"><a href="{{shopLink}}" style="background:#2a1f14;color:#f5e6d3;padding:14px 32px;text-decoration:none;font-size:13px;text-transform:uppercase;font-weight:bold;">Shop Now →</a></div>`

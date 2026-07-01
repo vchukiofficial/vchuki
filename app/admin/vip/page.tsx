@@ -48,7 +48,7 @@ export default function AdminVIPPage() {
   }
 
   async function handleBulkEmail() {
-    const subject = prompt("Email subject for ALL VIP members:", "VIP Early Access is LIVE! 🎉")
+    const subject = prompt("Email subject for ALL VIP members:", "VIP Early Access is LIVE!")
     if (!subject) return
     const message = prompt("Email body:", "Your exclusive early access is now live. Shop the new collection before anyone else at https://vchuki.com/shirts")
     if (!message) return
@@ -59,6 +59,21 @@ export default function AdminVIPPage() {
       body: JSON.stringify({ bulk: true, subject, message }),
     })
     alert(`Email sent to ${entries.length} members!`)
+  }
+
+  async function handleSendLaunchEmail() {
+    if (!confirm(`Send LAUNCH DAY early access email to all ${entries.length} VIP members?\n\nThis will notify them that the new collection is live at 9 AM, 3 hours before public launch at 12 PM.`)) return
+    const res = await fetch("/api/admin/vip/send-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        bulk: true,
+        subject: "Your VIP Early Access is LIVE - Shop Before Everyone Else!",
+        message: `You're one of our exclusive VIP members, and your early access to the new VCHUKI collection is NOW LIVE!\n\nYour access: NOW (9:00 AM)\nPublic launch: 12:00 PM\n\nYou have 3 hours of exclusive access before anyone else can shop.\n\nWhat's new:\n- Fresh Rajasthan-inspired colors\n- Premium linen blend shirts\n- New short kurta styles\n- Limited quantities per color\n\nAs a VIP, you also get:\n- 10% OFF your first order\n- Free shipping (no minimum)\n- Priority customer support\n\nDon't wait - the best sizes sell out fast!`,
+      }),
+    })
+    const data = await res.json()
+    alert(`Launch access email sent to ${data.sent || entries.length} VIP members!`)
   }
 
   async function handleExport() {
@@ -99,6 +114,9 @@ export default function AdminVIPPage() {
           <p className="text-xs text-muted-foreground mt-0.5">{entries.length} signups · Manage early access members</p>
         </div>
         <div className="flex gap-2">
+          <button onClick={handleSendLaunchEmail} className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 text-white text-[10px] font-medium uppercase tracking-wider">
+            <Zap className="h-3 w-3" /> Send Launch Access
+          </button>
           <button onClick={handleBulkEmail} className="flex items-center gap-1.5 px-3 py-1.5 bg-[#2a1f14] dark:bg-[#c4956a] text-[#f5e6d3] dark:text-[#2a1f14] text-[10px] font-medium uppercase tracking-wider">
             <Mail className="h-3 w-3" /> Email All
           </button>

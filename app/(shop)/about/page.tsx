@@ -1,5 +1,4 @@
 import { Metadata } from "next"
-import Image from "next/image"
 import Link from "next/link"
 import { BUSINESS } from "@/lib/constants"
 import { Gem, MapPin, ClipboardCheck, Wind, ArrowRight } from "lucide-react"

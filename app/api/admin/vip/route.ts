@@ -5,12 +5,18 @@ import connectDB from "@/lib/mongodb"
 import Waitlist from "@/models/Waitlist"
 
 export async function GET() {
-  const session = await getServerSession(authOptions)
-  if (!session || session.user.role !== "admin") return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session || session.user.role !== "admin") {
+      return NextResponse.json({ error: "Unauthorized", entries: [] }, { status: 401 })
+    }
 
-  await connectDB()
-  const entries = await Waitlist.find().sort({ position: 1 }).lean()
-  return NextResponse.json({ entries })
+    await connectDB()
+    const entries = await Waitlist.find().sort({ position: 1 }).lean()
+    return NextResponse.json({ entries })
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message, entries: [] }, { status: 500 })
+  }
 }
 
 export async function DELETE(request: NextRequest) {
