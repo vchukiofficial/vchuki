@@ -65,10 +65,10 @@ export const metadata: Metadata = {
   },
   alternates: { canonical: "https://vchuki.com" },
   verification: {
-    google: "your-google-verification-code",
+    google: "PqJO-cCKPqtA2eGmiFW__qf34keqaKqFQUoqVYVzwFo",
   },
   other: {
-    "google-site-verification": "your-google-verification-code",
+    "google-site-verification": "PqJO-cCKPqtA2eGmiFW__qf34keqaKqFQUoqVYVzwFo",
   },
 }
 
@@ -227,9 +227,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           {children}
         </Providers>
         {/* Google Analytics */}
-        <Script src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX" strategy="afterInteractive" />
+        <Script src="https://www.googletagmanager.com/gtag/js?id=G-SSR2JS2VWN" strategy="afterInteractive" />
         <Script id="gtag" strategy="afterInteractive">
-          {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-XXXXXXXXXX');`}
+          {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-SSR2JS2VWN');`}
         </Script>
       </body>
     </html>
