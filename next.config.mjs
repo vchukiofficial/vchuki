@@ -35,6 +35,13 @@ const nextConfig = {
           { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
         ],
       },
+      {
+        source: '/product/:slug',
+        headers: [
+          { key: 'X-Robots-Tag', value: 'index, follow, noarchive' },
+          { key: 'Link', value: '</product/:slug>; rel="canonical"' },
+        ],
+      },
     ];
   },
   async redirects() {
@@ -67,6 +74,10 @@ const nextConfig = {
       { source: '/shirts/', destination: '/shirts', permanent: true },
       { source: '/blog/', destination: '/blog', permanent: true },
       { source: '/about/', destination: '/about', permanent: true },
+      // Old indexed products that no longer exist — redirect to collection
+      { source: '/product/heritage-urban-oversized-shirt-navy-332', destination: '/shirts', permanent: true },
+      { source: '/product/classic-sherwani-style-shirt-olive-495', destination: '/shirts', permanent: true },
+      { source: '/product/classic-dobby-texture-shirt-white-41', destination: '/shirts', permanent: true },
     ];
   },
 };
