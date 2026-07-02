@@ -19,7 +19,7 @@ export function ProductGrid({ products }: Props) {
           <Link href={`/product/${product.slug}`} className="block">
             <div className="relative aspect-[3/4] bg-card overflow-hidden mb-3 border border-border group-hover:border-[#c4956a]/30 transition-colors">
               <Image
-                src={product.images?.[0] || "https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=400"}
+                src={product.images?.[0] || "/placeholder-product.svg"}
                 alt={product.name}
                 fill
                 className="object-cover transition-transform duration-700 group-hover:scale-105"

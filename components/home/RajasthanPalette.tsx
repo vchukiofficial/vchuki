@@ -6,11 +6,22 @@ import Image from "next/image"
 import Link from "next/link"
 import { ArrowRight } from "lucide-react"
 
-const SHADES = [
+interface ShadeData {
+  name: string
+  hex: string
+  image: string
+  mood: string
+  story: string
+  visual: string
+  bg: string
+  bgDark: string
+  accent: string
+}
+
+const DEFAULT_SHADES: Omit<ShadeData, "image">[] = [
   {
     name: "Desert Sand",
     hex: "#DCCEB8",
-    image: "https://u1kwkwq0sju0a3pp.public.blob.vercel-storage.com/products/vchuki/beige.png",
     mood: "Elegant. Timeless. Minimal.",
     story: "Inspired by warm sandstone palaces of Rajasthan",
     visual: "Golden desert sunlight, palace walls, warm beige atmosphere",
@@ -21,7 +32,6 @@ const SHADES = [
   {
     name: "Royal Indigo",
     hex: "#304D7A",
-    image: "https://u1kwkwq0sju0a3pp.public.blob.vercel-storage.com/products/vchuki/sky-blue.png",
     mood: "Bold. Regal. Powerful.",
     story: "Inspired by the royal blue city nights of Jodhpur",
     visual: "Moonlit blue havelis, luxury indigo textures, cinematic evening tone",
@@ -32,7 +42,6 @@ const SHADES = [
   {
     name: "Sage Heritage",
     hex: "#8A8F63",
-    image: "https://u1kwkwq0sju0a3pp.public.blob.vercel-storage.com/products/vchuki/olive-green.png",
     mood: "Masculine. Earthy. Premium.",
     story: "Inspired by royal courtyard gardens and botanical calm",
     visual: "Muted olive greenery, sandstone courtyards, luxury linen textures",
@@ -43,7 +52,6 @@ const SHADES = [
   {
     name: "Golden Dune",
     hex: "#D8BF62",
-    image: "https://u1kwkwq0sju0a3pp.public.blob.vercel-storage.com/products/vchuki/yellow.png",
     mood: "Warm. Creative. Stylish.",
     story: "Inspired by Rajasthan's golden desert horizon",
     visual: "Golden dunes, sunset glow, rich earthy fashion tone",
@@ -54,7 +62,6 @@ const SHADES = [
   {
     name: "Ivory White",
     hex: "#F5F3EE",
-    image: "https://u1kwkwq0sju0a3pp.public.blob.vercel-storage.com/products/vchuki/white.png",
     mood: "Pure. Clean. Luxurious.",
     story: "Inspired by marble palaces and pristine elegance",
     visual: "White marble, morning light, clean luxury minimalism",
@@ -64,7 +71,16 @@ const SHADES = [
   },
 ]
 
-export function RajasthanPalette() {
+interface Props {
+  colorImages?: Record<string, string>
+}
+
+export function RajasthanPalette({ colorImages = {} }: Props) {
+  const SHADES: ShadeData[] = DEFAULT_SHADES.map(s => ({
+    ...s,
+    image: colorImages[s.name] || "/placeholder-product.svg",
+  }))
+
   const [active, setActive] = useState(0)
   const shade = SHADES[active]
 

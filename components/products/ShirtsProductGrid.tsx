@@ -61,7 +61,7 @@ export function ShirtsProductGrid({ products }: { products: Product[] }) {
           <Link href={`/product/${product.slug}`} className="block">
             <div className="relative aspect-[3/4] bg-card overflow-hidden border border-border group-hover:border-[#c4956a]/30 transition-colors">
               <Image
-                src={product.images?.[0] || "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=400"}
+                src={product.images?.[0] || "/placeholder-product.svg"}
                 alt={`${product.name} - VCHUKI`}
                 fill
                 sizes="(max-width: 768px) 50vw, 25vw"

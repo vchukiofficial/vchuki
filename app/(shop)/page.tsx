@@ -27,7 +27,12 @@ function expandProductsToVariantCards(products: any[], allVariants: any[]) {
   for (const product of products) {
     const p = product as any
     const variants = variantsByProduct.get(p._id.toString()) || []
-    if (variants.length === 0) continue
+
+    // Products with no variants — show as standalone card
+    if (variants.length === 0) {
+      if (p.images?.[0]) cards.push({ ...p, _id: p._id.toString(), productId: p._id })
+      continue
+    }
 
     const colorMap = new Map<string, any>()
     for (const v of variants) {
@@ -77,15 +82,38 @@ async function getProducts() {
     stock: { $gt: 0 },
   }).lean()
 
+  // Fetch category cover images (first product image per category)
+  const categorySlugs = ["linen-full-sleeve", "linen-half-sleeve", "kurta-half-sleeve", "kurta-full-sleeve"]
+  const categoryCovers = await Promise.all(
+    categorySlugs.map(slug => Product.findOne({ category: slug, isActive: true, "images.0": { $exists: true } }).select("images").lean())
+  )
+  const categoryImages: Record<string, string> = {}
+  categorySlugs.forEach((slug, i) => {
+    categoryImages[slug] = (categoryCovers[i] as any)?.images?.[0] || "/placeholder-product.svg"
+  })
+
+  // Fetch color images for RajasthanPalette (first product matching each color name)
+  const colorNames = ["Desert Sand", "Royal Indigo", "Olive Green", "Golden Dune", "Ivory White"]
+  const paletteNames = ["Desert Sand", "Royal Indigo", "Sage Heritage", "Golden Dune", "Ivory White"]
+  const colorProducts = await Promise.all(
+    colorNames.map(c => Product.findOne({ isActive: true, name: { $regex: c, $options: "i" }, "images.0": { $exists: true } }).select("images").lean())
+  )
+  const colorImages: Record<string, string> = {}
+  paletteNames.forEach((name, i) => {
+    colorImages[name] = (colorProducts[i] as any)?.images?.[0] || "/placeholder-product.svg"
+  })
+
   return {
     bestsellers: JSON.parse(JSON.stringify(expandProductsToVariantCards(bestsellers, allVariants))),
     newArrivals: JSON.parse(JSON.stringify(expandProductsToVariantCards(newArrivals, allVariants))),
     linen: JSON.parse(JSON.stringify(expandProductsToVariantCards(linen, allVariants))),
+    categoryImages,
+    colorImages,
   }
 }
 
 export default async function HomePage() {
-  const { bestsellers, newArrivals, linen } = await getProducts()
+  const { bestsellers, newArrivals, linen, categoryImages, colorImages } = await getProducts()
 
   return (
     <HomePageWrapper>
@@ -122,13 +150,13 @@ export default async function HomePage() {
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
           {[
-            { name: "Linen Full Sleeve Shirts", slug: "linen-full-sleeve", img: "https://u1kwkwq0sju0a3pp.public.blob.vercel-storage.com/products/vchuki/skyblue.png", desc: "Breathable luxury" },
-            { name: "Linen Half Sleeve Shirts", slug: "linen-half-sleeve", img: "https://u1kwkwq0sju0a3pp.public.blob.vercel-storage.com/products/vchuki/beige.png", desc: "Summer ease" },
-            { name: "Linen Short Kurtas Half Sleeve", slug: "kurta-half-sleeve", img: "https://u1kwkwq0sju0a3pp.public.blob.vercel-storage.com/products/vchuki/shortsleevgoldenduneshortkurta.png", desc: "Ethnic modern" },
-            { name: "Linen Short Kurtas Full Sleeve", slug: "kurta-full-sleeve", img: "https://u1kwkwq0sju0a3pp.public.blob.vercel-storage.com/products/vchuki/fullsleevolivegreenshortshirts.png", desc: "Heritage craft" },
+            { name: "Linen Full Sleeve Shirts", slug: "linen-full-sleeve", desc: "Breathable luxury" },
+            { name: "Linen Half Sleeve Shirts", slug: "linen-half-sleeve", desc: "Summer ease" },
+            { name: "Linen Short Kurtas Half Sleeve", slug: "kurta-half-sleeve", desc: "Ethnic modern" },
+            { name: "Linen Short Kurtas Full Sleeve", slug: "kurta-full-sleeve", desc: "Heritage craft" },
           ].map((cat) => (
             <Link key={cat.slug} href={`/shirts/${cat.slug}`} className="group relative aspect-[3/4] overflow-hidden border border-border bg-gradient-to-b from-card/50 to-background">
-              <Image src={cat.img} alt={`${cat.name} - VCHUKI`} fill className="object-contain p-4 transition-transform duration-700 group-hover:scale-105" sizes="(max-width: 768px) 50vw, 25vw" loading="lazy" />
+              <Image src={categoryImages[cat.slug] || "/placeholder-product.svg"} alt={`${cat.name} - VCHUKI`} fill className="object-contain p-4 transition-transform duration-700 group-hover:scale-105" sizes="(max-width: 768px) 50vw, 25vw" loading="lazy" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
               <div className="absolute top-3 left-3 w-4 h-4 border-t border-l border-[#c4956a]/30" />
               <div className="absolute top-3 right-3 w-4 h-4 border-t border-r border-[#c4956a]/30" />
@@ -187,7 +215,7 @@ export default async function HomePage() {
             <div className="relative aspect-[4/5] overflow-hidden">
               <div className="absolute -inset-2 border border-[#c4956a]/20" />
               <Image
-                src="https://u1kwkwq0sju0a3pp.public.blob.vercel-storage.com/products/vchuki/linenproductwity6imagelayout.png"
+                src="/linenproductwity6imagelayout.png"
                 alt="VCHUKI Premium Linen Blend Shirt Collection - Multiple Views"
                 fill
                 className="object-cover"
@@ -202,7 +230,7 @@ export default async function HomePage() {
       </section>
 
       {/* Color Story Experience */}
-      <RajasthanPalette />
+      <RajasthanPalette colorImages={colorImages} />
 
       {/* Linen Collection */}
       {linen.length > 0 && (

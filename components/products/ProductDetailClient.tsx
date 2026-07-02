@@ -52,7 +52,7 @@ export default function ProductDetailClient({ product, variants, reviews, siblin
     const variantImages = selectedVariant?.images?.length ? selectedVariant.images : []
     const productImages = product.images || []
     const all = [...new Set([...variantImages, ...productImages])]
-    return all.length > 0 ? all : ["https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=600"]
+    return all.length > 0 ? all : ["/placeholder-product.svg"]
   }, [selectedVariant, product.images])
 
   const price = product.basePrice + (selectedVariant?.priceAdjustment || 0)

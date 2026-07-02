@@ -81,7 +81,7 @@ export function ProductCarousel({ products, autoScroll = false }: Props) {
           const isVariantCard = !!product.variantColor
           const displayImage = isVariantCard
             ? product.variantImage
-            : product.images?.[0] || "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=400"
+            : product.images?.[0] || "/placeholder-product.svg"
           const displayPrice = isVariantCard ? product.variantPrice : product.basePrice
 
           return (

@@ -125,7 +125,7 @@ export function ShirtsVariantGrid({ products }: { products: VariantProduct[] }) 
         const isVariant = !!product.variantColor
         const displayImage = isVariant
           ? product.variantImage
-          : product.images?.[0] || "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=400"
+          : product.images?.[0] || "/placeholder-product.svg"
         const displayPrice = isVariant ? product.variantPrice : product.basePrice
 
         // Build product link with color and size params
