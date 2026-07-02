@@ -2,7 +2,7 @@
 
 import { useSession } from "next-auth/react"
 import { useEffect, useState } from "react"
-import { Package, Truck, CheckCircle, Clock, XCircle, MapPin, Phone } from "lucide-react"
+import { Package, Truck, CheckCircle, Clock, XCircle, MapPin, Phone, RotateCcw, X, Send } from "lucide-react"
 
 interface Order {
   _id: string
@@ -34,15 +34,29 @@ export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null)
+  const [returnModal, setReturnModal] = useState<Order | null>(null)
+  const [returnReason, setReturnReason] = useState("")
+  const [returnImages, setReturnImages] = useState<File[]>([])
+  const [returnSubmitting, setReturnSubmitting] = useState(false)
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null)
 
   useEffect(() => {
-    if (session) {
-      fetch("/api/orders")
-        .then((r) => r.json())
-        .then((data) => { setOrders(data.orders || []); setLoading(false) })
-        .catch(() => setLoading(false))
-    }
+    if (session) fetchOrders()
   }, [session])
+
+  useEffect(() => {
+    if (toast) {
+      const t = setTimeout(() => setToast(null), 4000)
+      return () => clearTimeout(t)
+    }
+  }, [toast])
+
+  function fetchOrders() {
+    fetch("/api/orders")
+      .then((r) => r.json())
+      .then((data) => { setOrders(data.orders || []); setLoading(false) })
+      .catch(() => setLoading(false))
+  }
 
   if (loading) return <div className="container py-20 text-center text-muted-foreground text-sm">Loading orders...</div>
 
@@ -172,6 +186,16 @@ export default function OrdersPage() {
                       <span className="text-foreground capitalize">{order.paymentMethod === "cod" ? "Cash on Delivery" : "Razorpay"} — <span className={order.paymentStatus === "paid" ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600"}>{order.paymentStatus}</span></span>
                     </div>
 
+                    {/* Return Button */}
+                    {order.shippingStatus === "delivered" && (
+                      <button
+                        onClick={() => { setReturnModal(order); setReturnReason(""); setReturnImages([]) }}
+                        className="w-full flex items-center justify-center gap-2 py-3 border border-red-500/30 bg-red-500/5 text-red-600 dark:text-red-400 text-xs font-medium hover:bg-red-500/10 transition-colors"
+                      >
+                        <RotateCcw className="h-3.5 w-3.5" /> Request Return / Exchange
+                      </button>
+                    )}
+
                     {/* Timeline */}
                     {order.timeline && order.timeline.length > 0 && (
                       <div>
@@ -194,6 +218,134 @@ export default function OrdersPage() {
               </div>
             )
           })}
+        </div>
+      )}
+
+      {/* Return Request Modal */}
+      {returnModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => !returnSubmitting && setReturnModal(null)} />
+          <div className="relative w-full max-w-md bg-background border border-border shadow-xl">
+            <div className="flex items-center justify-between p-4 border-b border-border">
+              <div className="flex items-center gap-2">
+                <RotateCcw className="h-4 w-4 text-[#c4956a]" />
+                <h2 className="text-sm font-medium text-foreground">Request Return</h2>
+              </div>
+              <button onClick={() => setReturnModal(null)} className="h-7 w-7 border border-border flex items-center justify-center text-muted-foreground hover:text-foreground">
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </div>
+
+            <div className="p-4 space-y-4">
+              <div className="p-3 bg-muted/50 border border-border">
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Order</p>
+                <p className="text-sm font-medium text-foreground mt-0.5">#{returnModal._id.slice(-8).toUpperCase()}</p>
+                <p className="text-xs text-muted-foreground mt-1">{returnModal.items.map(i => `${i.name} (${i.size}/${i.color})`).join(", ")}</p>
+              </div>
+
+              <div>
+                <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Reason for Return *</label>
+                <select
+                  value={returnReason}
+                  onChange={(e) => setReturnReason(e.target.value)}
+                  className="w-full mt-1.5 px-3 py-3 border border-border bg-background text-sm text-foreground focus:outline-none focus:border-[#c4956a]/50"
+                >
+                  <option value="">Select a reason</option>
+                  <option value="Size doesn't fit">Size doesn&apos;t fit</option>
+                  <option value="Color different from image">Color different from image</option>
+                  <option value="Quality not as expected">Quality not as expected</option>
+                  <option value="Received damaged product">Received damaged product</option>
+                  <option value="Wrong product received">Wrong product received</option>
+                  <option value="Changed my mind">Changed my mind</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+
+              {/* Upload Product Images */}
+              <div>
+                <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Upload Product Photos (2-3 required) *</label>
+                <p className="text-[10px] text-muted-foreground mt-0.5 mb-2">Clear photos showing the product, issue, and attached tag.</p>
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={(e) => {
+                    const files = e.target.files
+                    if (files && files.length > 0) {
+                      setReturnImages(Array.from(files).slice(0, 5))
+                    }
+                  }}
+                  className="w-full text-xs file:mr-3 file:py-2 file:px-3 file:border file:border-border file:bg-muted file:text-foreground file:text-[10px] file:font-medium file:uppercase file:tracking-wider file:cursor-pointer"
+                />
+                {returnImages.length > 0 && returnImages.length >= 2 && (
+                  <p className="text-[10px] text-emerald-600 dark:text-emerald-400 mt-1.5">{returnImages.length} photo{returnImages.length > 1 ? "s" : ""} selected</p>
+                )}
+                {returnImages.length > 0 && returnImages.length < 2 && (
+                  <p className="text-[10px] text-red-500 mt-1">Please upload at least 2 photos</p>
+                )}
+              </div>
+
+              <div className="p-3 bg-red-500/5 border border-red-500/20 text-xs text-red-700 dark:text-red-300 space-y-1">
+                <p className="font-semibold">Return NOT accepted if:</p>
+                <p>- Product tag is removed, torn, or broken</p>
+                <p>- Product has been used, washed, or altered</p>
+                <p>- Less than 2 product photos uploaded</p>
+              </div>
+
+              <div className="p-3 bg-amber-500/5 border border-amber-500/20 text-xs text-amber-700 dark:text-amber-300 space-y-1">
+                <p className="font-semibold">Return Policy:</p>
+                <p>- Returns accepted within 7 days of delivery</p>
+                <p>- Product must be unused with ALL original tags intact</p>
+                <p>- 2-3 clear product photos are mandatory</p>
+                <p>- Pickup arranged within 2-3 business days</p>
+                <p>- Refund processed within 5-7 days after pickup</p>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 p-4 border-t border-border">
+              <button onClick={() => setReturnModal(null)} disabled={returnSubmitting} className="px-4 py-2 text-xs text-muted-foreground hover:text-foreground">
+                Cancel
+              </button>
+              <button
+                onClick={async () => {
+                  if (!returnReason) return
+                  setReturnSubmitting(true)
+                  try {
+                    const res = await fetch("/api/orders/return", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ orderId: returnModal._id, reason: returnReason }),
+                    })
+                    const data = await res.json()
+                    if (res.ok) {
+                      setToast({ message: data.message || "Return request submitted!", type: "success" })
+                      setReturnModal(null)
+                      fetchOrders()
+                    } else {
+                      setToast({ message: data.error || "Failed to submit return", type: "error" })
+                    }
+                  } catch {
+                    setToast({ message: "Something went wrong", type: "error" })
+                  }
+                  setReturnSubmitting(false)
+                }}
+                disabled={!returnReason || returnImages.length < 2 || returnSubmitting}
+                className="flex items-center gap-1.5 px-4 py-2 bg-[#2a1f14] dark:bg-[#c4956a] text-[#f5e6d3] dark:text-[#2a1f14] text-xs font-medium tracking-wider uppercase disabled:opacity-50"
+              >
+                <Send className="h-3 w-3" />
+                {returnSubmitting ? "Submitting..." : "Submit Return"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Toast */}
+      {toast && (
+        <div className={`fixed bottom-6 right-6 z-50 px-4 py-3 border shadow-lg text-xs font-medium animate-in slide-in-from-bottom-2 ${
+          toast.type === "success" ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-300" : "bg-red-500/10 border-red-500/30 text-red-700 dark:text-red-300"
+        }`}>
+          {toast.message}
         </div>
       )}
     </div>

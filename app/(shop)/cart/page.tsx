@@ -298,7 +298,7 @@ export default function CartPage() {
             </div>
             <div className="p-2.5 border border-border">
               <RotateCcw className="h-3.5 w-3.5 mx-auto text-[#c4956a]" />
-              <p className="text-[9px] text-muted-foreground mt-1">14-Day Returns</p>
+              <p className="text-[9px] text-muted-foreground mt-1">7-Day Returns</p>
             </div>
             <div className="p-2.5 border border-border">
               <Shield className="h-3.5 w-3.5 mx-auto text-[#c4956a]" />

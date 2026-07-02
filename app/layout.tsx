@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     default: "VCHUKI — Premium Linen Shirts for Men | Crafted in Jodhpur, India",
     template: "%s | VCHUKI",
   },
-  description: "VCHUKI is India's premium linen shirt brand for men. Shop handcrafted formal shirts, casual shirts, linen shirts & short kurtas. Made in Jodhpur, Rajasthan. Free shipping above ₹1,599. 14-day easy returns.",
+  description: "VCHUKI is India's premium linen shirt brand for men. Shop handcrafted formal shirts, casual shirts, linen shirts & short kurtas. Made in Jodhpur, Rajasthan. Free shipping above ₹1,599. 7-day easy returns.",
   keywords: [
     "vchuki", "vchuki.com", "vchuki shirts", "vchuki brand", "vchuki india",
     "premium linen shirts india", "formal shirts for men",
@@ -168,7 +168,7 @@ const faqSchema = {
     {
       "@type": "Question",
       name: "What is VCHUKI's return policy?",
-      acceptedAnswer: { "@type": "Answer", text: "VCHUKI offers a 14-day hassle-free return policy. If you're not satisfied with your purchase, you can return it within 14 days for a full refund." },
+      acceptedAnswer: { "@type": "Answer", text: "VCHUKI offers a 7-day hassle-free return policy. If you're not satisfied with your purchase, you can return it within 7 days for a full refund." },
     },
     {
       "@type": "Question",

@@ -309,7 +309,7 @@ export default async function HomePage() {
         <div className="container py-6 md:py-8 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
           {[
             { icon: Truck, label: "Free Shipping", sub: "Orders above ₹1,599" },
-            { icon: RotateCcw, label: "14-Day Returns", sub: "Hassle-free" },
+            { icon: RotateCcw, label: "7-Day Returns", sub: "Hassle-free" },
             { icon: Shield, label: "Secure Checkout", sub: "256-bit SSL" },
             { icon: CheckCircle, label: "Premium Quality", sub: "47 quality checks" },
           ].map((item) => (

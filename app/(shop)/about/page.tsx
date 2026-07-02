@@ -117,7 +117,7 @@ export default function AboutPage() {
               {[
                 { stat: "47", label: "Quality Checks" },
                 { stat: "100%", label: "Premium Linen" },
-                { stat: "14 Day", label: "Easy Returns" },
+                { stat: "7 Day", label: "Easy Returns" },
                 { stat: "5", label: "Curated Colors" },
                 { stat: "4.8★", label: "Avg Rating" },
                 { stat: "COD", label: "Available" },

@@ -44,16 +44,20 @@ export default function RefundPolicyPage() {
         <h2>Conditions for Return Eligibility</h2>
         <ul className="list-disc pl-5 space-y-2">
           <li>Product must be <strong>unused, unwashed, and unaltered</strong></li>
-          <li>All original tags and packaging must be intact</li>
+          <li>All original tags must be <strong>attached and intact</strong> — returns with removed, torn, or broken tags will NOT be accepted</li>
+          <li>All original packaging must be intact</li>
           <li>Product must be in the same condition as received</li>
+          <li><strong>2-3 clear product photos</strong> must be uploaded with the return request (showing product front, back, and tag)</li>
           <li>Return request must be raised within 7 days of delivery</li>
           <li>Products marked &quot;Final Sale&quot; or &quot;Non-Returnable&quot; cannot be returned</li>
         </ul>
 
         <h2>Items NOT Eligible for Return</h2>
         <ul className="list-disc pl-5 space-y-2">
+          <li>Products with <strong>tag removed, torn, or broken</strong> — this is strictly enforced</li>
           <li>Products that have been worn, washed, ironed, or altered</li>
-          <li>Products without original tags and VCHUKI packaging</li>
+          <li>Products without original VCHUKI packaging</li>
+          <li>Return requests without 2-3 product photos</li>
           <li>Items purchased under BOGO, combo, or promotional offers</li>
           <li>Accessories (belts, caps, pocket squares) — hygiene policy</li>
           <li>Products returned after 7 days of delivery</li>
@@ -76,7 +80,7 @@ export default function RefundPolicyPage() {
           <li><strong>Net Banking:</strong> 7-10 business days</li>
           <li><strong>COD orders:</strong> Store credit (instant) or UPI refund (3-5 business days)</li>
         </ul>
-        <p className="text-xs">Note: Refund is processed only after the returned product passes our quality inspection. If the product fails inspection (worn, damaged, tags removed), the return will be rejected and the product shipped back to you.</p>
+        <p className="text-xs">Note: Refund is processed only after the returned product passes our quality inspection. If the product fails inspection (worn, damaged, <strong>tags removed/broken</strong>), the return will be rejected and the product shipped back to you at your cost.</p>
 
         <h2>Cancellation Policy</h2>
         <p>Orders can be cancelled within 1 hour of placement. Once the order enters processing or shipping, cancellation is not possible. You may return after delivery as per the return policy above.</p>

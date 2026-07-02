@@ -89,7 +89,7 @@ export default async function Image() {
           <span>•</span>
           <span>47 Quality Checks</span>
           <span>•</span>
-          <span>14-Day Returns</span>
+          <span>7-Day Returns</span>
           <span>•</span>
           <span>100% Premium Linen</span>
         </div>

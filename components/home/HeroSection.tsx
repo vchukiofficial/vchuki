@@ -245,7 +245,7 @@ export function HeroSection() {
           >
             <span>Free Shipping above ₹1,599</span>
             <span className="w-1 h-1 rounded-full bg-white/20" />
-            <span>14-Day Easy Returns</span>
+            <span>7-Day Easy Returns</span>
             <span className="w-1 h-1 rounded-full bg-white/20" />
             <span>COD Available</span>
           </motion.div>
