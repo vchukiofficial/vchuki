@@ -44,7 +44,7 @@ export async function GET() {
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">
   <channel>
-    <title>VCHUKI - Premium Linen Shirts for Men</title>
+    <title>VCHUKI - Premium Cotton Linen Blend Shirts for Men</title>
     <link>https://vchuki.com</link>
     <description>India's premium linen shirt brand. Handcrafted in Jodhpur, Rajasthan.</description>
 ${items}

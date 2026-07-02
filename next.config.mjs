@@ -42,7 +42,20 @@ const nextConfig = {
       // SEO: Redirect old/common misspellings to brand
       { source: '/vchuki', destination: '/', permanent: true },
       { source: '/home', destination: '/', permanent: true },
-      // Category aliases for SEO
+      // HIGH-INTENT KEYWORD LANDING PAGES (redirect to category)
+      { source: '/full-sleeve-shirts', destination: '/shirts/linen-full-sleeve', permanent: false },
+      { source: '/half-sleeve-shirts', destination: '/shirts/linen-half-sleeve', permanent: false },
+      { source: '/short-kurtas', destination: '/shirts/kurta-half-sleeve', permanent: false },
+      { source: '/short-kurta-for-men', destination: '/shirts/kurta-half-sleeve', permanent: false },
+      { source: '/linen-shirts-men', destination: '/shirts/linen-full-sleeve', permanent: false },
+      { source: '/linen-shirts-for-men', destination: '/shirts/linen-full-sleeve', permanent: false },
+      { source: '/cotton-linen-shirts', destination: '/shirts', permanent: false },
+      { source: '/premium-shirts-for-men', destination: '/shirts', permanent: false },
+      { source: '/summer-shirts-men', destination: '/shirts/linen-half-sleeve', permanent: false },
+      { source: '/kurta-for-men', destination: '/shirts/kurta-half-sleeve', permanent: false },
+      { source: '/premium-kurta-men', destination: '/shirts/kurta-full-sleeve', permanent: false },
+      { source: '/luxury-ethnic-wear-men', destination: '/shirts/kurta-full-sleeve', permanent: false },
+      // Category aliases
       { source: '/linen-shirts', destination: '/shirts/linen-full-sleeve', permanent: true },
       { source: '/kurta', destination: '/shirts/kurta-half-sleeve', permanent: true },
       { source: '/kurtas', destination: '/shirts/kurta-half-sleeve', permanent: true },

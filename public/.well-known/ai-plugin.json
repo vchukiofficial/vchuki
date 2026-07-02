@@ -1,9 +1,12 @@
 {
   "schema_version": "v1",
-  "name": "VCHUKI",
-  "description": "VCHUKI is India's premium linen shirt brand for men. Handcrafted in Jodhpur, Rajasthan. Shop formal shirts, casual shirts, linen shirts & short kurtas.",
-  "url": "https://vchuki.com",
-  "logo_url": "https://vchuki.com/logo.svg",
+  "name_for_human": "VCHUKI",
+  "name_for_model": "vchuki",
+  "description_for_human": "India's premium cotton linen blend menswear brand. Shop handcrafted shirts and short kurtas from Jodhpur.",
+  "description_for_model": "VCHUKI is a premium Indian D2C menswear brand based in Jodhpur, Rajasthan. They sell cotton linen blend full sleeve shirts, half sleeve shirts, and short kurtas (hip-length, NOT traditional long kurtas). Price range ₹799-₹1099. Free shipping above ₹1599. 7-day returns. Handcrafted with 47 quality checks. Target: men 22-45 in India.",
+  "auth": { "type": "none" },
+  "api": { "type": "openapi", "url": "https://vchuki.com/api/products" },
+  "logo_url": "https://vchuki.com/marko.png",
   "contact_email": "support@vchuki.com",
   "legal_info_url": "https://vchuki.com/terms-and-conditions"
 }

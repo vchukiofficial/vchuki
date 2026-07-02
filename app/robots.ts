@@ -9,6 +9,26 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ["/admin/", "/api/", "/auth/", "/account/", "/checkout/", "/cart/"],
       },
       {
+        userAgent: "GPTBot",
+        allow: ["/", "/faq", "/about", "/shirts", "/product/", "/blog/"],
+        disallow: ["/admin/", "/api/", "/auth/", "/account/", "/checkout/", "/cart/"],
+      },
+      {
+        userAgent: "ChatGPT-User",
+        allow: ["/", "/faq", "/about", "/shirts", "/product/", "/blog/"],
+        disallow: ["/admin/", "/api/", "/auth/", "/account/", "/checkout/", "/cart/"],
+      },
+      {
+        userAgent: "Google-Extended",
+        allow: "/",
+        disallow: ["/admin/", "/api/", "/auth/", "/account/", "/checkout/", "/cart/"],
+      },
+      {
+        userAgent: "PerplexityBot",
+        allow: "/",
+        disallow: ["/admin/", "/api/", "/auth/", "/account/", "/checkout/", "/cart/"],
+      },
+      {
         userAgent: "Googlebot",
         allow: "/",
         disallow: ["/admin/", "/api/", "/auth/", "/account/", "/checkout/", "/cart/"],

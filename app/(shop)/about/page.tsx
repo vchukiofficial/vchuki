@@ -4,7 +4,7 @@ import { BUSINESS } from "@/lib/constants"
 import { Gem, MapPin, ClipboardCheck, Wind, ArrowRight } from "lucide-react"
 
 export const metadata: Metadata = {
-  title: "About VCHUKI — Premium Linen Shirts Handcrafted in Jodhpur",
+  title: "About VCHUKI — Premium Cotton Linen Blend Shirts Handcrafted in Jodhpur",
   description: "Learn about VCHUKI's journey — India's premium linen shirt brand for men. Handcrafted in Jodhpur, Rajasthan with 47 quality checks per garment.",
   alternates: { canonical: "https://vchuki.com/about" },
 }
@@ -67,7 +67,7 @@ export default function AboutPage() {
           {/* USP Strip */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 py-8 border-y border-border">
             {[
-              { icon: Gem, label: "Premium Linen", sub: "Finest mills" },
+              { icon: Gem, label: "Premium Linen Blend", sub: "Finest mills" },
               { icon: MapPin, label: "Made in Jodhpur", sub: "Rajasthan heritage" },
               { icon: ClipboardCheck, label: "47 Quality Checks", sub: "Zero compromise" },
               { icon: Wind, label: "Breathable", sub: "All-day comfort" },
@@ -116,7 +116,7 @@ export default function AboutPage() {
             <div className="grid grid-cols-3 gap-3 md:gap-4">
               {[
                 { stat: "47", label: "Quality Checks" },
-                { stat: "100%", label: "Premium Linen" },
+                { stat: "100%", label: "Premium Linen Blend" },
                 { stat: "7 Day", label: "Easy Returns" },
                 { stat: "5", label: "Curated Colors" },
                 { stat: "4.8★", label: "Avg Rating" },

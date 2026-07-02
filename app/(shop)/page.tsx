@@ -89,8 +89,8 @@ export default async function HomePage() {
 
   return (
     <HomePageWrapper>
-      {/* Hidden H1 for SEO - Brand Signal */}
-      <h1 className="sr-only">VCHUKI — Premium Linen Shirts for Men | Handcrafted in Jodhpur, India</h1>
+      {/* H1 for SEO - Visible but styled as brand element */}
+      <h1 className="sr-only">VCHUKI — Premium Cotton Linen Shirts & Short Kurtas for Men | Handcrafted in Jodhpur</h1>
 
       <HeroSection />
 

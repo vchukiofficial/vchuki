@@ -8,9 +8,9 @@ import ProductFilters from "@/components/products/ProductFilters"
 import { ShirtsVariantGrid } from "@/components/products/ShirtsVariantGrid"
 
 export const metadata: Metadata = {
-  title: "Shop Premium Shirts for Men — Formal, Casual, Linen | VCHUKI",
-  description: "Browse VCHUKI's collection of premium shirts for men. Formal, casual, linen, cotton & premium shirts. Free shipping above ₹1,599.",
-  keywords: ["buy shirts online", "premium shirts india", "formal shirts men", "casual shirts", "linen shirts online", "vchuki shirts"],
+  title: "Premium Cotton Linen Shirts for Men Online India | VCHUKI",
+  description: "Shop VCHUKI's premium cotton-linen shirts for men. Full sleeve, half sleeve & short kurtas handcrafted in Jodhpur. Free shipping above ₹1,599. 7-day returns.",
+  keywords: ["cotton linen shirts india", "premium shirts for men", "linen shirts online", "half sleeve shirt men", "full sleeve shirt men", "vchuki shirts"],
   alternates: { canonical: "https://vchuki.com/shirts" },
 }
 

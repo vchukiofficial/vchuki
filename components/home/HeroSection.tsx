@@ -95,7 +95,7 @@ export function HeroSection() {
             transition={{ delay: 0.3, duration: 0.8 }}
           >
             <h1 className="text-3xl md:text-6xl lg:text-7xl font-light text-white leading-[1.1] tracking-tight">
-              Premium Linen
+              Premium Linen Blend
               <br />
               <AnimatePresence mode="wait">
                 <motion.span

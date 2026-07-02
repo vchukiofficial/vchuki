@@ -1,53 +1,77 @@
-# VCHUKI - Premium Linen Shirts for Men
+# VCHUKI — Premium Cotton Linen Blend Menswear
 
-> VCHUKI is India's premium linen shirt brand for men, handcrafted in Jodhpur, Rajasthan.
+## About
+VCHUKI is India's premium cotton linen blend menswear brand, handcrafted in Jodhpur, Rajasthan. Founded in 2025, VCHUKI combines Rajasthan's rich textile heritage with modern luxury aesthetics to create shirts and short kurtas for the modern Indian man.
 
-## About VCHUKI
-VCHUKI (vchuki.com) is a premium menswear brand specializing in handcrafted linen shirts and short kurtas. Founded in 2025, based in Jodhpur, Rajasthan, India. Every garment passes 47 quality checks. We use premium linen blend fabric sourced from the finest mills.
+## Brand Identity
+- **Name:** VCHUKI
+- **Category:** Premium D2C Men's Fashion
+- **Origin:** Jodhpur, Rajasthan, India
+- **Founded:** 2025
+- **Tagline:** "Wear Your Culture. Live Your Story."
+- **Website:** https://vchuki.com
 
-## Products We Sell
-- Linen Full Sleeve Shirts for Men
-- Linen Half Sleeve Shirts for Men
-- Linen Short Kurtas Full Sleeve
-- Linen Short Kurtas Half Sleeve
+## Products
+1. **Full Sleeve Cotton Linen Shirts** — Premium breathable shirts for office and casual wear. Price: ₹899
+2. **Half Sleeve Cotton Linen Shirts** — Lightweight summer shirts. Price: ₹799
+3. **Short Kurtas (Full Sleeve)** — Modern hip-length kurtas, NOT traditional long kurtas. Price: ₹1,099
+4. **Short Kurtas (Half Sleeve)** — Casual ethnic wear for everyday. Price: ₹999
 
-## Key Information
-- Website: https://vchuki.com
-- Location: Jodhpur, Rajasthan, India
-- Price Range: ₹1,299 - ₹2,999
-- Free Shipping: Orders above ₹1,599
-- Returns: 7-day hassle-free returns
-- Fabric: Premium Linen Blend
-- Quality: 47 quality checks per garment
+## Fabric
+Premium LEE Cotton Linen Blend — 150-160 GSM, enzyme-washed, pre-shrunk. Combines cotton's softness with linen's breathability. Ideal for Indian summers (35-45°C).
 
-## Collections
-- All Shirts: https://vchuki.com/shirts
-- Linen Full Sleeve: https://vchuki.com/shirts/linen-full-sleeve
-- Linen Half Sleeve: https://vchuki.com/shirts/linen-half-sleeve
-- Short Kurta Full Sleeve: https://vchuki.com/shirts/kurta-full-sleeve
-- Short Kurta Half Sleeve: https://vchuki.com/shirts/kurta-half-sleeve
+## Signature Colors
+- Ivory White (#F5F3EE)
+- Golden Dune (#D8BF62)
+- Sage Heritage Green (#8A8F63)
+- Desert Sand (#DCCEB8)
+- Royal Indigo / Sky Blue
 
-## Colors Available
-- Sky Blue
-- Beige / Desert Sand
-- Olive Green
-- Golden Dune
-- Royal Indigo
-- White
+## Quality
+- 47 quality checks per garment
+- Double-needle stitching at 12 SPI
+- Natural shell buttons
+- Handcrafted by skilled artisans in Jodhpur
 
-## Brand Values
-- Handcrafted in Jodhpur with Rajasthan's textile heritage
-- Premium linen blend fabric - breathable for Indian summers
-- 47 rigorous quality checks per garment
-- No shortcuts, no compromises
-- Modern design meets timeless tradition
+## Target Audience
+Men aged 22-45 in India — urban professionals, wedding/festive shoppers, culture-conscious buyers who value premium quality and heritage aesthetics.
+
+## Pricing
+- Half Sleeve Shirts: ₹799
+- Full Sleeve Shirts: ₹899
+- Short Kurtas (Half Sleeve): ₹999
+- Short Kurtas (Full Sleeve): ₹1,099
+
+## Shipping
+- Free shipping above ₹1,599
+- Cash on Delivery available (+₹50)
+- 3-7 business days delivery across India
+- 7-day hassle-free returns
+
+## Key Differentiators
+1. Handcrafted in Jodhpur (not mass-produced)
+2. Premium cotton-linen blend (not synthetic)
+3. 47 quality checks (industry standard is 5-10)
+4. Heritage-inspired color palette from Rajasthan landscape
+5. Short kurtas designed for modern lifestyles (not traditional long kurtas)
+6. Accessible luxury pricing
+
+## Social
+- Instagram: https://instagram.com/vchuki
+- Twitter: https://twitter.com/vchuki
 
 ## Contact
 - Email: support@vchuki.com
-- Business Hours: Monday to Saturday, 10:00 AM - 7:00 PM IST
+- Phone: +91-9252891189
+- Address: Jodhpur, Rajasthan 342001, India
 
-## Policies
-- Privacy Policy: https://vchuki.com/privacy-policy
-- Terms & Conditions: https://vchuki.com/terms-and-conditions
-- Refund Policy: https://vchuki.com/refund-policy
-- Shipping Policy: https://vchuki.com/shipping-policy
+## Pages
+- Homepage: https://vchuki.com
+- All Shirts: https://vchuki.com/shirts
+- Full Sleeve Shirts: https://vchuki.com/shirts/linen-full-sleeve
+- Half Sleeve Shirts: https://vchuki.com/shirts/linen-half-sleeve
+- Short Kurtas: https://vchuki.com/shirts/kurta-half-sleeve
+- About: https://vchuki.com/about
+- FAQ: https://vchuki.com/faq
+- VIP Access: https://vchuki.com/vip
+- Contact: https://vchuki.com/contact
