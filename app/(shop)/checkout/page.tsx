@@ -228,7 +228,7 @@ export default function CheckoutPage() {
 
         {/* Need help */}
         <p className="text-center text-[10px] text-muted-foreground mt-6">
-          Need help? <a href="https://wa.me/919876543210" target="_blank" rel="noopener noreferrer" className="text-[#c4956a] hover:underline">Chat with us on WhatsApp</a>
+          Need help? <a href="https://wa.me/919252891189" target="_blank" rel="noopener noreferrer" className="text-[#c4956a] hover:underline">Chat with us on WhatsApp</a>
         </p>
       </div>
     )
@@ -291,7 +291,7 @@ export default function CheckoutPage() {
                           required
                           pattern="[0-9]{10}"
                           maxLength={10}
-                          placeholder="9876543210"
+                          placeholder="9252891189"
                           className="w-full px-4 py-3 border border-border bg-background text-sm focus:outline-none focus:border-[#c4956a]/50 transition-colors text-foreground placeholder:text-muted-foreground/50"
                         />
                       </div>
@@ -310,7 +310,7 @@ export default function CheckoutPage() {
                         required
                         pattern="[0-9]{10}"
                         maxLength={10}
-                        placeholder="9876543210"
+                        placeholder="9252891189"
                         className="w-full px-4 py-3 border border-border bg-background text-sm focus:outline-none focus:border-[#c4956a]/50 transition-colors text-foreground placeholder:text-muted-foreground/50"
                       />
                     </div>

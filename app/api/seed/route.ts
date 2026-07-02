@@ -91,7 +91,7 @@ export async function GET(request: NextRequest) {
   // Users
   const hash = await bcrypt.hash("password123", 10)
   const usersResult = await db.collection("users").insertMany([
-    { name: "Admin", email: "admin@vchuki.com", password: hash, role: "admin", addresses: [{ name: "VCHUKI HQ", street: "123 Fashion Street", city: "Mumbai", state: "Maharashtra", zip: "400001", phone: "9876543210" }], wishlist: [], createdAt: new Date(), updatedAt: new Date() },
+    { name: "Admin", email: "admin@vchuki.com", password: hash, role: "admin", addresses: [{ name: "VCHUKI HQ", street: "123 Fashion Street", city: "Mumbai", state: "Maharashtra", zip: "400001", phone: "9252891189" }], wishlist: [], createdAt: new Date(), updatedAt: new Date() },
     { name: "Rahul Sharma", email: "rahul@example.com", password: hash, role: "user", addresses: [{ name: "Home", street: "45 Nehru Nagar", city: "Delhi", state: "Delhi", zip: "110001", phone: "9876543211" }], wishlist: [], createdAt: new Date(), updatedAt: new Date() },
     { name: "Priya Patel", email: "priya@example.com", password: hash, role: "user", addresses: [{ name: "Home", street: "78 Koramangala", city: "Bangalore", state: "Karnataka", zip: "560034", phone: "9876543212" }], wishlist: [], createdAt: new Date(), updatedAt: new Date() },
     { name: "Amit Kumar", email: "amit@example.com", password: hash, role: "user", addresses: [{ name: "Home", street: "12 Salt Lake", city: "Kolkata", state: "West Bengal", zip: "700091", phone: "9876543213" }], wishlist: [], createdAt: new Date(), updatedAt: new Date() },

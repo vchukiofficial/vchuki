@@ -63,7 +63,7 @@ export default function ContactPage() {
                 </div>
                 <div className="flex items-center gap-3">
                   <MessageCircle className="h-4 w-4 text-[#c4956a] flex-shrink-0" />
-                  <a href="https://wa.me/919876543210" target="_blank" rel="noopener noreferrer" className="text-sm text-foreground hover:text-[#c4956a] transition-colors">WhatsApp Us</a>
+                  <a href="https://wa.me/919252891189" target="_blank" rel="noopener noreferrer" className="text-sm text-foreground hover:text-[#c4956a] transition-colors">WhatsApp Us</a>
                 </div>
                 <div className="flex items-center gap-3">
                   <Clock className="h-4 w-4 text-[#c4956a] flex-shrink-0" />

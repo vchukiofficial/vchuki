@@ -90,7 +90,7 @@ const organizationSchema = {
     "https://pinterest.com/vchuki",
   ],
   contactPoint: [
-    { "@type": "ContactPoint", telephone: "+91-9876543210", contactType: "customer service", areaServed: "IN", availableLanguage: ["English", "Hindi"] },
+    { "@type": "ContactPoint", telephone: "+91-9252891189", contactType: "customer service", areaServed: "IN", availableLanguage: ["English", "Hindi"] },
     { "@type": "ContactPoint", email: "support@vchuki.com", contactType: "customer support" },
   ],
   address: {
@@ -124,7 +124,7 @@ const localBusinessSchema = {
   name: "VCHUKI",
   image: "https://vchuki.com/og-image.png",
   url: "https://vchuki.com",
-  telephone: "+91-9876543210",
+  telephone: "+91-9252891189",
   email: "support@vchuki.com",
   priceRange: "\u20b9\u20b9",
   address: {

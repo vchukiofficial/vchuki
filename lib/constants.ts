@@ -18,7 +18,7 @@ export const BUSINESS = {
     business: "business@vchuki.com",
     returns: "returns@vchuki.com",
   },
-  phone: "+91 XXXXX XXXXX", // TODO: Replace with real phone number
+  phone: "+91 92528 91189", // TODO: Replace with real phone number
   hours: "Monday to Saturday, 10:00 AM - 7:00 PM IST",
   social: {
     instagram: "https://instagram.com/vchuki",
