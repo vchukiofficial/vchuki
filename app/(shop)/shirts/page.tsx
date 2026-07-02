@@ -116,7 +116,7 @@ export default async function ShirtsPage({ searchParams }: Props) {
           productId: p._id.toString(),
           comparePrice: p.comparePrice || 0,
           variantColor: vAny.color,
-          variantImage: vAny.images?.[0] || p.images?.[0],
+          variantImage: p.images?.[0] || vAny.images?.[0],
           variantPrice: p.basePrice + (vAny.priceAdjustment || 0),
           variantSku: vAny.sku,
           variantId: vAny._id?.toString(),

@@ -44,7 +44,7 @@ function expandProductsToVariantCards(products: any[], allVariants: any[]) {
           _id: `${p._id}-${colorName}`,
           productId: p._id,
           variantColor: vAny.color,
-          variantImage: vAny.images?.[0] || p.images?.[0],
+          variantImage: p.images?.[0] || vAny.images?.[0],
           variantPrice: p.basePrice + (vAny.priceAdjustment || 0),
           variantSku: vAny.sku,
           variantId: vAny._id,
