@@ -49,9 +49,9 @@ export default function ProductDetailClient({ product, variants, reviews, siblin
   )
 
   const displayImages = useMemo(() => {
-    const variantImages = selectedVariant?.images?.length ? selectedVariant.images : []
     const productImages = product.images || []
-    const all = [...new Set([...variantImages, ...productImages])]
+    const variantImages = selectedVariant?.images?.length ? selectedVariant.images : []
+    const all = [...new Set([...productImages, ...variantImages])]
     return all.length > 0 ? all : ["/placeholder-product.svg"]
   }, [selectedVariant, product.images])
 
