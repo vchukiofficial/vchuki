@@ -51,8 +51,10 @@ export default function ProductDetailClient({ product, variants, reviews, siblin
   const displayImages = useMemo(() => {
     const productImages = product.images || []
     const variantImages = selectedVariant?.images?.length ? selectedVariant.images : []
-    const all = [...new Set([...productImages, ...variantImages])]
-    return all.length > 0 ? all : ["/placeholder-product.svg"]
+    const all = [...new Set([...productImages, ...variantImages])].filter(
+      (img) => img.startsWith("http")
+    )
+    return all.length > 0 ? all : productImages.length > 0 ? productImages : ["/placeholder-product.svg"]
   }, [selectedVariant, product.images])
 
   const price = product.basePrice + (selectedVariant?.priceAdjustment || 0)
@@ -86,8 +88,24 @@ export default function ProductDetailClient({ product, variants, reviews, siblin
     <div className="container pb-20 md:pb-12">
       <div className="grid md:grid-cols-2 gap-6 lg:gap-12">
         {/* Image Gallery */}
-        <div className="space-y-3">
-          <div className="relative aspect-square md:aspect-[4/5] bg-card overflow-hidden border border-border">
+        <div className="space-y-2 md:space-y-3">
+          {/* Main Image - swipeable on mobile */}
+          <div
+            className="relative aspect-[3/4] md:aspect-[4/5] bg-card overflow-hidden border border-border touch-pan-y"
+            onTouchStart={(e) => {
+              const touch = e.touches[0]
+              ;(e.currentTarget as any)._touchStartX = touch.clientX
+            }}
+            onTouchEnd={(e) => {
+              const startX = (e.currentTarget as any)._touchStartX
+              const endX = e.changedTouches[0].clientX
+              const diff = startX - endX
+              if (Math.abs(diff) > 50) {
+                if (diff > 0 && activeImageIndex < displayImages.length - 1) setActiveImageIndex(activeImageIndex + 1)
+                if (diff < 0 && activeImageIndex > 0) setActiveImageIndex(activeImageIndex - 1)
+              }
+            }}
+          >
             <AnimatePresence mode="wait">
               <motion.div
                 key={displayImages[activeImageIndex]}
@@ -119,21 +137,33 @@ export default function ProductDetailClient({ product, variants, reviews, siblin
                 )}
               </motion.div>
             </AnimatePresence>
-            <div className="absolute bottom-3 right-3 bg-[#2a1f14]/70 backdrop-blur-sm text-[#f5e6d3] text-[10px] px-2 py-1">
+            {/* Dot indicators on mobile */}
+            {displayImages.length > 1 && (
+              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 md:hidden">
+                {displayImages.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setActiveImageIndex(i)}
+                    className={`w-1.5 h-1.5 rounded-full transition-all ${activeImageIndex === i ? "bg-[#c4956a] w-4" : "bg-white/50"}`}
+                  />
+                ))}
+              </div>
+            )}
+            <div className="absolute bottom-3 right-3 bg-[#2a1f14]/70 backdrop-blur-sm text-[#f5e6d3] text-[10px] px-2 py-1 hidden md:block">
               {activeImageIndex + 1} / {displayImages.length}
             </div>
-            {/* Corner accents */}
             <div className="absolute top-3 left-3 w-5 h-5 border-t border-l border-[#c4956a]/30" />
-            <div className="absolute bottom-3 left-3 w-5 h-5 border-b border-l border-[#c4956a]/30" />
+            <div className="absolute bottom-3 left-3 w-5 h-5 border-b border-l border-[#c4956a]/30 hidden md:block" />
           </div>
 
+          {/* Thumbnails - hidden on mobile, shown on desktop */}
           {displayImages.length > 1 && (
-            <div className="flex gap-2 overflow-x-auto no-scrollbar">
+            <div className="hidden md:flex gap-2 overflow-x-auto no-scrollbar">
               {displayImages.map((img, i) => (
                 <button
                   key={i}
                   onClick={() => setActiveImageIndex(i)}
-                  className={`relative h-16 w-16 md:h-20 md:w-20 flex-shrink-0 overflow-hidden border transition-all ${
+                  className={`relative h-20 w-20 flex-shrink-0 overflow-hidden border transition-all ${
                     activeImageIndex === i ? "border-[#c4956a] ring-1 ring-[#c4956a]/30" : "border-border opacity-60 hover:opacity-100"
                   }`}
                 >
