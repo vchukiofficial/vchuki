@@ -34,15 +34,20 @@ export default function AdminEmailTemplatesPage() {
   const [testEmail, setTestEmail] = useState("")
   const [testSendState, setTestSendState] = useState<"idle" | "sending" | "sent" | "error">("idle")
 
-  function fetchTemplates() {
+  function fetchTemplates(selectFirst = false) {
     setLoading(true)
     fetch("/api/admin/email-templates", { credentials: "include" })
       .then(r => r.json())
-      .then(d => { setTemplates(d.templates || []); setLoading(false) })
+      .then(d => {
+        const list = d.templates || []
+        setTemplates(list)
+        if (selectFirst && list.length > 0) setEditing({ ...list[0] })
+        setLoading(false)
+      })
       .catch(() => setLoading(false))
   }
 
-  useEffect(() => { fetchTemplates() }, [])
+  useEffect(() => { fetchTemplates(true) }, [])
   useEffect(() => {
     if (session?.user?.email && !testEmail) setTestEmail(session.user.email)
   }, [session, testEmail])
@@ -182,7 +187,7 @@ export default function AdminEmailTemplatesPage() {
           <button onClick={handleNew} className="flex items-center gap-1.5 px-3 py-1.5 bg-[#2a1f14] dark:bg-[#c4956a] text-[#f5e6d3] dark:text-[#2a1f14] text-[10px] font-medium uppercase tracking-wider hover:opacity-90">
             <Plus className="h-3 w-3" /> New Template
           </button>
-          <button onClick={fetchTemplates} className="flex items-center gap-1.5 px-3 py-1.5 border border-border text-[10px] font-medium hover:border-[#c4956a]/30 text-foreground">
+          <button onClick={() => fetchTemplates()} className="flex items-center gap-1.5 px-3 py-1.5 border border-border text-[10px] font-medium hover:border-[#c4956a]/30 text-foreground">
             <RefreshCw className="h-3 w-3" />
           </button>
         </div>
