@@ -143,8 +143,34 @@ export default function AdminCustomersPage() {
         </select>
       </div>
 
+      {/* Customers - mobile cards */}
+      <div className="md:hidden space-y-2">
+        {paginated.map((user) => (
+          <div key={user._id} className={`border p-3 ${selected.has(user._id) ? "border-[#c4956a]/30 bg-[#c4956a]/5" : "border-border"}`}>
+            <div className="flex items-start gap-2.5">
+              <input type="checkbox" checked={selected.has(user._id)} onChange={() => toggleSelect(user._id)} className="accent-[#c4956a] mt-1" />
+              <div className="h-8 w-8 rounded-full bg-[#c4956a]/10 flex items-center justify-center text-[10px] font-bold text-[#c4956a] flex-shrink-0">{user.name?.charAt(0)}</div>
+              <div className="min-w-0 flex-1">
+                <p className="font-medium text-foreground text-sm truncate">{user.name}</p>
+                <p className="text-[10px] text-muted-foreground truncate">{user.email}</p>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className={`px-2 py-0.5 text-[9px] uppercase tracking-wider font-medium ${user.role === "admin" ? "bg-[#c4956a]/10 text-[#c4956a]" : "bg-muted text-muted-foreground"}`}>{user.role}</span>
+                  <span className="text-[10px] text-muted-foreground">{new Date(user.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</span>
+                </div>
+              </div>
+            </div>
+            <button onClick={() => toggleRole(user._id, user.role)} className="w-full mt-2.5 pt-2.5 border-t border-border text-[10px] py-1 text-foreground font-medium">
+              {user.role === "admin" ? "Revoke Admin" : "Make Admin"}
+            </button>
+          </div>
+        ))}
+        {paginated.length === 0 && (
+          <div className="text-center py-8 text-muted-foreground text-xs border border-border">No customers found.</div>
+        )}
+      </div>
+
       {/* Table */}
-      <div className="border border-border overflow-hidden">
+      <div className="hidden md:block border border-border overflow-hidden">
         <table className="w-full text-xs">
           <thead className="bg-card">
             <tr className="text-left text-muted-foreground border-b border-border">

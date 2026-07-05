@@ -105,10 +105,10 @@ export default function ProductDetailClient({ product, variants, reviews, siblin
     <div className="container pb-20 md:pb-12">
       <div className="grid md:grid-cols-2 gap-6 lg:gap-12">
         {/* Image Gallery */}
-        <div className="space-y-2 md:space-y-3">
+        <div className="space-y-2 md:space-y-0 md:flex md:flex-row-reverse md:gap-3">
           {/* Main Image - swipeable on mobile */}
           <div
-            className="relative aspect-[3/4] md:aspect-[4/5] bg-card overflow-hidden border border-border touch-pan-y"
+            className="relative aspect-[3/4] md:aspect-[4/5] md:flex-1 bg-card overflow-hidden border border-border touch-pan-y"
             onTouchStart={(e) => {
               const touch = e.touches[0]
               ;(e.currentTarget as any)._touchStartX = touch.clientX
@@ -173,9 +173,9 @@ export default function ProductDetailClient({ product, variants, reviews, siblin
             <div className="absolute bottom-3 left-3 w-5 h-5 border-b border-l border-[#c4956a]/30 hidden md:block" />
           </div>
 
-          {/* Thumbnails - hidden on mobile, shown on desktop */}
+          {/* Thumbnails - hidden on mobile, vertical rail on the left on desktop */}
           {displayImages.length > 1 && (
-            <div className="hidden md:flex gap-2 overflow-x-auto no-scrollbar">
+            <div className="hidden md:flex md:flex-col gap-2 md:w-20 md:flex-shrink-0 md:max-h-[560px] lg:max-h-[640px] overflow-y-auto no-scrollbar">
               {displayImages.map((img, i) => (
                 <button
                   key={i}

@@ -451,11 +451,56 @@ export default function AdminProductsPage() {
         </form>
       )}
 
-      {/* Products Table */}
+      {/* Products - mobile cards */}
       {filtered.length === 0 ? (
         <EmptyState icon={Package} title="No products found" description="Try a different search or add a new product." />
       ) : (
-        <div className="border border-border overflow-hidden">
+        <>
+        <div className="md:hidden space-y-2">
+          {filtered.slice(0, 40).map((product) => (
+            <div key={product._id} className={`border p-3 ${selected.has(product._id) ? "border-[#c4956a]/30 bg-[#c4956a]/5" : "border-border"}`}>
+              <div className="flex items-start gap-2.5">
+                <input type="checkbox" checked={selected.has(product._id)} onChange={() => toggleSelect(product._id)} className="accent-[#c4956a] mt-1" />
+                <div className="h-11 w-11 bg-card border border-border overflow-hidden relative flex-shrink-0">
+                  {product.images?.[0] && <Image src={product.images[0]} alt="" fill className="object-contain p-0.5" sizes="44px" />}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <Link href={`/admin/products/${product._id}`} className="text-xs font-medium truncate text-foreground hover:text-[#c4956a] transition-colors block">{product.name}</Link>
+                  <p className="text-[10px] text-muted-foreground truncate">{product.slug}</p>
+                  <div className="flex items-center gap-2 mt-1.5">
+                    <p className="text-xs font-medium text-foreground">₹{product.basePrice?.toLocaleString()}</p>
+                    {(product as any).comparePrice > 0 && (
+                      <p className="text-[9px] text-muted-foreground line-through">₹{(product as any).comparePrice?.toLocaleString()}</p>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2 mt-1.5">
+                    <StatusBadge status={product.category} />
+                    <StockBadges productId={product._id} />
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center justify-end gap-4 mt-2.5 pt-2.5 border-t border-border">
+                <button onClick={() => updateProduct(product._id, { isFeatured: !product.isFeatured })} className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                  <Star className={`h-3.5 w-3.5 transition-colors ${product.isFeatured ? "fill-[#c4956a] text-[#c4956a]" : "text-muted-foreground/30"}`} /> Featured
+                </button>
+                <Link href={`/admin/products/${product._id}`} className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-[#c4956a] transition-colors">
+                  <Pencil className="h-3.5 w-3.5" /> Edit
+                </Link>
+                <button onClick={() => setDeleteDialog({ open: true, type: "single", id: product._id })} className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-red-500 transition-colors">
+                  <Trash2 className="h-3.5 w-3.5" /> Delete
+                </button>
+              </div>
+            </div>
+          ))}
+          {filtered.length > 40 && (
+            <p className="p-3 text-center text-[10px] text-muted-foreground border border-t-0 border-border">
+              Showing 40 of {filtered.length}. Use search to find specific items.
+            </p>
+          )}
+        </div>
+
+        {/* Products Table - desktop */}
+        <div className="hidden md:block border border-border overflow-hidden">
           <table className="w-full text-xs">
             <thead className="bg-card">
               <tr className="text-left text-muted-foreground border-b border-border">
@@ -519,6 +564,7 @@ export default function AdminProductsPage() {
             </div>
           )}
         </div>
+        </>
       )}
 
       {/* Confirmation Dialog */}

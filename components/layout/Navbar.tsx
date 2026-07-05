@@ -4,6 +4,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { ShoppingCart, User, Heart, Menu, X, Search, ChevronDown } from "lucide-react"
 import { ThemeToggle } from "@/components/ThemeToggle"
+import SearchOverlay from "./SearchOverlay"
 import { useUIStore } from "@/store/uiStore"
 import { useCartStore } from "@/store/cartStore"
 import { useSession } from "next-auth/react"
@@ -42,7 +43,7 @@ const CATEGORIES = [
 ]
 
 export default function Navbar() {
-  const { toggleCart } = useUIStore()
+  const { toggleCart, setSearchOpen } = useUIStore()
   const items = useCartStore((s) => s.items)
   const { data: session } = useSession()
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -168,7 +169,10 @@ export default function Navbar() {
           {/* Right - Actions */}
           <div className="flex items-center justify-end gap-4 w-1/3">
             <ThemeToggle />
-            <button className="hidden md:block" aria-label="Search">
+            <button className="hidden md:block" aria-label="Search" onClick={() => setSearchOpen(true)}>
+              <Search className="h-[17px] w-[17px] text-muted-foreground hover:text-foreground transition-colors" />
+            </button>
+            <button className="md:hidden" aria-label="Search" onClick={() => setSearchOpen(true)}>
               <Search className="h-[17px] w-[17px] text-muted-foreground hover:text-foreground transition-colors" />
             </button>
             <Link href="/account/wishlist" className="hidden md:block">
@@ -324,6 +328,8 @@ export default function Navbar() {
           </div>
         )}
       </AnimatePresence>
+
+      <SearchOverlay />
     </>
   )
 }

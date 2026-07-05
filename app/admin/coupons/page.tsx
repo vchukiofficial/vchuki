@@ -109,7 +109,30 @@ export default function AdminCouponsPage() {
         </form>
       )}
 
-      <div className="border border-border overflow-hidden">
+      {/* Coupons - mobile cards */}
+      <div className="md:hidden space-y-2">
+        {coupons.map(c => (
+          <div key={c._id} className={`border p-3 ${selected.has(c._id) ? "border-[#c4956a]/30 bg-[#c4956a]/5" : "border-border"}`}>
+            <div className="flex items-start gap-2.5">
+              <input type="checkbox" checked={selected.has(c._id)} onChange={() => toggleSelect(c._id)} className="accent-[#c4956a] mt-1" />
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-mono font-medium text-foreground">{c.code}</p>
+                <p className="text-[10px] text-muted-foreground capitalize mt-0.5">{c.type} · {c.type === "percentage" ? `${c.value}%` : `₹${c.value}`} off</p>
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 mt-1.5 text-[10px] text-muted-foreground">
+                  {c.minAmount ? <span>Min ₹{c.minAmount}</span> : null}
+                  <span>Used {c.usedBy?.length || 0}/{c.usageLimit}</span>
+                  <span>Expires {new Date(c.validTo).toLocaleDateString()}</span>
+                </div>
+              </div>
+              <button onClick={() => singleDelete(c._id)} className="text-muted-foreground hover:text-red-500 transition-colors flex-shrink-0">
+                <Trash2 className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="hidden md:block border border-border overflow-hidden">
         <table className="w-full text-xs">
           <thead className="bg-card">
             <tr className="text-left text-muted-foreground border-b border-border">
