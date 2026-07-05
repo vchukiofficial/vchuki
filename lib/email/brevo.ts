@@ -119,14 +119,20 @@ export async function sendOrderConfirmationEmail(to: string, order: {
   const discountLine = order.discountAmount > 0 ? `<p style="color:#059669;font-size:13px;">Discount: -₹${order.discountAmount}</p>` : ""
   const addr = `${order.shippingAddress.name}<br>${order.shippingAddress.street}<br>${order.shippingAddress.city}, ${order.shippingAddress.state} - ${order.shippingAddress.zip}<br> ${order.shippingAddress.phone}`
 
+  // UPI has no automatic payment verification — don't tell the customer the order is "confirmed" until it actually is
+  const isPendingUpi = order.paymentMethod === "upi"
+  const heading = isPendingUpi
+    ? `<h2 style="color:#b45309;">Order Received — Payment Pending</h2><p style="color:#666;font-size:13px;">Please complete your UPI payment to confirm this order. We'll email you again once it's received.</p>`
+    : `<h2 style="color:#2a1f14;">Order Confirmed! </h2>`
+
   await sendViaTemplate("order-confirmation", to, {
     orderId: order.orderId, itemsTable, discountLine,
     finalAmount: order.finalAmount.toLocaleString(),
     paymentMethod: paymentMethodLabel(order.paymentMethod),
     shippingAddress: addr
   },
-    "Order Confirmed — #{{orderId}}",
-    `<h2 style="color:#2a1f14;">Order Confirmed! </h2>
+    isPendingUpi ? "Complete Your Payment — Order #{{orderId}}" : "Order Confirmed — #{{orderId}}",
+    `${heading}
     <p style="color:#c4956a;font-size:12px;font-weight:bold;">Order #{{orderId}}</p>
     {{itemsTable}}{{discountLine}}
     <p style="font-size:16px;font-weight:bold;color:#2a1f14;">Total: ₹{{finalAmount}}</p>

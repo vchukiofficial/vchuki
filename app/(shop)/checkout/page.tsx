@@ -17,6 +17,7 @@ export default function CheckoutPage() {
   const [step, setStep] = useState<Step>("details")
   const [loading, setLoading] = useState(false)
   const [orderId, setOrderId] = useState("")
+  const [confirmedTotal, setConfirmedTotal] = useState(0)
   const [paymentMethod, setPaymentMethod] = useState<"cod" | "upi">("cod")
 
   // Form state
@@ -156,6 +157,7 @@ export default function CheckoutPage() {
       const data = await res.json()
       if (res.ok) {
         setOrderId(data.orderId)
+        setConfirmedTotal(total)
         clearCart()
         // Auto-login if account was created for guest
         if (data.autoCreatedUser && form.email && form.phone) {
@@ -177,11 +179,11 @@ export default function CheckoutPage() {
       <div className="container py-12 md:py-20 max-w-lg mx-auto">
         {/* Success Icon */}
         <div className="text-center">
-          <div className="w-16 h-16 mx-auto mb-6 bg-emerald-500/10 border border-emerald-500/20 rounded-full flex items-center justify-center">
-            <Check className="h-7 w-7 text-emerald-600 dark:text-emerald-400" />
+          <div className={`w-16 h-16 mx-auto mb-6 border rounded-full flex items-center justify-center ${paymentMethod === "upi" ? "bg-amber-500/10 border-amber-500/20" : "bg-emerald-500/10 border-emerald-500/20"}`}>
+            {paymentMethod === "upi" ? <Clock className="h-7 w-7 text-amber-600 dark:text-amber-400" /> : <Check className="h-7 w-7 text-emerald-600 dark:text-emerald-400" />}
           </div>
-          <h1 className="text-2xl font-medium text-foreground">Order Confirmed!</h1>
-          <p className="text-sm text-muted-foreground mt-2">Thank you for shopping with VCHUKI</p>
+          <h1 className="text-2xl font-medium text-foreground">{paymentMethod === "upi" ? "Order Received — Payment Pending" : "Order Confirmed!"}</h1>
+          <p className="text-sm text-muted-foreground mt-2">{paymentMethod === "upi" ? "Complete your UPI payment below to confirm this order" : "Thank you for shopping with VCHUKI"}</p>
         </div>
 
         {/* Order Details Card */}
@@ -200,7 +202,7 @@ export default function CheckoutPage() {
               <p className="text-xs text-muted-foreground">Scan the QR code with any UPI app, or tap the button below on your phone.</p>
               <div className="flex justify-center">
                 <img
-                  src={`/api/upi-qr?amount=${total}&note=${encodeURIComponent(`VCHUKI Order ${orderId.slice(-8).toUpperCase()}`)}`}
+                  src={`/api/upi-qr?amount=${confirmedTotal}&note=${encodeURIComponent(`VCHUKI Order ${orderId.slice(-8).toUpperCase()}`)}`}
                   alt="UPI payment QR code"
                   width={180}
                   height={180}
@@ -208,10 +210,10 @@ export default function CheckoutPage() {
                 />
               </div>
               <a
-                href={`upi://pay?pa=${encodeURIComponent(process.env.NEXT_PUBLIC_UPI_ID || "")}&pn=${encodeURIComponent(process.env.NEXT_PUBLIC_UPI_PAYEE_NAME || "VCHUKI")}&am=${total.toFixed(2)}&cu=INR&tn=${encodeURIComponent(`VCHUKI Order ${orderId.slice(-8).toUpperCase()}`)}`}
+                href={`upi://pay?pa=${encodeURIComponent(process.env.NEXT_PUBLIC_UPI_ID || "")}&pn=${encodeURIComponent(process.env.NEXT_PUBLIC_UPI_PAYEE_NAME || "VCHUKI")}&am=${confirmedTotal.toFixed(2)}&cu=INR&tn=${encodeURIComponent(`VCHUKI Order ${orderId.slice(-8).toUpperCase()}`)}`}
                 className="flex items-center justify-center gap-2 w-full py-3 bg-[#2a1f14] dark:bg-[#c4956a] text-[#f5e6d3] dark:text-[#2a1f14] text-xs font-medium tracking-wider uppercase hover:opacity-90 transition-opacity"
               >
-                <Smartphone className="h-3.5 w-3.5" /> Pay ₹{total.toLocaleString()} via UPI App
+                <Smartphone className="h-3.5 w-3.5" /> Pay ₹{confirmedTotal.toLocaleString()} via UPI App
               </a>
               <p className="text-[10px] text-muted-foreground text-center">We&apos;ll confirm your order once payment is received — usually within a few hours.</p>
             </div>
@@ -222,26 +224,26 @@ export default function CheckoutPage() {
             <p className="text-[10px] uppercase tracking-wider text-[#c4956a] font-medium">What happens next</p>
             <div className="space-y-2.5">
               <div className="flex items-start gap-3">
-                <div className="h-6 w-6 rounded-full bg-emerald-500/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <Check className="h-3 w-3 text-emerald-600" />
+                <div className={`h-6 w-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${paymentMethod === "upi" ? "bg-amber-500/10" : "bg-emerald-500/10"}`}>
+                  {paymentMethod === "upi" ? <Clock className="h-3 w-3 text-amber-600" /> : <Check className="h-3 w-3 text-emerald-600" />}
                 </div>
                 <div>
-                  <p className="text-xs font-medium text-foreground">Order Placed</p>
-                  <p className="text-[10px] text-muted-foreground">We&apos;ve received your order</p>
+                  <p className="text-xs font-medium text-foreground">{paymentMethod === "upi" ? "Awaiting Payment" : "Order Placed"}</p>
+                  <p className="text-[10px] text-muted-foreground">{paymentMethod === "upi" ? "Complete the UPI payment above to confirm" : "We've received your order"}</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <div className="h-6 w-6 rounded-full bg-[#c4956a]/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <Package className="h-3 w-3 text-[#c4956a]" />
+                <div className={`h-6 w-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${paymentMethod === "upi" ? "bg-muted" : "bg-[#c4956a]/10"}`}>
+                  <Package className={`h-3 w-3 ${paymentMethod === "upi" ? "text-muted-foreground" : "text-[#c4956a]"}`} />
                 </div>
                 <div>
                   <p className="text-xs font-medium text-foreground">Packaging</p>
-                  <p className="text-[10px] text-muted-foreground">Your shirt will be carefully packed within 24h</p>
+                  <p className="text-[10px] text-muted-foreground">{paymentMethod === "upi" ? "Starts once payment is confirmed" : "Your shirt will be carefully packed within 24h"}</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <div className="h-6 w-6 rounded-full bg-blue-500/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <Truck className="h-3 w-3 text-blue-500" />
+                <div className={`h-6 w-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${paymentMethod === "upi" ? "bg-muted" : "bg-blue-500/10"}`}>
+                  <Truck className={`h-3 w-3 ${paymentMethod === "upi" ? "text-muted-foreground" : "text-blue-500"}`} />
                 </div>
                 <div>
                   <p className="text-xs font-medium text-foreground">Shipping</p>
