@@ -5,6 +5,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { useCartStore } from "@/store/cartStore"
+import { useUIStore } from "@/store/uiStore"
 import { useWishlistStore } from "@/store/wishlistStore"
 import { Star, ShoppingCart, Heart, Check, Truck, RotateCcw, Shield, MessageCircle } from "lucide-react"
 import type { Product, ProductVariant, Review } from "@/types"
@@ -23,6 +24,7 @@ interface Props {
 
 export default function ProductDetailClient({ product, variants, reviews, siblingColors = [] }: Props) {
   const addItem = useCartStore((s) => s.addItem)
+  const setCartOpen = useUIStore((s) => s.setCartOpen)
   const searchParams = useSearchParams()
   const { items: wishlistItems, toggle: toggleWishlist, load: loadWishlist } = useWishlistStore()
 
@@ -94,6 +96,7 @@ export default function ProductDetailClient({ product, variants, reviews, siblin
       size: selectedSize,
       color: selectedColor,
     }))
+    setCartOpen(true)
     setAdded(true)
     setTimeout(() => setAdded(false), 2000)
   }

@@ -11,6 +11,7 @@ import { ProductCarousel } from "@/components/home/ProductCarousel"
 import { RajasthanPalette } from "@/components/home/RajasthanPalette"
 import { HomePageWrapper } from "@/components/home/HomePageWrapper"
 import { DroppingJulyBanner } from "@/components/home/DroppingJulyBanner"
+import { CategoryImageCarousel } from "@/components/home/CategoryImageCarousel"
 
 // FIX #5: Enable ISR caching - revalidate every 60 seconds
 export const revalidate = 60
@@ -117,8 +118,20 @@ async function getProducts() {
   }
 }
 
+const CATEGORIES = [
+  { name: "Linen Full Sleeve Shirts", slug: "linen-full-sleeve", desc: "Breathable luxury" },
+  { name: "Linen Half Sleeve Shirts", slug: "linen-half-sleeve", desc: "Summer ease" },
+  { name: "Linen Short Kurtas Half Sleeve", slug: "kurta-half-sleeve", desc: "Ethnic modern" },
+  { name: "Linen Short Kurtas Full Sleeve", slug: "kurta-full-sleeve", desc: "Heritage craft" },
+]
+
 export default async function HomePage() {
   const { bestsellers, newArrivals, linen, categoryImages, colorImages, heroVideoUrl } = await getProducts()
+  const categorySlides = CATEGORIES.map((cat) => ({
+    slug: cat.slug,
+    name: cat.name,
+    image: categoryImages[cat.slug] || "/placeholder-product.svg",
+  })).filter((s) => s.image !== "/placeholder-product.svg")
 
   return (
     <HomePageWrapper>
@@ -154,12 +167,7 @@ export default async function HomePage() {
           <h2 className="text-2xl md:text-4xl font-light tracking-tight text-foreground">Shop by Collection</h2>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-          {[
-            { name: "Linen Full Sleeve Shirts", slug: "linen-full-sleeve", desc: "Breathable luxury" },
-            { name: "Linen Half Sleeve Shirts", slug: "linen-half-sleeve", desc: "Summer ease" },
-            { name: "Linen Short Kurtas Half Sleeve", slug: "kurta-half-sleeve", desc: "Ethnic modern" },
-            { name: "Linen Short Kurtas Full Sleeve", slug: "kurta-full-sleeve", desc: "Heritage craft" },
-          ].map((cat) => (
+          {CATEGORIES.map((cat) => (
             <Link key={cat.slug} href={`/shirts/${cat.slug}`} className="group relative aspect-[3/4] overflow-hidden border border-border bg-gradient-to-b from-card/50 to-background">
               <Image src={categoryImages[cat.slug] || "/placeholder-product.svg"} alt={`${cat.name} - VCHUKI`} fill className="object-contain p-4 transition-transform duration-700 group-hover:scale-105" sizes="(max-width: 768px) 50vw, 25vw" loading="lazy" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
@@ -217,19 +225,7 @@ export default async function HomePage() {
                 Our Heritage <ArrowRight className="h-3 w-3" />
               </Link>
             </div>
-            <div className="relative aspect-[4/5] overflow-hidden">
-              <div className="absolute -inset-2 border border-[#c4956a]/20" />
-              <Image
-                src="/linenproductwity6imagelayout.png"
-                alt="VCHUKI Premium Linen Blend Shirt Collection - Multiple Views"
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, 50vw"
-                loading="lazy"
-              />
-              <div className="absolute top-4 left-4 w-8 h-8 border-t-2 border-l-2 border-[#c4956a]/50" />
-              <div className="absolute bottom-4 right-4 w-8 h-8 border-b-2 border-r-2 border-[#c4956a]/50" />
-            </div>
+            <CategoryImageCarousel slides={categorySlides} />
           </div>
         </AnimatedSection>
       </section>

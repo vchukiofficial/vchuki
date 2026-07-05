@@ -5,6 +5,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { ShoppingCart, Heart, Check, ArrowRight } from "lucide-react"
 import { useCartStore } from "@/store/cartStore"
+import { useUIStore } from "@/store/uiStore"
 
 interface Variant {
   _id: string
@@ -36,6 +37,7 @@ export default function ProductRecommendations({ currentProductId, currentCatego
   const [products, setProducts] = useState<RecommendedProduct[]>([])
   const [loading, setLoading] = useState(true)
   const addItem = useCartStore((s) => s.addItem)
+  const setCartOpen = useUIStore((s) => s.setCartOpen)
   const [addedId, setAddedId] = useState<string | null>(null)
 
   useEffect(() => {
@@ -79,7 +81,7 @@ export default function ProductRecommendations({ currentProductId, currentCatego
       _id: `${product._id}-${variant.sku}`,
       name: product.name,
       slug: product.slug,
-      images: variant.images?.length ? variant.images : product.images,
+      images: product.images?.length ? product.images : variant.images,
       price: product.basePrice + (variant.priceAdjustment || 0),
       quantity: 1,
       sku: variant.sku,
@@ -87,6 +89,7 @@ export default function ProductRecommendations({ currentProductId, currentCatego
       size: variant.size,
       color: variant.color.name,
     })
+    setCartOpen(true)
     setAddedId(`${product._id}-${variant.sku}`)
     setTimeout(() => setAddedId(null), 2000)
   }
@@ -129,7 +132,7 @@ export default function ProductRecommendations({ currentProductId, currentCatego
           })
           const uniqueColors = Array.from(colorMap.values())
           const firstVariant = uniqueColors[0]
-          const displayImage = firstVariant?.images?.[0] || product.images?.[0]
+          const displayImage = product.images?.[0] || firstVariant?.images?.[0]
 
           return (
             <div key={product._id} className="group">

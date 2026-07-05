@@ -5,6 +5,7 @@ import Image from "next/image"
 import { Heart, ShoppingCart, Check, Eye } from "lucide-react"
 import { useState, useEffect } from "react"
 import { useCartStore } from "@/store/cartStore"
+import { useUIStore } from "@/store/uiStore"
 import { useWishlistStore } from "@/store/wishlistStore"
 import { buildCartItemFromVariant } from "@/lib/cart/buildCartItem"
 import { QuickViewModal } from "./QuickViewModal"
@@ -31,6 +32,7 @@ interface VariantProduct {
 
 function QuickAddVariant({ product, onSizeSelect }: { product: VariantProduct; onSizeSelect?: (size: string) => void }) {
   const addItem = useCartStore((s) => s.addItem)
+  const setCartOpen = useUIStore((s) => s.setCartOpen)
   const [added, setAdded] = useState(false)
   const firstInStock = product.availableSizes?.find((s) => s.stock > 0) || product.availableSizes?.[0]
   const [selectedSize, setSelectedSize] = useState(firstInStock?.size || "M")
@@ -58,6 +60,7 @@ function QuickAddVariant({ product, onSizeSelect }: { product: VariantProduct; o
       size: selectedSize,
       color: product.variantColor?.name || "Default",
     }))
+    setCartOpen(true)
     setAdded(true)
   }
 

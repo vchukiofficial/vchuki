@@ -1,11 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { X, ShoppingCart, Check } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useCartStore } from "@/store/cartStore"
+import { useUIStore } from "@/store/uiStore"
 import { buildCartItemFromVariant } from "@/lib/cart/buildCartItem"
 
 interface VariantProduct {
@@ -34,13 +35,26 @@ interface QuickViewModalProps {
 
 export function QuickViewModal({ product, siblings = [], onClose, onSelectSibling }: QuickViewModalProps) {
   const addItem = useCartStore((s) => s.addItem)
+  const setCartOpen = useUIStore((s) => s.setCartOpen)
   const [added, setAdded] = useState(false)
   const [selectedSize, setSelectedSize] = useState<string | null>(null)
+  const [activeImg, setActiveImg] = useState(0)
+  const [paused, setPaused] = useState(false)
+
+  const isVariant = !!product?.variantColor
+  const galleryImages = product?.images?.length ? product.images : product?.variantImage ? [product.variantImage] : []
+
+  // Auto-rotate through the product's photos while the modal is open
+  useEffect(() => {
+    setActiveImg(0)
+    if (paused || galleryImages.length <= 1) return
+    const interval = setInterval(() => setActiveImg((i) => (i + 1) % galleryImages.length), 2500)
+    return () => clearInterval(interval)
+  }, [product?._id, paused, galleryImages.length])
 
   if (!product) return null
 
-  const isVariant = !!product.variantColor
-  const displayImage = isVariant ? product.variantImage : product.images?.[0] || "/placeholder-product.svg"
+  const displayImage = galleryImages[activeImg] || product.variantImage || product.images?.[0] || "/placeholder-product.svg"
   const displayPrice = isVariant ? product.variantPrice : product.basePrice
   const sizes = product.availableSizes || []
   const activeSize = selectedSize || sizes.find((s) => s.stock > 0)?.size || sizes[0]?.size
@@ -66,7 +80,11 @@ export function QuickViewModal({ product, siblings = [], onClose, onSelectSiblin
       color: product!.variantColor?.name || "Default",
     }))
     setAdded(true)
-    setTimeout(() => setAdded(false), 2000)
+    setTimeout(() => {
+      setAdded(false)
+      onClose()
+      setCartOpen(true)
+    }, 700)
   }
 
   return (
@@ -95,9 +113,35 @@ export function QuickViewModal({ product, siblings = [], onClose, onSelectSiblin
             </button>
 
             <div className="grid md:grid-cols-2">
-              <div className="relative aspect-[3/4] bg-card">
-                {displayImage && (
-                  <Image src={displayImage} alt={product.name} fill sizes="(max-width: 768px) 100vw, 320px" className="object-cover" />
+              <div
+                className="relative aspect-[3/4] bg-card overflow-hidden"
+                onMouseEnter={() => setPaused(true)}
+                onMouseLeave={() => setPaused(false)}
+              >
+                <AnimatePresence mode="wait">
+                  {displayImage && (
+                    <motion.div
+                      key={displayImage}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.4 }}
+                      className="absolute inset-0"
+                    >
+                      <Image src={displayImage} alt={product.name} fill sizes="(max-width: 768px) 100vw, 320px" className="object-cover" />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+                {galleryImages.length > 1 && (
+                  <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
+                    {galleryImages.map((_, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setActiveImg(i)}
+                        className={`h-1.5 rounded-full transition-all ${i === activeImg ? "w-4 bg-[#c4956a]" : "w-1.5 bg-white/60"}`}
+                      />
+                    ))}
+                  </div>
                 )}
               </div>
 
