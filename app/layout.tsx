@@ -194,8 +194,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
+        {/* Regular + apple-touch icons are auto-injected by app/icon.tsx and app/apple-icon.tsx */}
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#2a1f14" />
         <meta name="apple-mobile-web-app-title" content="VCHUKI" />

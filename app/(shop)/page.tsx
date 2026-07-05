@@ -3,6 +3,7 @@ import Image from "next/image"
 import connectDB from "@/lib/mongodb"
 import Product from "@/models/Product"
 import ProductVariant from "@/models/ProductVariant"
+import HeroVideo from "@/models/HeroVideo"
 import { ArrowRight, Truck, RotateCcw, Shield, CheckCircle, Gem, MapPin, ClipboardCheck, Wind } from "lucide-react"
 import { HeroSection } from "@/components/home/HeroSection"
 import { AnimatedSection } from "@/components/home/AnimatedSection"
@@ -93,8 +94,8 @@ async function getProducts() {
   })
 
   // Fetch color images for RajasthanPalette (first product matching each color name)
-  const colorNames = ["Desert Sand", "Royal Indigo", "Olive Green", "Golden Dune", "Ivory White"]
-  const paletteNames = ["Desert Sand", "Royal Indigo", "Sage Heritage", "Golden Dune", "Ivory White"]
+  const colorNames = ["Desert Sand", "Olive Green", "Golden Dune", "Ivory White"]
+  const paletteNames = ["Desert Sand", "Sage Heritage", "Golden Dune", "Ivory White"]
   const colorProducts = await Promise.all(
     colorNames.map(c => Product.findOne({ isActive: true, name: { $regex: c, $options: "i" }, "images.0": { $exists: true } }).select("images").lean())
   )
@@ -103,24 +104,28 @@ async function getProducts() {
     colorImages[name] = (colorProducts[i] as any)?.images?.[0] || "/placeholder-product.svg"
   })
 
+  // Active hero video for the homepage background — falls back to the bundled default if none is active
+  const heroVideo = await HeroVideo.findOne({ isActive: true }).sort({ order: 1 }).lean()
+
   return {
     bestsellers: JSON.parse(JSON.stringify(expandProductsToVariantCards(bestsellers, allVariants))),
     newArrivals: JSON.parse(JSON.stringify(expandProductsToVariantCards(newArrivals, allVariants))),
     linen: JSON.parse(JSON.stringify(expandProductsToVariantCards(linen, allVariants))),
     categoryImages,
     colorImages,
+    heroVideoUrl: (heroVideo as any)?.url || null,
   }
 }
 
 export default async function HomePage() {
-  const { bestsellers, newArrivals, linen, categoryImages, colorImages } = await getProducts()
+  const { bestsellers, newArrivals, linen, categoryImages, colorImages, heroVideoUrl } = await getProducts()
 
   return (
     <HomePageWrapper>
       {/* H1 for SEO - Visible but styled as brand element */}
       <h1 className="sr-only">VCHUKI — Premium Cotton Linen Shirts & Short Kurtas for Men | Handcrafted in Jodhpur</h1>
 
-      <HeroSection />
+      <HeroSection videoUrl={heroVideoUrl} />
 
       {/* Fabric Story Strip */}
       <section className="border-y border-[#c4956a]/20 bg-[#2a1f14] dark:bg-[#1a1209]">
@@ -242,7 +247,7 @@ export default async function HomePage() {
               <p className="text-sm text-muted-foreground mt-3 max-w-md mx-auto">Breathable. Elegant. Made for Indian summers.</p>
             </div>
           </div>
-          <ProductCarousel products={linen} autoScroll />
+          <ProductCarousel products={linen} layout="grid" />
         </AnimatedSection>
       )}
 

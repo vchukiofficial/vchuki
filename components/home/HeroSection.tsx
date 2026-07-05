@@ -20,7 +20,14 @@ const CATEGORIES: HeroCategory[] = [
   { label: "Full Kurta", slug: "kurta-full-sleeve", tagline: "Heritage Craft", basePrice: 1099, comparePrice: 1999 },
 ]
 
-export function HeroSection() {
+interface Props {
+  /** Active hero video from the admin-managed HeroVideo collection. Falls back to the bundled default when none is active. */
+  videoUrl?: string | null
+}
+
+const FALLBACK_VIDEO = "/VCHUKI_–_QUIET_LUXURY_GRWM_REE (2).mp4"
+
+export function HeroSection({ videoUrl }: Props) {
   const [activeCategory, setActiveCategory] = useState(0)
   const [paused, setPaused] = useState(false)
   const [videoLoaded, setVideoLoaded] = useState(false)
@@ -40,7 +47,7 @@ export function HeroSection() {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting && videoRef.current) {
-          videoRef.current.src = "/VCHUKI_–_QUIET_LUXURY_GRWM_REE (2).mp4"
+          videoRef.current.src = videoUrl || FALLBACK_VIDEO
           videoRef.current.load()
           observer.disconnect()
         }
@@ -49,7 +56,7 @@ export function HeroSection() {
     )
     if (videoRef.current) observer.observe(videoRef.current)
     return () => observer.disconnect()
-  }, [])
+  }, [videoUrl])
 
   const current = CATEGORIES[activeCategory]
 

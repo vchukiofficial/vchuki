@@ -287,7 +287,7 @@ function wrapTemplate(content: string): string {
 <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f5;padding:40px 0;"><tr><td align="center">
 <table width="600" cellpadding="0" cellspacing="0" style="background:#fff;max-width:600px;width:100%;">
 <tr><td style="background:#2a1f14;padding:28px 24px;text-align:center;">
-<img src="https://vchuki.com/marko.png" alt="V" width="36" height="36" style="display:block;margin:0 auto 10px;filter:invert(1);" />
+<img src="https://vchuki.com/marko-white.png" alt="VCHUKI" width="36" height="36" style="display:block;margin:0 auto 10px;" />
 <span style="color:#f5e6d3;font-size:20px;font-weight:600;letter-spacing:5px;display:block;">VCHUKI</span>
 <p style="color:#c4956a;font-size:10px;text-transform:uppercase;letter-spacing:2px;margin:6px 0 0;">Premium Linen Blend — Crafted in Jodhpur</p>
 </td></tr>

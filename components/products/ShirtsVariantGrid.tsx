@@ -2,10 +2,12 @@
 
 import Link from "next/link"
 import Image from "next/image"
-import { Heart, ShoppingCart, Check } from "lucide-react"
+import { Heart, ShoppingCart, Check, Eye } from "lucide-react"
 import { useState, useEffect } from "react"
 import { useCartStore } from "@/store/cartStore"
 import { useWishlistStore } from "@/store/wishlistStore"
+import { buildCartItemFromVariant } from "@/lib/cart/buildCartItem"
+import { QuickViewModal } from "./QuickViewModal"
 
 interface VariantProduct {
   _id: string
@@ -19,17 +21,20 @@ interface VariantProduct {
   tags?: string[]
   variantColor?: { name: string; hex: string }
   variantImage?: string
+  variantImageSecondary?: string
   variantPrice?: number
   variantSku?: string
   variantId?: string
   variantStock?: number
-  availableSizes?: string[]
+  availableSizes?: { size: string; stock: number }[]
 }
 
 function QuickAddVariant({ product, onSizeSelect }: { product: VariantProduct; onSizeSelect?: (size: string) => void }) {
   const addItem = useCartStore((s) => s.addItem)
   const [added, setAdded] = useState(false)
-  const [selectedSize, setSelectedSize] = useState(product.availableSizes?.[0] || "M")
+  const firstInStock = product.availableSizes?.find((s) => s.stock > 0) || product.availableSizes?.[0]
+  const [selectedSize, setSelectedSize] = useState(firstInStock?.size || "M")
+  const selectedSizeOutOfStock = (product.availableSizes?.find((s) => s.size === selectedSize)?.stock ?? 1) <= 0
 
   function handleSizeClick(e: React.MouseEvent, size: string) {
     e.preventDefault()
@@ -41,18 +46,18 @@ function QuickAddVariant({ product, onSizeSelect }: { product: VariantProduct; o
   function handleAdd(e: React.MouseEvent) {
     e.preventDefault()
     e.stopPropagation()
-    addItem({
-      _id: product.variantId ? `${product.productId || product._id}-${product.variantSku}` : product._id,
+    addItem(buildCartItemFromVariant({
+      productId: product.productId || product._id,
+      variantId: product.variantId,
       name: product.name,
       slug: product.slug,
-      images: product.variantImage ? [product.variantImage] : product.images,
+      image: product.variantImage,
+      fallbackImages: product.images,
       price: product.variantPrice || product.basePrice,
-      quantity: 1,
-      sku: product.variantSku || `${product.slug}-default`,
-      variantId: product.variantId || product._id,
+      sku: product.variantSku,
       size: selectedSize,
       color: product.variantColor?.name || "Default",
-    })
+    }))
     setAdded(true)
   }
 
@@ -61,31 +66,38 @@ function QuickAddVariant({ product, onSizeSelect }: { product: VariantProduct; o
       {/* Size selector — larger, readable */}
       {product.availableSizes && product.availableSizes.length > 1 && (
         <div className="flex gap-1.5 flex-wrap" onClick={(e) => e.preventDefault()}>
-          {product.availableSizes.map((size) => (
-            <button
-              key={size}
-              onClick={(e) => handleSizeClick(e, size)}
-              className={`h-8 min-w-[2.2rem] px-2 text-xs font-semibold border transition-all ${
-                selectedSize === size
-                  ? "border-[#c4956a] bg-[#c4956a] text-white"
-                  : "border-white/40 text-white bg-black/30 backdrop-blur-sm hover:border-[#c4956a]/70"
-              }`}
-            >
-              {size}
-            </button>
-          ))}
+          {product.availableSizes.map(({ size, stock }) => {
+            const outOfStock = stock <= 0
+            return (
+              <button
+                key={size}
+                onClick={(e) => !outOfStock && handleSizeClick(e, size)}
+                disabled={outOfStock}
+                title={outOfStock ? "Out of stock" : stock <= 3 ? `Only ${stock} left` : undefined}
+                className={`h-8 min-w-[2.2rem] px-2 text-xs font-semibold border transition-all relative ${
+                  outOfStock
+                    ? "border-white/10 text-white/30 bg-black/20 cursor-not-allowed line-through"
+                    : selectedSize === size
+                    ? "border-[#c4956a] bg-[#c4956a] text-white"
+                    : "border-white/40 text-white bg-black/30 backdrop-blur-sm hover:border-[#c4956a]/70"
+                }`}
+              >
+                {size}
+              </button>
+            )
+          })}
         </div>
       )}
       <button
         onClick={handleAdd}
-        disabled={added}
-        className={`w-full py-2.5 text-xs font-medium tracking-wider uppercase transition-all duration-300 flex items-center justify-center gap-1.5 ${
+        disabled={added || selectedSizeOutOfStock}
+        className={`w-full py-2.5 text-xs font-medium tracking-wider uppercase transition-all duration-300 flex items-center justify-center gap-1.5 disabled:opacity-50 ${
           added
             ? "bg-emerald-600 text-white"
             : "bg-[#2a1f14]/90 dark:bg-[#c4956a]/90 backdrop-blur-sm text-[#f5e6d3] dark:text-[#2a1f14] hover:bg-[#2a1f14] dark:hover:bg-[#c4956a]"
         }`}
       >
-        {added ? <><Check className="h-3.5 w-3.5" /> Added to Bag</> : <><ShoppingCart className="h-3.5 w-3.5" /> Add to Bag</>}
+        {added ? <><Check className="h-3.5 w-3.5" /> Added to Bag</> : selectedSizeOutOfStock ? "Out of Stock" : <><ShoppingCart className="h-3.5 w-3.5" /> Add to Bag</>}
       </button>
     </div>
   )
@@ -95,8 +107,13 @@ export function ShirtsVariantGrid({ products }: { products: VariantProduct[] }) 
   const [selectedSizes, setSelectedSizes] = useState<Record<string, string>>({})
   const { items: wishlistItems, toggle: toggleWishlist, load: loadWishlist } = useWishlistStore()
   const [showLoginPrompt, setShowLoginPrompt] = useState(false)
+  const [quickViewProduct, setQuickViewProduct] = useState<VariantProduct | null>(null)
 
   useEffect(() => { loadWishlist() }, [loadWishlist])
+
+  const quickViewSiblings = quickViewProduct
+    ? products.filter((p) => p._id !== quickViewProduct._id && p.productId && p.productId === quickViewProduct.productId)
+    : []
 
   async function handleWishlistToggle(e: React.MouseEvent, productId: string) {
     e.preventDefault()
@@ -133,7 +150,7 @@ export function ShirtsVariantGrid({ products }: { products: VariantProduct[] }) 
         if (isVariant && product.variantColor?.name) {
           linkParams.set("color", product.variantColor.name)
         }
-        const sizeForLink = selectedSizes[product._id] || product.availableSizes?.[0]
+        const sizeForLink = selectedSizes[product._id] || product.availableSizes?.[0]?.size
         if (sizeForLink) {
           linkParams.set("size", sizeForLink)
         }
@@ -150,6 +167,16 @@ export function ShirtsVariantGrid({ products }: { products: VariantProduct[] }) 
                     fill
                     sizes="(max-width: 768px) 50vw, 25vw"
                     className="object-cover group-hover:scale-105 transition-transform duration-700"
+                    loading="lazy"
+                  />
+                )}
+                {product.variantImageSecondary && product.variantImageSecondary !== displayImage && (
+                  <Image
+                    src={product.variantImageSecondary}
+                    alt={`${product.name}${isVariant ? ` - ${product.variantColor!.name}` : ""} alternate view`}
+                    fill
+                    sizes="(max-width: 768px) 50vw, 25vw"
+                    className="object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-500 hidden md:block"
                     loading="lazy"
                   />
                 )}
@@ -181,6 +208,14 @@ export function ShirtsVariantGrid({ products }: { products: VariantProduct[] }) 
                       ? "fill-red-500 text-red-500"
                       : "text-foreground/70"
                   }`} />
+                </button>
+                {/* Quick view */}
+                <button
+                  className="absolute top-11 right-2.5 h-7 w-7 rounded-full bg-white/80 dark:bg-black/50 backdrop-blur-sm opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all hidden md:flex"
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); setQuickViewProduct(product) }}
+                  title="Quick view"
+                >
+                  <Eye className="h-3.5 w-3.5 text-foreground/70" />
                 </button>
                 {/* Desktop hover quick add */}
                 <div className="absolute inset-x-0 bottom-0 p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-300 hidden md:block bg-gradient-to-t from-black/70 via-black/40 to-transparent pt-8">
@@ -220,6 +255,13 @@ export function ShirtsVariantGrid({ products }: { products: VariantProduct[] }) 
           <span>Please <a href="/auth/login" className="underline text-[#c4956a]">sign in</a> to save items to wishlist</span>
         </div>
       )}
+
+      <QuickViewModal
+        product={quickViewProduct}
+        siblings={quickViewSiblings}
+        onClose={() => setQuickViewProduct(null)}
+        onSelectSibling={(sib) => setQuickViewProduct(sib as VariantProduct)}
+      />
     </div>
   )
 }

@@ -61,6 +61,8 @@ export interface Address {
   state: string
   zip: string
   phone: string
+  country?: string
+  isDefault?: boolean
 }
 
 export interface Order {

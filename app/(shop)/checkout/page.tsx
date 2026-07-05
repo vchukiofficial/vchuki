@@ -1,11 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useSession, signIn } from "next-auth/react"
 import { useCartStore } from "@/store/cartStore"
 import Image from "next/image"
 import Link from "next/link"
 import { Check, Shield, Truck, ArrowLeft, CreditCard, Banknote, Package, Clock, MapPin, ShoppingBag } from "lucide-react"
+import { AddressForm } from "@/components/shared/AddressForm"
+import type { Address } from "@/types"
 
 type Step = "details" | "payment" | "confirmation"
 
@@ -27,6 +29,40 @@ export default function CheckoutPage() {
     state: "",
     zip: "",
   })
+
+  // Saved-address picker (logged-in users only)
+  const [savedAddresses, setSavedAddresses] = useState<Address[]>([])
+  const [selectedAddressId, setSelectedAddressId] = useState("")
+  const [showNewAddressForm, setShowNewAddressForm] = useState(false)
+
+  useEffect(() => {
+    if (!session) return
+    fetch("/api/users/me/addresses")
+      .then((r) => r.json())
+      .then((data) => {
+        const addrs: Address[] = data.addresses || []
+        setSavedAddresses(addrs)
+        const def = addrs.find((a) => a.isDefault) || addrs[0]
+        if (def) selectSavedAddress(def)
+        else setShowNewAddressForm(true)
+      })
+      .catch(() => setShowNewAddressForm(true))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session])
+
+  function selectSavedAddress(addr: Address) {
+    setSelectedAddressId(addr._id || "")
+    setForm((prev) => ({
+      ...prev,
+      name: addr.name,
+      street: addr.street,
+      city: addr.city,
+      state: addr.state,
+      zip: addr.zip,
+      phone: addr.phone || prev.phone,
+    }))
+    setShowNewAddressForm(false)
+  }
 
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
   const shipping = subtotal >= 1599 ? 0 : 50
@@ -324,66 +360,56 @@ export default function CheckoutPage() {
                   <span className="w-5 h-5 rounded-full bg-[#c4956a]/10 text-[#c4956a] text-[10px] font-bold flex items-center justify-center">2</span>
                   Shipping Address
                 </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div className="md:col-span-2">
-                    <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Full Name</label>
-                    <input
-                      type="text"
-                      value={form.name}
-                      onChange={(e) => updateForm("name", e.target.value)}
-                      required
-                      placeholder="Your full name"
-                      className="w-full mt-1 px-4 py-3 border border-border bg-background text-sm focus:outline-none focus:border-[#c4956a]/50 transition-colors text-foreground placeholder:text-muted-foreground/50"
-                    />
+
+                {session && savedAddresses.length > 0 && !showNewAddressForm ? (
+                  <div className="space-y-2">
+                    {savedAddresses.map((addr) => (
+                      <label
+                        key={addr._id}
+                        className={`flex items-start gap-3 p-3 border cursor-pointer transition-colors ${
+                          selectedAddressId === addr._id ? "border-[#c4956a] bg-[#c4956a]/5" : "border-border hover:border-[#c4956a]/30"
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="savedAddress"
+                          checked={selectedAddressId === addr._id}
+                          onChange={() => selectSavedAddress(addr)}
+                          className="mt-1 accent-[#c4956a]"
+                        />
+                        <div className="text-sm flex-1">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium text-foreground">{addr.name}</span>
+                            {addr.isDefault && (
+                              <span className="text-[9px] uppercase tracking-wider text-[#c4956a] font-medium border border-[#c4956a]/30 px-1.5 py-0.5">Default</span>
+                            )}
+                          </div>
+                          <p className="text-muted-foreground text-xs mt-0.5">{addr.street}, {addr.city}, {addr.state} - {addr.zip}</p>
+                        </div>
+                      </label>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() => { setShowNewAddressForm(true); setSelectedAddressId("") }}
+                      className="text-xs text-[#c4956a] font-medium hover:underline"
+                    >
+                      + Add a new address
+                    </button>
                   </div>
-                  <div className="md:col-span-2">
-                    <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Street Address</label>
-                    <input
-                      type="text"
-                      value={form.street}
-                      onChange={(e) => updateForm("street", e.target.value)}
-                      required
-                      placeholder="House no, Street, Locality"
-                      className="w-full mt-1 px-4 py-3 border border-border bg-background text-sm focus:outline-none focus:border-[#c4956a]/50 transition-colors text-foreground placeholder:text-muted-foreground/50"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">City</label>
-                    <input
-                      type="text"
-                      value={form.city}
-                      onChange={(e) => updateForm("city", e.target.value)}
-                      required
-                      placeholder="City"
-                      className="w-full mt-1 px-4 py-3 border border-border bg-background text-sm focus:outline-none focus:border-[#c4956a]/50 transition-colors text-foreground placeholder:text-muted-foreground/50"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">State</label>
-                    <input
-                      type="text"
-                      value={form.state}
-                      onChange={(e) => updateForm("state", e.target.value)}
-                      required
-                      placeholder="State"
-                      className="w-full mt-1 px-4 py-3 border border-border bg-background text-sm focus:outline-none focus:border-[#c4956a]/50 transition-colors text-foreground placeholder:text-muted-foreground/50"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">PIN Code</label>
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      value={form.zip}
-                      onChange={(e) => updateForm("zip", e.target.value)}
-                      required
-                      pattern="[0-9]{6}"
-                      maxLength={6}
-                      placeholder="342001"
-                      className="w-full mt-1 px-4 py-3 border border-border bg-background text-sm focus:outline-none focus:border-[#c4956a]/50 transition-colors text-foreground placeholder:text-muted-foreground/50"
-                    />
-                  </div>
-                </div>
+                ) : (
+                  <>
+                    {session && savedAddresses.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => setShowNewAddressForm(false)}
+                        className="text-xs text-muted-foreground hover:text-foreground mb-3"
+                      >
+                        ← Choose a saved address
+                      </button>
+                    )}
+                    <AddressForm value={form} onChange={(v) => setForm((prev) => ({ ...prev, ...v }))} showPhone={false} />
+                  </>
+                )}
               </div>
 
               <button

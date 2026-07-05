@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo, useEffect } from "react"
+import { useState, useMemo, useEffect, useRef } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
@@ -12,6 +12,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { SizeGuide } from "./SizeGuide"
 import { ComboOfferWidget } from "./ComboOfferWidget"
 import { StealDeals } from "./StealDeals"
+import { buildCartItemFromVariant } from "@/lib/cart/buildCartItem"
 
 interface Props {
   product: Product
@@ -42,6 +43,20 @@ export default function ProductDetailClient({ product, variants, reviews, siblin
   const [activeImageIndex, setActiveImageIndex] = useState(0)
   const [added, setAdded] = useState(false)
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false)
+  const [showStickyBar, setShowStickyBar] = useState(false)
+  const addToBagRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const el = addToBagRef.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      // Only show once the button has scrolled above the viewport — not before it's been reached
+      ([entry]) => setShowStickyBar(!entry.isIntersecting && entry.boundingClientRect.top < 0),
+      { rootMargin: "-80px 0px 0px 0px" }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
 
   const selectedVariant = useMemo(
     () => variants.find((v) => v.size === selectedSize && v.color.name === selectedColor),
@@ -68,18 +83,17 @@ export default function ProductDetailClient({ product, variants, reviews, siblin
 
   function handleAddToCart() {
     if (!selectedVariant) return
-    addItem({
-      _id: product._id + "-" + selectedVariant.sku,
+    addItem(buildCartItemFromVariant({
+      productId: product._id,
+      variantId: selectedVariant._id,
       name: product.name,
       slug: product.slug,
-      images: displayImages,
+      fallbackImages: displayImages,
       price,
-      quantity: 1,
       sku: selectedVariant.sku,
-      variantId: selectedVariant._id,
       size: selectedSize,
       color: selectedColor,
-    })
+    }))
     setAdded(true)
     setTimeout(() => setAdded(false), 2000)
   }
@@ -163,8 +177,9 @@ export default function ProductDetailClient({ product, variants, reviews, siblin
                 <button
                   key={i}
                   onClick={() => setActiveImageIndex(i)}
+                  onMouseEnter={() => setActiveImageIndex(i)}
                   className={`relative h-20 w-20 flex-shrink-0 overflow-hidden border transition-all ${
-                    activeImageIndex === i ? "border-[#c4956a] ring-1 ring-[#c4956a]/30" : "border-border opacity-60 hover:opacity-100"
+                    activeImageIndex === i ? "border-[#c4956a] ring-1 ring-[#c4956a]/30 scale-105" : "border-border opacity-60 hover:opacity-100"
                   }`}
                 >
                   {img.match(/\.(mp4|webm|mov)$/i) ? (
@@ -264,13 +279,16 @@ export default function ProductDetailClient({ product, variants, reviews, siblin
               <div className="flex gap-2 flex-wrap">
                 {sizes.map((size) => {
                   const variant = variants.find((v) => v.size === size && v.color.name === selectedColor)
-                  const available = (variant?.stock || 0) > 0
+                  const stock = variant?.stock || 0
+                  const available = stock > 0
+                  const lowStock = available && stock <= 5
                   return (
                     <button
                       key={size}
                       onClick={() => available && setSelectedSize(size)}
                       disabled={!available}
-                      className={`h-10 min-w-[3rem] px-3 border text-xs font-medium transition-all ${
+                      title={!available ? "Out of stock" : lowStock ? `Only ${stock} left` : undefined}
+                      className={`relative h-10 min-w-[3rem] px-3 border text-xs font-medium transition-all ${
                         selectedSize === size
                           ? "border-[#c4956a] bg-[#c4956a] text-white"
                           : available
@@ -279,6 +297,9 @@ export default function ProductDetailClient({ product, variants, reviews, siblin
                       }`}
                     >
                       {size}
+                      {lowStock && (
+                        <span className="absolute -top-1.5 -right-1.5 h-2 w-2 rounded-full bg-amber-500" />
+                      )}
                     </button>
                   )
                 })}
@@ -293,14 +314,8 @@ export default function ProductDetailClient({ product, variants, reviews, siblin
             </p>
           )}
 
-          {/* Combo Offers */}
-          <ComboOfferWidget category={product.category} productName={product.name} />
-
-          {/* Steal Deals */}
-          <StealDeals currentProductId={product._id} currentCategory={product.category} />
-
-          {/* Add to Cart */}
-          <div className="flex gap-3 pt-2">
+          {/* Add to Cart — kept directly under size/stock so purchase is one screen, no scrolling past upsells */}
+          <div ref={addToBagRef} className="flex gap-3 pt-2">
             <button
               disabled={!inStock || added}
               onClick={handleAddToCart}
@@ -340,6 +355,12 @@ export default function ProductDetailClient({ product, variants, reviews, siblin
               WhatsApp Help
             </a>
           </div>
+
+          {/* Combo Offers */}
+          <ComboOfferWidget category={product.category} productName={product.name} />
+
+          {/* Steal Deals */}
+          <StealDeals currentProductId={product._id} currentCategory={product.category} />
 
           {/* Trust Badges */}
           <div className="grid grid-cols-3 gap-3 pt-4 border-t border-border">
@@ -441,6 +462,38 @@ export default function ProductDetailClient({ product, variants, reviews, siblin
           </button>
         </div>
       </div>
+
+      {/* Desktop Sticky CTA — appears once the primary add-to-bag button scrolls out of view */}
+      <AnimatePresence>
+        {showStickyBar && (
+          <motion.div
+            initial={{ y: -60, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -60, opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="hidden md:flex fixed top-0 inset-x-0 z-40 bg-background/98 backdrop-blur-md border-b border-border"
+          >
+            <div className="container flex items-center gap-4 py-3">
+              <div className="relative h-12 w-12 flex-shrink-0 border border-border overflow-hidden">
+                <Image src={displayImages[0]} alt={product.name} fill className="object-cover" sizes="48px" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-foreground truncate">{product.name}</p>
+                <p className="text-xs text-muted-foreground">₹{price.toLocaleString()} · {selectedSize} / {selectedColor}</p>
+              </div>
+              <button
+                disabled={!inStock || added}
+                onClick={handleAddToCart}
+                className={`px-6 py-2.5 text-xs font-medium tracking-wider uppercase disabled:opacity-40 transition-all flex items-center gap-2 ${
+                  added ? "bg-emerald-600 text-white" : "bg-[#2a1f14] dark:bg-[#c4956a] text-[#f5e6d3] dark:text-[#2a1f14] hover:opacity-90"
+                }`}
+              >
+                {added ? <><Check className="h-3.5 w-3.5" /> Added</> : <><ShoppingCart className="h-3.5 w-3.5" /> Add to Bag</>}
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Size Guide Modal */}
       <SizeGuide isOpen={sizeGuideOpen} onClose={() => setSizeGuideOpen(false)} />

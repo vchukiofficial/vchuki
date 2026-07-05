@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
@@ -96,9 +97,17 @@ export default function RegisterPage() {
       const data = await res.json()
       setError(data.error || "Registration failed")
       setLoading(false)
-    } else {
-      router.push("/auth/login")
+      return
     }
+
+    // Sign the user in immediately so they don't have to log in a second time
+    const signInRes = await signIn("credentials", { email, password, redirect: false })
+    if (signInRes?.error) {
+      router.push("/auth/login")
+      return
+    }
+    router.push("/account")
+    router.refresh()
   }
 
   async function handleResendOtp() {

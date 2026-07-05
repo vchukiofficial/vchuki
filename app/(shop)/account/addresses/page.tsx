@@ -3,15 +3,18 @@
 import { useSession } from "next-auth/react"
 import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Trash2, Plus } from "lucide-react"
+import { Trash2, Plus, Star } from "lucide-react"
 import type { Address } from "@/types"
+import { AddressForm, type AddressFormValue } from "@/components/shared/AddressForm"
+
+const emptyAddress: AddressFormValue = { name: "", street: "", city: "", state: "", zip: "", phone: "" }
 
 export default function AddressesPage() {
   const { data: session } = useSession()
   const [addresses, setAddresses] = useState<Address[]>([])
   const [showForm, setShowForm] = useState(false)
+  const [form, setForm] = useState<AddressFormValue>(emptyAddress)
+  const [saving, setSaving] = useState(false)
 
   useEffect(() => {
     if (session) {
@@ -21,24 +24,37 @@ export default function AddressesPage() {
     }
   }, [session])
 
-  async function handleAdd(e: React.FormEvent<HTMLFormElement>) {
+  async function handleAdd(e: React.FormEvent) {
     e.preventDefault()
-    const fd = new FormData(e.currentTarget)
-    const address = Object.fromEntries(fd.entries())
+    setSaving(true)
     const res = await fetch("/api/users/me/addresses", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(address),
+      body: JSON.stringify(form),
     })
     if (res.ok) {
       const data = await res.json()
       setAddresses(data.addresses)
       setShowForm(false)
+      setForm(emptyAddress)
+    }
+    setSaving(false)
+  }
+
+  async function handleDelete(addressId: string) {
+    const res = await fetch(`/api/users/me/addresses?addressId=${addressId}`, { method: "DELETE" })
+    if (res.ok) {
+      const data = await res.json()
+      setAddresses(data.addresses)
     }
   }
 
-  async function handleDelete(index: number) {
-    const res = await fetch(`/api/users/me/addresses?index=${index}`, { method: "DELETE" })
+  async function handleSetDefault(addressId: string) {
+    const res = await fetch("/api/users/me/addresses", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ addressId }),
+    })
     if (res.ok) {
       const data = await res.json()
       setAddresses(data.addresses)
@@ -55,26 +71,36 @@ export default function AddressesPage() {
       </div>
 
       {showForm && (
-        <form onSubmit={handleAdd} className="p-4 rounded-lg border border-border/50 bg-card/50 mb-6 grid grid-cols-2 gap-3">
-          <div className="col-span-2"><Label>Name</Label><Input name="name" required /></div>
-          <div className="col-span-2"><Label>Street</Label><Input name="street" required /></div>
-          <div><Label>City</Label><Input name="city" required /></div>
-          <div><Label>State</Label><Input name="state" required /></div>
-          <div><Label>PIN Code</Label><Input name="zip" required /></div>
-          <div><Label>Phone</Label><Input name="phone" required /></div>
-          <div className="col-span-2"><Button type="submit" size="sm">Save Address</Button></div>
+        <form onSubmit={handleAdd} className="p-4 rounded-lg border border-border/50 bg-card/50 mb-6 space-y-4">
+          <AddressForm value={form} onChange={setForm} />
+          <Button type="submit" size="sm" disabled={saving}>
+            {saving ? "Saving..." : "Save Address"}
+          </Button>
         </form>
       )}
 
       <div className="space-y-3">
-        {addresses.map((addr, i) => (
-          <div key={i} className="p-4 rounded-lg border border-border/50 bg-card/50 flex justify-between">
+        {addresses.map((addr) => (
+          <div key={addr._id} className="p-4 rounded-lg border border-border/50 bg-card/50 flex justify-between">
             <div className="text-sm">
-              <p className="font-medium">{addr.name}</p>
+              <div className="flex items-center gap-2">
+                <p className="font-medium">{addr.name}</p>
+                {addr.isDefault && (
+                  <span className="text-[10px] uppercase tracking-wider text-[#c4956a] font-medium border border-[#c4956a]/30 px-1.5 py-0.5">Default</span>
+                )}
+              </div>
               <p className="text-muted-foreground">{addr.street}, {addr.city}, {addr.state} - {addr.zip}</p>
               <p className="text-muted-foreground">{addr.phone}</p>
+              {!addr.isDefault && (
+                <button
+                  onClick={() => addr._id && handleSetDefault(addr._id)}
+                  className="mt-1 flex items-center gap-1 text-xs text-[#c4956a] hover:underline"
+                >
+                  <Star className="h-3 w-3" /> Set as default
+                </button>
+              )}
             </div>
-            <button onClick={() => handleDelete(i)} className="text-muted-foreground hover:text-destructive">
+            <button onClick={() => addr._id && handleDelete(addr._id)} className="text-muted-foreground hover:text-destructive">
               <Trash2 className="h-4 w-4" />
             </button>
           </div>

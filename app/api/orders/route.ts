@@ -4,6 +4,12 @@ import { authOptions } from "@/lib/auth"
 import connectDB from "@/lib/mongodb"
 import Order from "@/models/Order"
 import ProductVariant from "@/models/ProductVariant"
+import User from "@/models/User"
+
+function isSameAddress(a: any, b: any) {
+  const norm = (v: string) => (v || "").trim().toLowerCase()
+  return norm(a.street) === norm(b.street) && norm(a.city) === norm(b.city) && norm(a.state) === norm(b.state) && norm(a.zip) === norm(b.zip)
+}
 
 export async function GET() {
   const session = await getServerSession(authOptions)
@@ -61,7 +67,6 @@ export async function POST(request: NextRequest) {
   let autoCreatedUser = false
   if (!session && customerEmail) {
     try {
-      const { default: User } = await import("@/models/User")
       const existingUser = await User.findOne({ email: customerEmail })
       if (!existingUser) {
         const bcrypt = await import("bcryptjs")
@@ -72,7 +77,7 @@ export async function POST(request: NextRequest) {
           email: customerEmail,
           phone: customerPhone,
           password: hashedPassword,
-          role: "customer",
+          addresses: body.shippingAddress ? [{ ...body.shippingAddress, isDefault: true }] : [],
         })
         // Link order to new user
         await Order.findByIdAndUpdate(order._id, { user: newUser._id })
@@ -84,8 +89,23 @@ export async function POST(request: NextRequest) {
       } else {
         // Link order to existing user
         await Order.findByIdAndUpdate(order._id, { user: existingUser._id })
+        if (body.shippingAddress && !existingUser.addresses.some((a: any) => isSameAddress(a, body.shippingAddress))) {
+          existingUser.addresses.push({ ...body.shippingAddress, isDefault: existingUser.addresses.length === 0 })
+          await existingUser.save()
+        }
       }
     } catch { /* silent */ }
+  }
+
+  // Save the shipping address to the logged-in user's profile if it's new
+  if (session?.user?.id && body.shippingAddress) {
+    try {
+      const user = await User.findById(session.user.id)
+      if (user && !user.addresses.some((a: any) => isSameAddress(a, body.shippingAddress))) {
+        user.addresses.push({ ...body.shippingAddress, isDefault: user.addresses.length === 0 })
+        await user.save()
+      }
+    } catch { /* non-critical, don't fail the order */ }
   }
 
   if (customerEmail) {

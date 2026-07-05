@@ -19,13 +19,36 @@ export async function POST(request: NextRequest) {
 
   await connectDB()
   const address = await request.json()
-  const user = await User.findByIdAndUpdate(
-    session.user.id,
-    { $push: { addresses: address } },
-    { new: true }
-  ).select("addresses")
+  const user = await User.findById(session.user.id)
+  if (!user) return NextResponse.json({ error: "Not found" }, { status: 404 })
 
-  return NextResponse.json({ addresses: user?.addresses || [] })
+  const makeDefault = address.isDefault || user.addresses.length === 0
+  if (makeDefault) {
+    user.addresses.forEach((a: any) => { a.isDefault = false })
+  }
+  user.addresses.push({ ...address, isDefault: makeDefault })
+  await user.save()
+
+  return NextResponse.json({ addresses: user.addresses })
+}
+
+export async function PATCH(request: NextRequest) {
+  const session = await getServerSession(authOptions)
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+
+  const { addressId } = await request.json()
+  await connectDB()
+  const user = await User.findById(session.user.id)
+  if (!user) return NextResponse.json({ error: "Not found" }, { status: 404 })
+
+  const target = user.addresses.id(addressId)
+  if (!target) return NextResponse.json({ error: "Address not found" }, { status: 404 })
+
+  user.addresses.forEach((a: any) => { a.isDefault = false })
+  target.isDefault = true
+  await user.save()
+
+  return NextResponse.json({ addresses: user.addresses })
 }
 
 export async function DELETE(request: NextRequest) {
@@ -33,12 +56,16 @@ export async function DELETE(request: NextRequest) {
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
   const { searchParams } = new URL(request.url)
-  const index = Number(searchParams.get("index"))
+  const addressId = searchParams.get("addressId")
 
   await connectDB()
   const user = await User.findById(session.user.id)
-  if (user) {
-    user.addresses.splice(index, 1)
+  if (user && addressId) {
+    const wasDefault = user.addresses.id(addressId)?.isDefault
+    user.addresses.pull({ _id: addressId })
+    if (wasDefault && user.addresses.length > 0) {
+      user.addresses[0].isDefault = true
+    }
     await user.save()
   }
 

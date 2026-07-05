@@ -30,16 +30,6 @@ const DEFAULT_SHADES: Omit<ShadeData, "image">[] = [
     accent: "#DCCEB8",
   },
   {
-    name: "Royal Indigo",
-    hex: "#304D7A",
-    mood: "Bold. Regal. Powerful.",
-    story: "Inspired by the royal blue city nights of Jodhpur",
-    visual: "Moonlit blue havelis, luxury indigo textures, cinematic evening tone",
-    bg: "from-[#304D7A]/15 via-[#1a2a4a]/10 to-[#0f1a2e]/5",
-    bgDark: "from-[#1a2a4a] via-[#0f1a2e] to-[#0a1020]",
-    accent: "#BFD7EA",
-  },
-  {
     name: "Sage Heritage",
     hex: "#8A8F63",
     mood: "Masculine. Earthy. Premium.",
@@ -123,7 +113,7 @@ export function RajasthanPalette({ colorImages = {} }: Props) {
             <span className="italic font-serif">Palette</span>
           </h2>
           <p className="text-sm text-muted-foreground mt-4 max-w-sm mx-auto leading-relaxed">
-            Five shades. Five stories. Each born from the landscapes, architecture, and soul of Rajasthan.
+            {SHADES.length} shades. {SHADES.length} stories. Each born from the landscapes, architecture, and soul of Rajasthan.
           </p>
         </motion.div>
 
@@ -282,7 +272,7 @@ export function RajasthanPalette({ colorImages = {} }: Props) {
               View Collection
             </Link>
           </div>
-          <div className="grid grid-cols-5 gap-1.5 md:gap-3">
+          <div className="grid grid-cols-4 gap-1.5 md:gap-3">
             {SHADES.map((s, i) => (
               <button
                 key={s.name}

@@ -13,6 +13,8 @@ export interface IUser extends Document {
     state: string
     zip: string
     phone: string
+    country?: string
+    isDefault?: boolean
   }[]
   wishlist: string[] // product IDs
   resetPasswordToken?: string
@@ -31,6 +33,8 @@ const UserSchema: Schema = new Schema({
     state: String,
     zip: String,
     phone: String,
+    country: { type: String, default: "India" },
+    isDefault: { type: Boolean, default: false },
   }],
   wishlist: [{ type: Schema.Types.ObjectId, ref: 'Product' }],
   resetPasswordToken: String,

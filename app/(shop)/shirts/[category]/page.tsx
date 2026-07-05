@@ -145,24 +145,25 @@ export default async function CategoryPage({ params, searchParams }: Props) {
           comparePrice: p.comparePrice || 0,
           variantColor: vAny.color,
           variantImage: p.images?.[0] || vAny.images?.[0],
+          variantImageSecondary: vAny.images?.[1] || p.images?.[1],
           variantPrice: p.basePrice + (vAny.priceAdjustment || 0),
           variantSku: vAny.sku,
           variantId: vAny._id?.toString(),
           variantStock: vAny.stock,
-          availableSizes: [vAny.size],
+          availableSizes: [{ size: vAny.size, stock: vAny.stock }],
         })
       } else {
         const existing = colorMap.get(colorName)
-        if (!existing.availableSizes.includes(vAny.size)) {
-          existing.availableSizes.push(vAny.size)
+        if (!existing.availableSizes.some((s: any) => s.size === vAny.size)) {
+          existing.availableSizes.push({ size: vAny.size, stock: vAny.stock })
         }
       }
     }
 
     if (searchParams.size) {
       for (const [, card] of colorMap) {
-        if (card.availableSizes.includes(searchParams.size)) {
-          variantCards.push({ ...card, availableSizes: [searchParams.size] })
+        if (card.availableSizes.some((s: any) => s.size === searchParams.size)) {
+          variantCards.push({ ...card, availableSizes: card.availableSizes.filter((s: any) => s.size === searchParams.size) })
         }
       }
     } else {
