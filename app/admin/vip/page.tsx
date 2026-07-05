@@ -22,6 +22,7 @@ export default function AdminVIPPage() {
   const [emailModal, setEmailModal] = useState<{ type: "single" | "bulk" | "launch"; email?: string } | null>(null)
   const [emailSubject, setEmailSubject] = useState("")
   const [emailMessage, setEmailMessage] = useState("")
+  const [includeCarousel, setIncludeCarousel] = useState(true)
   const [sending, setSending] = useState(false)
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null)
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
@@ -90,7 +91,7 @@ Don't wait - the best sizes sell out fast!`)
     if (!emailSubject || !emailMessage) return
     setSending(true)
     try {
-      const body: any = { subject: emailSubject, message: emailMessage }
+      const body: any = { subject: emailSubject, message: emailMessage, includeCarousel }
       if (emailModal?.type === "single") {
         body.email = emailModal.email
       } else {
@@ -263,6 +264,11 @@ Don't wait - the best sizes sell out fast!`)
                   className="w-full mt-1.5 px-3 py-2.5 border border-border bg-background text-sm text-foreground focus:outline-none focus:border-[#c4956a]/50 transition-colors resize-none"
                 />
               </div>
+
+              <label className="flex items-center gap-2 text-xs text-foreground cursor-pointer">
+                <input type="checkbox" checked={includeCarousel} onChange={(e) => setIncludeCarousel(e.target.checked)} className="accent-[#c4956a]" />
+                Include a product carousel (4 random featured products, picked fresh at send time)
+              </label>
             </div>
 
             {/* Modal Footer */}

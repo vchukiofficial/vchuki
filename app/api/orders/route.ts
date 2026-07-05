@@ -54,7 +54,9 @@ export async function POST(request: NextRequest) {
     couponCode: body.couponCode,
     shippingAddress: body.shippingAddress,
     paymentMethod: body.paymentMethod || "cod",
-    paymentStatus: body.paymentMethod === "cod" ? "pending" : "paid",
+    // Nothing is auto-confirmed as paid — COD is collected on delivery, UPI/other online methods
+    // require manual admin confirmation (or, in the future, a verified gateway webhook) before "paid".
+    paymentStatus: "pending",
     shippingStatus: "pending",
     timeline: [{ event: "Order placed", timestamp: new Date() }],
   })

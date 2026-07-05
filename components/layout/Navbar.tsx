@@ -178,6 +178,11 @@ export default function Navbar() {
             <Link href="/account/wishlist" className="hidden md:block">
               <Heart className="h-[17px] w-[17px] text-muted-foreground hover:text-foreground transition-colors" />
             </Link>
+            {session?.user?.role === "admin" && (
+              <Link href="/admin" className="hidden md:block text-[11px] uppercase tracking-[0.1em] text-[#c4956a] hover:text-[#d4a574] transition-colors font-medium">
+                Admin
+              </Link>
+            )}
             {session ? (
               <Link href="/account">
                 <User className="h-[17px] w-[17px] text-muted-foreground hover:text-foreground transition-colors" />

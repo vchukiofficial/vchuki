@@ -84,10 +84,14 @@ async function getProducts() {
     stock: { $gt: 0 },
   }).lean()
 
-  // Fetch category cover images (first product image per category)
+  // Fetch category cover images (random color per category, not always the same one)
   const categorySlugs = ["linen-full-sleeve", "linen-half-sleeve", "kurta-half-sleeve", "kurta-full-sleeve"]
   const categoryCovers = await Promise.all(
-    categorySlugs.map(slug => Product.findOne({ category: slug, isActive: true, "images.0": { $exists: true } }).select("images").lean())
+    categorySlugs.map(async (slug) => {
+      const products = await Product.find({ category: slug, isActive: true, "images.0": { $exists: true } }).select("images").lean()
+      if (products.length === 0) return null
+      return products[Math.floor(Math.random() * products.length)]
+    })
   )
   const categoryImages: Record<string, string> = {}
   categorySlugs.forEach((slug, i) => {

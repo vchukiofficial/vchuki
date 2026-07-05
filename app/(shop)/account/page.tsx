@@ -25,7 +25,7 @@ export default function AccountPage() {
     { href: "/admin/products", icon: Package, label: "Manage Products", desc: "Add, edit, delete products" },
     { href: "/admin/orders", icon: ShoppingCart, label: "Manage Orders", desc: "View & update order status" },
     { href: "/admin/delivery", icon: Truck, label: "Delivery Management", desc: "Track shipments & delivery" },
-    { href: "/admin/users", icon: Users, label: "Manage Users", desc: "Roles & permissions" },
+    { href: "/admin/customers", icon: Users, label: "Manage Users", desc: "Roles & permissions" },
     { href: "/admin/coupons", icon: Tag, label: "Manage Coupons", desc: "Create & manage discounts" },
     { href: "/admin/reviews", icon: Star, label: "Manage Reviews", desc: "Moderate customer reviews" },
   ]

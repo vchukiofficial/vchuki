@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { RotateCcw, IndianRupee, CheckCircle, XCircle, Download, Trash2 } from "lucide-react"
 import { exportToExcel } from "@/lib/admin/exportExcel"
+import { paymentMethodLabel } from "@/lib/utils"
 
 export default function AdminReturnsPage() {
   const [orders, setOrders] = useState<any[]>([])
@@ -66,7 +67,7 @@ export default function AdminReturnsPage() {
       type: o.shippingStatus === "returned" ? "Return" : "Cancelled",
       items: o.items?.map((i: any) => i.name).join(", "),
       amount: `₹${o.finalAmount?.toLocaleString()}`,
-      payment: o.paymentMethod === "cod" ? "COD" : "Razorpay",
+      payment: paymentMethodLabel(o.paymentMethod),
       refundStatus: o.paymentStatus,
       reason: o.shippingStatus === "cancelled" ? "Customer cancelled" : "Quality/Size issue",
       date: new Date(o.createdAt).toLocaleDateString("en-IN"),

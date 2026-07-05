@@ -3,6 +3,7 @@
 import { useSession } from "next-auth/react"
 import { useEffect, useState } from "react"
 import { Package, Truck, CheckCircle, Clock, XCircle, MapPin, Phone, RotateCcw, X, Send } from "lucide-react"
+import { paymentMethodLabel } from "@/lib/utils"
 
 interface Order {
   _id: string
@@ -183,7 +184,7 @@ export default function OrdersPage() {
                     {/* Payment */}
                     <div className="flex justify-between text-sm border-t border-border pt-3">
                       <span className="text-muted-foreground">Payment</span>
-                      <span className="text-foreground capitalize">{order.paymentMethod === "cod" ? "Cash on Delivery" : "Razorpay"} — <span className={order.paymentStatus === "paid" ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600"}>{order.paymentStatus}</span></span>
+                      <span className="text-foreground capitalize">{paymentMethodLabel(order.paymentMethod)} — <span className={order.paymentStatus === "paid" ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600"}>{order.paymentStatus}</span></span>
                     </div>
 
                     {/* Return Button */}

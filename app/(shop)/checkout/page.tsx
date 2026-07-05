@@ -5,7 +5,7 @@ import { useSession, signIn } from "next-auth/react"
 import { useCartStore } from "@/store/cartStore"
 import Image from "next/image"
 import Link from "next/link"
-import { Check, Shield, Truck, ArrowLeft, CreditCard, Banknote, Package, Clock, MapPin, ShoppingBag } from "lucide-react"
+import { Check, Shield, Truck, ArrowLeft, CreditCard, Banknote, Package, Clock, MapPin, ShoppingBag, Smartphone } from "lucide-react"
 import { AddressForm } from "@/components/shared/AddressForm"
 import type { Address } from "@/types"
 
@@ -17,7 +17,7 @@ export default function CheckoutPage() {
   const [step, setStep] = useState<Step>("details")
   const [loading, setLoading] = useState(false)
   const [orderId, setOrderId] = useState("")
-  const [paymentMethod, setPaymentMethod] = useState<"cod" | "razorpay">("cod")
+  const [paymentMethod, setPaymentMethod] = useState<"cod" | "upi">("cod")
 
   // Form state
   const [form, setForm] = useState({
@@ -190,6 +190,30 @@ export default function CheckoutPage() {
             <div className="flex items-center justify-between pb-3 border-b border-border">
               <span className="text-[10px] uppercase tracking-wider text-muted-foreground">Order ID</span>
               <span className="text-xs font-mono font-medium text-foreground">#{orderId.slice(-8).toUpperCase()}</span>
+            </div>
+          )}
+
+          {/* UPI Payment */}
+          {paymentMethod === "upi" && orderId && (
+            <div className="p-4 border border-[#c4956a]/30 bg-[#c4956a]/5 space-y-3">
+              <p className="text-[10px] uppercase tracking-wider text-[#c4956a] font-medium">Complete Your Payment</p>
+              <p className="text-xs text-muted-foreground">Scan the QR code with any UPI app, or tap the button below on your phone.</p>
+              <div className="flex justify-center">
+                <img
+                  src={`/api/upi-qr?amount=${total}&note=${encodeURIComponent(`VCHUKI Order ${orderId.slice(-8).toUpperCase()}`)}`}
+                  alt="UPI payment QR code"
+                  width={180}
+                  height={180}
+                  className="border border-border bg-white p-2"
+                />
+              </div>
+              <a
+                href={`upi://pay?pa=${encodeURIComponent(process.env.NEXT_PUBLIC_UPI_ID || "")}&pn=${encodeURIComponent(process.env.NEXT_PUBLIC_UPI_PAYEE_NAME || "VCHUKI")}&am=${total.toFixed(2)}&cu=INR&tn=${encodeURIComponent(`VCHUKI Order ${orderId.slice(-8).toUpperCase()}`)}`}
+                className="flex items-center justify-center gap-2 w-full py-3 bg-[#2a1f14] dark:bg-[#c4956a] text-[#f5e6d3] dark:text-[#2a1f14] text-xs font-medium tracking-wider uppercase hover:opacity-90 transition-opacity"
+              >
+                <Smartphone className="h-3.5 w-3.5" /> Pay ₹{total.toLocaleString()} via UPI App
+              </a>
+              <p className="text-[10px] text-muted-foreground text-center">We&apos;ll confirm your order once payment is received — usually within a few hours.</p>
             </div>
           )}
 
@@ -444,12 +468,12 @@ export default function CheckoutPage() {
                   Payment Method
                 </h2>
                 <div className="space-y-2">
-                  <label className={`flex items-center gap-3 p-4 border cursor-pointer transition-all ${paymentMethod === "razorpay" ? "border-[#c4956a] bg-[#c4956a]/5" : "border-border hover:border-[#c4956a]/30"}`}>
-                    <input type="radio" name="payment" checked={paymentMethod === "razorpay"} onChange={() => setPaymentMethod("razorpay")} className="accent-[#c4956a]" />
-                    <CreditCard className="h-4 w-4 text-muted-foreground" />
+                  <label className={`flex items-center gap-3 p-4 border cursor-pointer transition-all ${paymentMethod === "upi" ? "border-[#c4956a] bg-[#c4956a]/5" : "border-border hover:border-[#c4956a]/30"}`}>
+                    <input type="radio" name="payment" checked={paymentMethod === "upi"} onChange={() => setPaymentMethod("upi")} className="accent-[#c4956a]" />
+                    <Smartphone className="h-4 w-4 text-muted-foreground" />
                     <div className="flex-1">
-                      <span className="text-sm font-medium text-foreground">UPI / Card / Net Banking</span>
-                      <p className="text-[10px] text-muted-foreground">Razorpay secure payment</p>
+                      <span className="text-sm font-medium text-foreground">UPI / Google Pay</span>
+                      <p className="text-[10px] text-muted-foreground">Scan QR or pay via your UPI app</p>
                     </div>
                     <span className="text-sm font-semibold text-foreground">₹{(subtotal - totalDiscount + shipping).toLocaleString()}</span>
                   </label>

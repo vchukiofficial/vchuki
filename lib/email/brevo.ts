@@ -1,3 +1,5 @@
+import { paymentMethodLabel } from "@/lib/utils"
+
 const BREVO_API_KEY = process.env.BREVO_API_KEY || ""
 const SENDER = { name: "VCHUKI - Premium Linen Blend, Crafted in Jodhpur", email: process.env.BREVO_SENDER_EMAIL || "hello@vchuki.com" }
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "akshayneriya2001@gmail.com"
@@ -7,7 +9,7 @@ const BCC_ORDER_EMAIL = "akshayneriya2001@gmail.com"
 // CORE SEND FUNCTION
 // ============================================
 
-async function brevoSend(to: string, subject: string, htmlContent: string, bcc?: string) {
+export async function brevoSend(to: string, subject: string, htmlContent: string, bcc?: string) {
   if (!BREVO_API_KEY) throw new Error("BREVO_API_KEY not configured")
   const payload: any = {
     sender: SENDER,
@@ -120,7 +122,7 @@ export async function sendOrderConfirmationEmail(to: string, order: {
   await sendViaTemplate("order-confirmation", to, {
     orderId: order.orderId, itemsTable, discountLine,
     finalAmount: order.finalAmount.toLocaleString(),
-    paymentMethod: order.paymentMethod === "cod" ? "Cash on Delivery" : "Razorpay",
+    paymentMethod: paymentMethodLabel(order.paymentMethod),
     shippingAddress: addr
   },
     "Order Confirmed — #{{orderId}}",
@@ -259,11 +261,12 @@ export async function sendBackInStockEmail(to: string, data: { name: string; pro
   )
 }
 
-export async function sendPromoEmail(to: string, data: { subject: string; heading: string; content: string; ctaText: string; ctaLink: string }) {
-  return sendViaTemplate("promo-blast", to, data,
+export async function sendPromoEmail(to: string, data: { subject: string; heading: string; content: string; ctaText: string; ctaLink: string; productCarousel?: string }) {
+  return sendViaTemplate("promo-blast", to, { productCarousel: "", ...data },
     "{{subject}}",
     `<h2 style="color:#2a1f14;">{{heading}}</h2>
     {{content}}
+    {{productCarousel}}
     <div style="margin:24px 0;"><a href="{{ctaLink}}" style="background:#2a1f14;color:#f5e6d3;padding:12px 24px;text-decoration:none;font-size:12px;text-transform:uppercase;">{{ctaText}}</a></div>`
   )
 }

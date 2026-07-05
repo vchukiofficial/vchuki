@@ -1,8 +1,17 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Mail, Save, Plus, Trash2, Eye, EyeOff, Code, Palette, RefreshCw } from "lucide-react"
+import { useSession } from "next-auth/react"
+import { Mail, Save, Plus, Trash2, Eye, EyeOff, Code, Palette, RefreshCw, Send } from "lucide-react"
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog"
+import { buildProductCarouselHtml } from "@/lib/email/productCarousel"
+
+const SAMPLE_CAROUSEL_PRODUCTS = [
+  { name: "Golden Dune Linen Half Sleeve Shirt", price: 699, image: "/shortsleevgoldenduneshortkurta.png", slug: "golden-dune-linen-half-sleeve-shirt" },
+  { name: "Desert Sand Linen Full Sleeve Shirt", price: 799, image: "/shortsleevdesertsandshortkurta.png", slug: "desert-sand-linen-full-sleeve-shirt" },
+  { name: "Ivory White Short Kurta Half Sleeve", price: 699, image: "/shortsleevwhiteshortkurta.png", slug: "ivory-white-short-kurta-half-sleeve" },
+  { name: "Olive Green Linen Half Sleeve Shirt", price: 699, image: "/shortsleevolivegreenshortkurta.png", slug: "olive-green-linen-half-sleeve-shirt" },
+]
 
 interface Template {
   _id: string
@@ -15,12 +24,15 @@ interface Template {
 }
 
 export default function AdminEmailTemplatesPage() {
+  const { data: session } = useSession()
   const [templates, setTemplates] = useState<Template[]>([])
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState<Template | null>(null)
   const [preview, setPreview] = useState(false)
   const [saving, setSaving] = useState(false)
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; id?: string }>({ open: false })
+  const [testEmail, setTestEmail] = useState("")
+  const [testSendState, setTestSendState] = useState<"idle" | "sending" | "sent" | "error">("idle")
 
   function fetchTemplates() {
     setLoading(true)
@@ -31,6 +43,9 @@ export default function AdminEmailTemplatesPage() {
   }
 
   useEffect(() => { fetchTemplates() }, [])
+  useEffect(() => {
+    if (session?.user?.email && !testEmail) setTestEmail(session.user.email)
+  }, [session, testEmail])
 
   async function seedDefaults() {
     const defaults = [
@@ -48,7 +63,7 @@ export default function AdminEmailTemplatesPage() {
       { slug: "payment-failed", name: "Payment Failed", subject: "Payment Failed \u2014 Action Required", variables: ["name", "orderId", "amount"], body: '<h2 style="color:#2a1f14;">Payment Failed</h2>\n<p style="color:#666;font-size:14px;">Hi {{name}}, your payment of <strong>\u20b9{{amount}}</strong> for order #{{orderId}} could not be processed.</p>\n<div style="background:#fef2f2;padding:16px;margin:16px 0;border-left:4px solid #ef4444;"><p style="font-size:13px;color:#333;margin:0;">Please try again with a different payment method.</p></div>\n<div style="margin:24px 0;"><a href="https://vchuki.com/cart" style="background:#2a1f14;color:#f5e6d3;padding:12px 24px;text-decoration:none;font-size:12px;text-transform:uppercase;">Retry Payment</a></div>\n<p style="color:#999;font-size:11px;">Your items are reserved for 30 minutes.</p>' },
       { slug: "review-request", name: "Review Request", subject: "How was your VCHUKI order, {{name}}?", variables: ["name", "orderId", "productName", "reviewLink"], body: '<h2 style="color:#2a1f14;">How was your order?</h2>\n<p style="color:#666;font-size:14px;">Hi {{name}}, we hope you\'re loving your <strong>{{productName}}</strong>!</p>\n<p style="color:#666;font-size:13px;">Your feedback helps other customers and helps us improve. It only takes a minute.</p>\n<div style="margin:24px 0;"><a href="{{reviewLink}}" style="background:#2a1f14;color:#f5e6d3;padding:12px 24px;text-decoration:none;font-size:12px;text-transform:uppercase;">Write a Review</a></div>\n<p style="color:#c4956a;font-size:12px;">\u2b50 Reviewers get 5% off their next order!</p>' },
       { slug: "back-in-stock", name: "Back in Stock", subject: "Good News! {{productName}} is Back in Stock", variables: ["name", "productName", "productLink"], body: '<h2 style="color:#2a1f14;">It\'s Back! \ud83c\udf89</h2>\n<p style="color:#666;font-size:14px;">Hi {{name}}, great news! <strong>{{productName}}</strong> is back in stock.</p>\n<p style="color:#666;font-size:13px;">Don\'t miss it this time \u2014 our popular items sell out fast.</p>\n<div style="margin:24px 0;"><a href="{{productLink}}" style="background:#2a1f14;color:#f5e6d3;padding:12px 24px;text-decoration:none;font-size:12px;text-transform:uppercase;">Shop Now</a></div>\n<p style="color:#999;font-size:11px;">Limited stock available.</p>' },
-      { slug: "promo-blast", name: "Promotional / Newsletter", subject: "{{subject}}", variables: ["subject", "heading", "content", "ctaText", "ctaLink"], body: '<h2 style="color:#2a1f14;">{{heading}}</h2>\n{{content}}\n<div style="margin:24px 0;"><a href="{{ctaLink}}" style="background:#2a1f14;color:#f5e6d3;padding:12px 24px;text-decoration:none;font-size:12px;text-transform:uppercase;">{{ctaText}}</a></div>' },
+      { slug: "promo-blast", name: "Promotional / Newsletter", subject: "{{subject}}", variables: ["subject", "heading", "content", "productCarousel", "ctaText", "ctaLink"], body: '<h2 style="color:#2a1f14;font-size:22px;font-weight:300;">{{heading}}</h2>\n<div style="color:#666;font-size:14px;line-height:1.6;">{{content}}</div>\n{{productCarousel}}\n<div style="margin:28px 0 12px;text-align:center;"><a href="{{ctaLink}}" style="background:#2a1f14;color:#f5e6d3;padding:14px 32px;text-decoration:none;font-size:12px;letter-spacing:1px;text-transform:uppercase;font-weight:bold;display:inline-block;">{{ctaText}}</a></div>\n<p style="color:#999;font-size:11px;text-align:center;margin-top:16px;">Free shipping on orders above ₹1,599 · 7-day easy returns</p>' },
     ]
     for (const tpl of defaults) {
       await fetch("/api/admin/email-templates", {
@@ -113,6 +128,40 @@ export default function AdminEmailTemplatesPage() {
       .replace(/\{\{itemsTable\}\}/g, '<table style="width:100%;border-collapse:collapse;margin:16px 0;"><tr style="background:#f5e6d3;"><th style="padding:8px;text-align:left;font-size:11px;">Item</th><th style="padding:8px;">Qty</th><th style="padding:8px;text-align:right;">Price</th></tr><tr><td style="padding:8px;border-bottom:1px solid #eee;font-size:13px;">Desert Sand Linen Shirt (M/Desert Sand)</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:center;">×2</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">₹799</td></tr></table>')
       .replace(/\{\{discountLine\}\}/g, '<p style="color:#059669;font-size:13px;">Discount: -₹100</p>')
       .replace(/\{\{itemsList\}\}/g, '<ul style="color:#333;font-size:13px;"><li>Desert Sand Linen Shirt — ₹799</li><li>Royal Indigo Kurta — ₹899</li></ul>')
+      .replace(/\{\{productCarousel\}\}/g, buildProductCarouselHtml(SAMPLE_CAROUSEL_PRODUCTS))
+  }
+
+  function fullPreviewHtml(body: string) {
+    return `<div style="background:#2a1f14;padding:28px 24px;text-align:center;">
+      <img src="https://vchuki.com/marko-white.png" alt="VCHUKI" width="36" height="36" style="display:block;margin:0 auto 10px;" />
+      <span style="color:#f5e6d3;font-size:20px;font-weight:600;letter-spacing:5px;display:block;">VCHUKI</span>
+      <p style="color:#c4956a;font-size:10px;text-transform:uppercase;letter-spacing:2px;margin:6px 0 0;">Premium Linen Blend — Crafted in Jodhpur</p>
+    </div>
+    <div style="padding:24px;">${renderPreview(body)}</div>
+    <div style="background:#f9f6f3;padding:16px;text-align:center;border-top:1px solid #eee;">
+      <p style="color:#999;font-size:11px;margin:0;">VCHUKI Fashion Private Limited · Jodhpur, Rajasthan 342001</p>
+    </div>`
+  }
+
+  async function handleSendTest() {
+    if (!editing || !testEmail.trim()) return
+    setTestSendState("sending")
+    try {
+      const res = await fetch("/api/admin/email-templates/test-send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          to: testEmail.trim(),
+          subject: renderPreview(editing.subject),
+          html: fullPreviewHtml(editing.body),
+        }),
+      })
+      setTestSendState(res.ok ? "sent" : "error")
+    } catch {
+      setTestSendState("error")
+    }
+    setTimeout(() => setTestSendState("idle"), 3000)
   }
 
   if (loading) return <div className="text-sm text-muted-foreground animate-pulse p-4">Loading templates...</div>
@@ -223,15 +272,34 @@ export default function AdminEmailTemplatesPage() {
             ) : (
               /* Live Preview */
               <div className="border border-border">
-                <div className="bg-muted/30 px-3 py-2 border-b border-border flex items-center gap-2">
+                <div className="bg-muted/30 px-3 py-2 border-b border-border flex items-center gap-2 flex-wrap">
                   <Mail className="h-3.5 w-3.5 text-muted-foreground" />
                   <span className="text-[10px] text-muted-foreground">Preview — Subject: <span className="text-foreground font-medium">{editing.subject.replace(/\{\{orderId\}\}/g, "A7F2B3C1")}</span></span>
+                  <div className="flex items-center gap-1.5 ml-auto">
+                    <input
+                      type="email"
+                      value={testEmail}
+                      onChange={e => setTestEmail(e.target.value)}
+                      placeholder="you@example.com"
+                      className="px-2 py-1 border border-border bg-background text-[10px] text-foreground w-40 focus:outline-none focus:border-[#c4956a]/50"
+                    />
+                    <button
+                      onClick={handleSendTest}
+                      disabled={testSendState === "sending" || !testEmail.trim()}
+                      className={`flex items-center gap-1 px-2.5 py-1 text-[10px] font-medium border transition-colors disabled:opacity-50 ${
+                        testSendState === "sent" ? "border-emerald-500/40 text-emerald-600" : testSendState === "error" ? "border-red-500/40 text-red-500" : "border-[#c4956a]/40 text-[#c4956a] hover:bg-[#c4956a]/5"
+                      }`}
+                    >
+                      <Send className="h-3 w-3" />
+                      {testSendState === "sending" ? "Sending…" : testSendState === "sent" ? "Sent!" : testSendState === "error" ? "Failed" : "Send Test"}
+                    </button>
+                  </div>
                 </div>
                 <div className="p-4 bg-[#f5f5f5]">
                   <div className="max-w-[600px] mx-auto bg-white shadow-sm">
                     {/* Header */}
                     <div style={{ background: "#2a1f14", padding: "28px 24px", textAlign: "center" }}>
-                      <img src="/marko.png" alt="V" width={36} height={36} style={{ display: "block", margin: "0 auto 10px", filter: "invert(1)" }} />
+                      <img src="/marko-white.png" alt="VCHUKI" width={36} height={36} style={{ display: "block", margin: "0 auto 10px" }} />
                       <span style={{ color: "#f5e6d3", fontSize: "20px", fontWeight: 600, letterSpacing: "5px", display: "block" }}>VCHUKI</span>
                       <p style={{ color: "#c4956a", fontSize: "10px", textTransform: "uppercase", letterSpacing: "2px", margin: "6px 0 0" }}>Premium Linen Blend — Crafted in Jodhpur</p>
                     </div>

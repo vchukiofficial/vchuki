@@ -43,6 +43,11 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.role = (user as any).role
         token.id = user.id
+      } else if (token.id) {
+        // Re-check role from DB so promotions/demotions take effect without forcing a re-login
+        await connectDB()
+        const dbUser = await User.findById(token.id as string).select('role').lean()
+        if (dbUser) token.role = (dbUser as any).role
       }
       return token
     },

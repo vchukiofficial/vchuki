@@ -28,7 +28,7 @@ export interface IOrder extends Document {
     zip: string
     phone: string
   }
-  paymentMethod: 'razorpay' | 'stripe' | 'cod'
+  paymentMethod: 'razorpay' | 'stripe' | 'cod' | 'upi'
   paymentStatus: 'pending' | 'paid' | 'failed'
   paymentId?: string
   shippingStatus: 'pending' | 'shipped' | 'delivered' | 'cancelled'
@@ -66,7 +66,7 @@ const OrderSchema: Schema = new Schema({
     zip: String,
     phone: String,
   },
-  paymentMethod: { type: String, enum: ['razorpay', 'stripe', 'cod'], default: 'cod' },
+  paymentMethod: { type: String, enum: ['razorpay', 'stripe', 'cod', 'upi'], default: 'cod' },
   paymentStatus: { type: String, enum: ['pending', 'paid', 'failed'], default: 'pending' },
   paymentId: String,
   shippingStatus: { type: String, enum: ['pending', 'confirmed', 'packaging', 'dispatched', 'shipped', 'out_for_delivery', 'delivered', 'returned', 'cancelled'], default: 'pending' },

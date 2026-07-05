@@ -26,6 +26,7 @@ interface AdminState {
   updateProduct: (id: string, data: Partial<Product>) => Promise<void>
   createProduct: (data: any) => Promise<Product | null>
   updateOrderStatus: (id: string, status: string) => Promise<void>
+  updatePaymentStatus: (id: string, status: string) => Promise<void>
   updateUserRole: (id: string, role: string) => Promise<void>
   deleteReview: (id: string) => Promise<void>
   createCoupon: (data: any) => Promise<Coupon | null>
@@ -105,6 +106,11 @@ export const useAdminStore = create<AdminState>((set, get) => ({
   updateOrderStatus: async (id, status) => {
     await fetch(`/api/orders/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ shippingStatus: status }) })
     set((s) => ({ orders: s.orders.map((o) => (o._id === id ? { ...o, shippingStatus: status as any } : o)) }))
+  },
+
+  updatePaymentStatus: async (id, status) => {
+    await fetch(`/api/orders/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ paymentStatus: status }) })
+    set((s) => ({ orders: s.orders.map((o) => (o._id === id ? { ...o, paymentStatus: status as any } : o)) }))
   },
 
   updateUserRole: async (id, role) => {

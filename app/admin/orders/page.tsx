@@ -5,6 +5,7 @@ import { useAdminStore } from "@/store/adminStore"
 import { StatusBadge, SectionHeader, EmptyState } from "@/components/admin/ui"
 import { ShoppingCart, Package, Truck, Search, Download, ChevronDown, Trash2 } from "lucide-react"
 import { exportToExcel } from "@/lib/admin/exportExcel"
+import { paymentMethodLabel } from "@/lib/utils"
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog"
 import { AdminPagination } from "@/components/admin/AdminPagination"
 
@@ -17,7 +18,7 @@ function generateAWB(courier: string) {
 }
 
 export default function AdminOrdersPage() {
-  const { orders, loading, fetchOrders, updateOrderStatus } = useAdminStore()
+  const { orders, loading, fetchOrders, updateOrderStatus, updatePaymentStatus } = useAdminStore()
   const [filter, setFilter] = useState("all")
   const [search, setSearch] = useState("")
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null)
@@ -75,7 +76,7 @@ export default function AdminOrdersPage() {
       items: o.items?.map((i: any) => `${i.name} (${i.size}/${i.color}) ×${i.quantity}`).join(", "),
       amount: `₹${o.finalAmount?.toLocaleString()}`,
       status: o.shippingStatus,
-      payment: o.paymentMethod === "cod" ? "COD" : "Razorpay",
+      payment: paymentMethodLabel(o.paymentMethod),
       paymentStatus: o.paymentStatus,
       customer: (o as any).shippingAddress?.name || "",
       city: (o as any).shippingAddress?.city || "",
@@ -237,10 +238,18 @@ export default function AdminOrdersPage() {
                       <div>
                         <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-2">Payment</p>
                         <div className="text-xs space-y-1">
-                          <p className="text-foreground capitalize">{order.paymentMethod === "cod" ? "Cash on Delivery" : "Razorpay"}</p>
+                          <p className="text-foreground capitalize">{paymentMethodLabel(order.paymentMethod)}</p>
                           <p className={order.paymentStatus === "paid" ? "text-emerald-600" : "text-amber-600"}>{order.paymentStatus}</p>
                           <p className="text-muted-foreground">Total: ₹{order.finalAmount?.toLocaleString()}</p>
                           {order.discountAmount > 0 && <p className="text-emerald-600">Discount: -₹{order.discountAmount}</p>}
+                          {order.paymentMethod === "upi" && order.paymentStatus !== "paid" && (
+                            <button
+                              onClick={() => updatePaymentStatus(order._id, "paid")}
+                              className="mt-1.5 px-2.5 py-1 text-[10px] font-medium bg-emerald-600 text-white hover:bg-emerald-700 transition-colors"
+                            >
+                              Mark Payment Received
+                            </button>
+                          )}
                         </div>
                       </div>
                     </div>

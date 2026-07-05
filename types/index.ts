@@ -74,7 +74,7 @@ export interface Order {
   finalAmount: number
   couponCode?: string
   shippingAddress: Address
-  paymentMethod: 'razorpay' | 'stripe' | 'cod'
+  paymentMethod: 'razorpay' | 'stripe' | 'cod' | 'upi'
   paymentStatus: 'pending' | 'paid' | 'failed'
   paymentId?: string
   shippingStatus: 'pending' | 'confirmed' | 'packaging' | 'dispatched' | 'shipped' | 'out_for_delivery' | 'delivered' | 'returned' | 'cancelled'
