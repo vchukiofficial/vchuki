@@ -5,7 +5,7 @@ import { useSession, signIn } from "next-auth/react"
 import { useCartStore } from "@/store/cartStore"
 import Image from "next/image"
 import Link from "next/link"
-import { Check, Shield, Truck, ArrowLeft, CreditCard, Banknote, Package, Clock, MapPin, ShoppingBag, Smartphone } from "lucide-react"
+import { Check, Shield, Truck, ArrowLeft, Banknote, Package, Clock, MapPin, ShoppingBag, Smartphone } from "lucide-react"
 import { AddressForm } from "@/components/shared/AddressForm"
 import type { Address } from "@/types"
 

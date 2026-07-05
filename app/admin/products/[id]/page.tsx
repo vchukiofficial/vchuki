@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import Image from "next/image"
-import { ArrowLeft, Save, Trash2, Plus, X, Star, Eye, Upload, ImagePlus } from "lucide-react"
+import { ArrowLeft, Save, Trash2, Plus, X, Star, Eye, Upload, ImagePlus, ChevronLeft, ChevronRight } from "lucide-react"
 import Link from "next/link"
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog"
 
@@ -167,6 +167,22 @@ export default function AdminProductDetailPage() {
     setVariants(variants.map(v => v._id === variantId ? { ...v, images: newImages } : v))
   }
 
+  // Reorder variant images
+  async function moveVariantImage(variantId: string, idx: number, direction: -1 | 1) {
+    const variant = variants.find(v => v._id === variantId)
+    if (!variant) return
+    const target = idx + direction
+    if (target < 0 || target >= variant.images.length) return
+    const newImages = [...variant.images]
+    ;[newImages[idx], newImages[target]] = [newImages[target], newImages[idx]]
+    await fetch(`/api/products/${id}/variants/${variantId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ images: newImages }),
+    })
+    setVariants(variants.map(v => v._id === variantId ? { ...v, images: newImages } : v))
+  }
+
   // Update variant stock
   async function updateVariantStock(variantId: string, stock: number) {
     await fetch(`/api/products/${id}/variants/${variantId}`, {
@@ -188,6 +204,18 @@ export default function AdminProductDetailPage() {
   function removeProductImage(idx: number) {
     if (!product) return
     setProduct({ ...product, images: product.images.filter((_, i) => i !== idx) })
+  }
+
+  // Reorder product images — images[0] is used as the cover photo everywhere on the site
+  function moveProductImage(idx: number, direction: -1 | 1) {
+    if (!product) return
+    const target = idx + direction
+    if (target < 0 || target >= product.images.length) return
+    const newImages = [...product.images]
+    ;[newImages[idx], newImages[target]] = [newImages[target], newImages[idx]]
+    setProduct({ ...product, images: newImages })
+    if (activeImage === idx) setActiveImage(target)
+    else if (activeImage === target) setActiveImage(idx)
   }
 
   if (loading) return <div className="text-sm text-muted-foreground animate-pulse p-4">Loading product...</div>
@@ -246,18 +274,40 @@ export default function AdminProductDetailPage() {
           </div>
 
           {/* Thumbnails + Upload */}
+          <p className="text-[9px] text-muted-foreground">Drag order with the arrows — the first photo is used as the cover image across the whole site.</p>
           <div className="flex gap-2 overflow-x-auto no-scrollbar">
             {product.images?.map((img, i) => (
-              <button key={i} onClick={() => setActiveImage(i)} className={`relative w-16 h-20 flex-shrink-0 border overflow-hidden group ${activeImage === i ? "border-[#c4956a]" : "border-border"}`}>
-                {img.match(/\.(mp4|webm|mov)$/i) ? (
-                  <div className="absolute inset-0 flex items-center justify-center bg-muted"><span className="text-[9px] text-muted-foreground font-bold">▶ VID</span></div>
-                ) : (
-                  <Image src={img} alt="" fill className="object-contain p-1" sizes="64px" />
+              <div key={i} className={`relative w-16 h-20 flex-shrink-0 border overflow-hidden group ${activeImage === i ? "border-[#c4956a]" : "border-border"}`}>
+                <button onClick={() => setActiveImage(i)} className="absolute inset-0 w-full h-full">
+                  {img.match(/\.(mp4|webm|mov)$/i) ? (
+                    <div className="absolute inset-0 flex items-center justify-center bg-muted"><span className="text-[9px] text-muted-foreground font-bold">▶ VID</span></div>
+                  ) : (
+                    <Image src={img} alt="" fill className="object-contain p-1" sizes="64px" />
+                  )}
+                </button>
+                {i === 0 && (
+                  <span className="absolute top-0.5 left-0.5 text-[7px] uppercase tracking-wide bg-[#c4956a] text-white px-1 py-0.5 pointer-events-none">Cover</span>
                 )}
                 <button onClick={(e) => { e.stopPropagation(); removeProductImage(i) }} className="absolute top-0.5 right-0.5 h-4 w-4 bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                   <X className="h-2.5 w-2.5" />
                 </button>
-              </button>
+                <div className="absolute bottom-0.5 inset-x-0.5 flex justify-between opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    onClick={(e) => { e.stopPropagation(); moveProductImage(i, -1) }}
+                    disabled={i === 0}
+                    className="h-4 w-4 bg-black/70 text-white flex items-center justify-center disabled:opacity-30"
+                  >
+                    <ChevronLeft className="h-2.5 w-2.5" />
+                  </button>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); moveProductImage(i, 1) }}
+                    disabled={i === (product.images?.length ?? 0) - 1}
+                    className="h-4 w-4 bg-black/70 text-white flex items-center justify-center disabled:opacity-30"
+                  >
+                    <ChevronRight className="h-2.5 w-2.5" />
+                  </button>
+                </div>
+              </div>
             ))}
             {/* Upload button */}
             <label className="w-16 h-20 flex-shrink-0 border border-dashed border-border flex flex-col items-center justify-center text-muted-foreground hover:border-[#c4956a]/40 cursor-pointer transition-colors">
@@ -367,6 +417,22 @@ export default function AdminProductDetailPage() {
                               <X className="h-2.5 w-2.5" />
                             </button>
                             <span className="absolute bottom-0.5 left-0.5 text-[8px] bg-black/60 text-white px-1">{i + 1}</span>
+                            <div className="absolute bottom-0.5 right-0.5 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <button
+                                onClick={() => moveVariantImage(colorVariants[0]._id, i, -1)}
+                                disabled={i === 0}
+                                className="h-4 w-4 bg-black/70 text-white flex items-center justify-center disabled:opacity-30"
+                              >
+                                <ChevronLeft className="h-2.5 w-2.5" />
+                              </button>
+                              <button
+                                onClick={() => moveVariantImage(colorVariants[0]._id, i, 1)}
+                                disabled={i === variantImages.length - 1}
+                                className="h-4 w-4 bg-black/70 text-white flex items-center justify-center disabled:opacity-30"
+                              >
+                                <ChevronRight className="h-2.5 w-2.5" />
+                              </button>
+                            </div>
                           </div>
                         ))}
 

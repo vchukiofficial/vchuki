@@ -7,7 +7,7 @@ import HeroVideo from "@/models/HeroVideo"
 import { ArrowRight, Truck, RotateCcw, Shield, CheckCircle, Gem, MapPin, ClipboardCheck, Wind } from "lucide-react"
 import { HeroSection } from "@/components/home/HeroSection"
 import { AnimatedSection } from "@/components/home/AnimatedSection"
-import { ProductCarousel } from "@/components/home/ProductCarousel"
+import { ShirtsVariantGrid } from "@/components/products/ShirtsVariantGrid"
 import { RajasthanPalette } from "@/components/home/RajasthanPalette"
 import { HomePageWrapper } from "@/components/home/HomePageWrapper"
 import { DroppingJulyBanner } from "@/components/home/DroppingJulyBanner"
@@ -47,14 +47,18 @@ function expandProductsToVariantCards(products: any[], allVariants: any[]) {
           productId: p._id,
           variantColor: vAny.color,
           variantImage: p.images?.[0] || vAny.images?.[0],
+          variantImageSecondary: vAny.images?.[1] || p.images?.[1],
           variantPrice: p.basePrice + (vAny.priceAdjustment || 0),
           variantSku: vAny.sku,
           variantId: vAny._id,
           variantStock: vAny.stock,
-          availableSizes: [vAny.size],
+          availableSizes: [{ size: vAny.size, stock: vAny.stock }],
         })
       } else {
-        colorMap.get(colorName).availableSizes.push(vAny.size)
+        const existing = colorMap.get(colorName)
+        if (!existing.availableSizes.some((s: any) => s.size === vAny.size)) {
+          existing.availableSizes.push({ size: vAny.size, stock: vAny.stock })
+        }
       }
     }
     cards.push(...colorMap.values())
@@ -199,8 +203,8 @@ export default async function HomePage() {
                 View All <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
               </Link>
             </div>
+            <ShirtsVariantGrid products={bestsellers} />
           </div>
-          <ProductCarousel products={bestsellers} />
         </AnimatedSection>
       )}
 
@@ -246,8 +250,8 @@ export default async function HomePage() {
               <h2 className="text-2xl md:text-4xl font-light tracking-tight text-foreground">The Linen Edit</h2>
               <p className="text-sm text-muted-foreground mt-3 max-w-md mx-auto">Breathable. Elegant. Made for Indian summers.</p>
             </div>
+            <ShirtsVariantGrid products={linen} />
           </div>
-          <ProductCarousel products={linen} layout="grid" />
         </AnimatedSection>
       )}
 
@@ -264,8 +268,8 @@ export default async function HomePage() {
                 View All <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
               </Link>
             </div>
+            <ShirtsVariantGrid products={newArrivals} />
           </div>
-          <ProductCarousel products={newArrivals} autoScroll />
         </AnimatedSection>
       )}
 
