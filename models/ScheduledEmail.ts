@@ -6,6 +6,7 @@ export interface IScheduledEmail extends Document {
   subject: string
   heading: string
   content: string
+  bannerImageUrl: string
   productIds: string[]
   ctaText: string
   ctaLink: string
@@ -22,6 +23,7 @@ const ScheduledEmailSchema: Schema = new Schema({
   subject: { type: String, required: true },
   heading: { type: String, required: true },
   content: { type: String, required: true },
+  bannerImageUrl: { type: String, default: '' },
   productIds: [{ type: String }],
   ctaText: { type: String, default: 'Shop Now' },
   ctaLink: { type: String, default: 'https://vchuki.com/shirts' },

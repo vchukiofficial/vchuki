@@ -277,13 +277,14 @@ export async function sendPromoEmail(to: string, data: { subject: string; headin
   )
 }
 
-export async function sendVIPLaunchAlert(to: string, data: { name: string; discountCode: string }) {
-  return sendViaTemplate("vip-launch-alert", to, { ...data, shopLink: "https://vchuki.com/shirts" },
-    " The Archive Debut is LIVE — Unique Styles Just Dropped!",
+export async function sendVIPLaunchAlert(to: string, data: { name: string; discountCode: string; productCarousel?: string }) {
+  return sendViaTemplate("vip-launch-alert", to, { productCarousel: "", ...data, shopLink: "https://vchuki.com/shirts" },
+    " Your VIP Early Access is LIVE — The Archive Debut!",
     `<h2 style="color:#2a1f14;">It's GO Time! </h2>
-    <p style="color:#666;font-size:14px;">Hi {{name}}, our new collection of unique styles is now <strong>LIVE</strong>.</p>
+    <p style="color:#666;font-size:14px;">Hi {{name}}, as a VIP member your early access to our new collection of unique styles is <strong>LIVE now</strong> — 3 hours before everyone else.</p>
     <div style="background:#f5e6d3;padding:20px;margin:20px 0;border-left:4px solid #c4956a;text-align:center;"><p style="font-size:11px;color:#c4956a;margin:0;text-transform:uppercase;letter-spacing:2px;">Your VIP Code</p><p style="font-size:28px;font-weight:bold;color:#2a1f14;margin:8px 0;letter-spacing:4px;">{{discountCode}}</p><p style="font-size:12px;color:#666;margin:0;">10% off + Free Shipping</p></div>
-    <div style="margin:24px 0;text-align:center;"><a href="{{shopLink}}" style="background:#2a1f14;color:#f5e6d3;padding:14px 32px;text-decoration:none;font-size:13px;text-transform:uppercase;font-weight:bold;">Shop Now →</a></div>`
+    <div style="margin:24px 0;text-align:center;"><a href="{{shopLink}}" style="background:#2a1f14;color:#f5e6d3;padding:14px 32px;text-decoration:none;font-size:13px;text-transform:uppercase;font-weight:bold;">Shop Now →</a></div>
+    {{productCarousel}}`
   )
 }
 

@@ -34,6 +34,11 @@ export async function dispatchScheduledEmail(jobId: string) {
   const productCarousel = buildProductCarouselHtml(await getCarouselProducts(job.productIds))
   const recipients = await resolveRecipients(job)
 
+  const bannerHtml = job.bannerImageUrl
+    ? `<img src="${job.bannerImageUrl}" alt="" style="width:100%;max-width:552px;height:auto;display:block;margin:0 0 20px;" />`
+    : ""
+  const content = `${bannerHtml}<p style="color:#666;font-size:14px;line-height:1.6;">${job.content}</p>`
+
   let sent = 0
   let lastError = ""
   for (const email of recipients) {
@@ -41,7 +46,7 @@ export async function dispatchScheduledEmail(jobId: string) {
       await sendPromoEmail(email, {
         subject: job.subject,
         heading: job.heading,
-        content: job.content,
+        content,
         productCarousel,
         ctaText: job.ctaText,
         ctaLink: job.ctaLink,

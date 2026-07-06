@@ -11,6 +11,7 @@ import { ShirtsVariantGrid } from "@/components/products/ShirtsVariantGrid"
 import { RajasthanPalette } from "@/components/home/RajasthanPalette"
 import { CategoryImageCarousel } from "@/components/home/CategoryImageCarousel"
 import { LaunchCountdownBanner } from "@/components/home/LaunchCountdownBanner"
+import { getRandomCarouselProducts } from "@/lib/email/carouselProducts"
 
 // FIX #5: Enable ISR caching - revalidate every 60 seconds
 export const revalidate = 60
@@ -123,6 +124,9 @@ async function getProducts() {
     ],
   }).sort({ order: 1 }).lean()
 
+  // Launch-day banner carousel — only needed once we're near/past the public launch, but cheap enough to always fetch
+  const launchCarouselProducts = await getRandomCarouselProducts(4)
+
   return {
     bestsellers: JSON.parse(JSON.stringify(expandProductsToVariantCards(bestsellers, allVariants))),
     newArrivals: JSON.parse(JSON.stringify(expandProductsToVariantCards(newArrivals, allVariants))),
@@ -130,6 +134,7 @@ async function getProducts() {
     categoryImages,
     colorImages,
     heroVideoUrl: (heroVideo as any)?.url || null,
+    launchCarouselProducts,
   }
 }
 
@@ -141,7 +146,7 @@ const CATEGORIES = [
 ]
 
 export default async function HomePage() {
-  const { bestsellers, newArrivals, linen, categoryImages, colorImages, heroVideoUrl } = await getProducts()
+  const { bestsellers, newArrivals, linen, categoryImages, colorImages, heroVideoUrl, launchCarouselProducts } = await getProducts()
   const categorySlides = CATEGORIES.map((cat) => ({
     slug: cat.slug,
     name: cat.name,
@@ -216,7 +221,7 @@ export default async function HomePage() {
       )}
 
       {/* Archive Debut Countdown */}
-      <LaunchCountdownBanner />
+      <LaunchCountdownBanner carouselProducts={launchCarouselProducts} />
 
       {/* Brand Story — Heritage Editorial */}
       <section className="relative py-14 md:py-24 overflow-hidden">

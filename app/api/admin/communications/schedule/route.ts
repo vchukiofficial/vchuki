@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
 
   startScheduler()
   await connectDB()
-  const { recipientType, to, subject, heading, content, productIds, ctaText, ctaLink, scheduledAt } = await request.json()
+  const { recipientType, to, subject, heading, content, bannerImageUrl, productIds, ctaText, ctaLink, scheduledAt } = await request.json()
 
   if (!subject || !heading || !content) return NextResponse.json({ error: "subject, heading, content required" }, { status: 400 })
   if (recipientType === "custom" && !to) return NextResponse.json({ error: "to is required for custom recipients" }, { status: 400 })
@@ -36,6 +36,7 @@ export async function POST(request: NextRequest) {
     subject,
     heading,
     content,
+    bannerImageUrl: bannerImageUrl || "",
     productIds: productIds || [],
     ctaText: ctaText || "Shop Now",
     ctaLink: ctaLink || "https://vchuki.com/shirts",

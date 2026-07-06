@@ -1,14 +1,24 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Bell, X, Check, Mail } from "lucide-react"
+import Link from "next/link"
+import Image from "next/image"
+import { Bell, X, Check, Mail, ArrowRight } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
+import { PUBLIC_LAUNCH_DATE } from "@/lib/launchSchedule"
 
-// The Archive Debut — fixed launch moment
-const LAUNCH_DATE = new Date("2026-07-07T12:00:00+05:30")
+// Keep showing the "We're Live" state for a couple of days post-launch, then fade the section out entirely
+const LIVE_BANNER_WINDOW_MS = 48 * 60 * 60 * 1000
+
+interface CarouselProduct {
+  name: string
+  price: number
+  image: string
+  slug: string
+}
 
 function getTimeLeft() {
-  const diff = LAUNCH_DATE.getTime() - Date.now()
+  const diff = PUBLIC_LAUNCH_DATE.getTime() - Date.now()
   if (diff <= 0) return null
   return {
     days: Math.floor(diff / (1000 * 60 * 60 * 24)),
@@ -18,8 +28,61 @@ function getTimeLeft() {
   }
 }
 
-export function LaunchCountdownBanner() {
+function LiveNowBanner({ carouselProducts }: { carouselProducts: CarouselProduct[] }) {
+  return (
+    <section className="relative overflow-hidden border-y border-[#c4956a]/20">
+      <div className="absolute inset-0 bg-gradient-to-r from-[#2a1f14] via-[#1a1209] to-[#2a1f14]" />
+      <div className="absolute inset-0 heritage-pattern opacity-20" />
+      <div className="container relative z-10 py-8 md:py-14 px-5">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-center"
+        >
+          <p className="text-[9px] md:text-[10px] uppercase tracking-[0.3em] md:tracking-[0.4em] text-[#c4956a] font-medium mb-2 md:mb-3 flex items-center justify-center gap-2">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#c4956a] opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#c4956a]" />
+            </span>
+            Live Now
+          </p>
+          <h2 className="text-xl md:text-4xl font-light text-[#f5e6d3] tracking-tight leading-tight">
+            The Archive Debut Is <span className="font-semibold text-[#c4956a]">Here</span>
+          </h2>
+          <p className="text-xs md:text-sm text-[#f5e6d3]/60 mt-2 md:mt-3 max-w-md mx-auto leading-relaxed">
+            A new collection of unique styles has landed. First 100 customers get 10% off.
+          </p>
+          <Link
+            href="/shirts"
+            className="mt-5 md:mt-6 inline-flex items-center gap-2 px-6 md:px-8 py-2.5 md:py-3 bg-[#c4956a] text-[#2a1f14] text-[10px] md:text-xs font-bold tracking-wider uppercase hover:bg-[#d4a574] transition-colors"
+          >
+            Shop Now <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+        </motion.div>
+
+        {carouselProducts.length > 0 && (
+          <div className="mt-8 md:mt-10 grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-5 max-w-3xl mx-auto">
+            {carouselProducts.map((p) => (
+              <Link key={p.slug} href={`/product/${p.slug}`} className="group block">
+                <div className="relative aspect-[3/4] overflow-hidden bg-[#c4956a]/5 border border-[#c4956a]/20">
+                  <Image src={p.image} alt={p.name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
+                </div>
+                <p className="text-[11px] md:text-xs text-[#f5e6d3]/80 mt-2 truncate">{p.name}</p>
+                <p className="text-xs md:text-sm font-medium text-[#c4956a]">₹{p.price.toLocaleString("en-IN")}</p>
+              </Link>
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
+  )
+}
+
+export function LaunchCountdownBanner({ carouselProducts = [] }: { carouselProducts?: CarouselProduct[] }) {
   const [timeLeft, setTimeLeft] = useState<ReturnType<typeof getTimeLeft>>(null)
+  const [isLive, setIsLive] = useState(false)
   const [showPopup, setShowPopup] = useState(false)
   const [email, setEmail] = useState("")
   const [submitted, setSubmitted] = useState(false)
@@ -27,12 +90,22 @@ export function LaunchCountdownBanner() {
   const [message, setMessage] = useState("")
 
   useEffect(() => {
-    setTimeLeft(getTimeLeft())
-    const timer = setInterval(() => setTimeLeft(getTimeLeft()), 1000)
+    function tick() {
+      setTimeLeft(getTimeLeft())
+      const sinceLaunch = Date.now() - PUBLIC_LAUNCH_DATE.getTime()
+      setIsLive(sinceLaunch >= 0 && sinceLaunch < LIVE_BANNER_WINDOW_MS)
+    }
+    tick()
+    const timer = setInterval(tick, 1000)
     return () => clearInterval(timer)
   }, [])
 
-  // Already launched — nothing to show here, homepage products speak for themselves
+  // Past the "we're live" grace window — nothing left to show here
+  if (!timeLeft && !isLive) return null
+
+  if (!timeLeft && isLive) {
+    return <LiveNowBanner carouselProducts={carouselProducts} />
+  }
   if (!timeLeft) return null
 
   async function handleNotify(e: React.FormEvent) {

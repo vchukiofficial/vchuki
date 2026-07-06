@@ -34,6 +34,8 @@ export default function AdminCommunicationsPage() {
   const [emailContent, setEmailContent] = useState("")
   const [ctaText, setCtaText] = useState("Shop Now")
   const [ctaLink, setCtaLink] = useState("https://vchuki.com/shirts")
+  const [bannerImage, setBannerImage] = useState("")
+  const [bannerUploading, setBannerUploading] = useState(false)
   const [sendMode, setSendMode] = useState<"now" | "schedule">("now")
   const [scheduledAt, setScheduledAt] = useState("")
   const [sending, setSending] = useState(false)
@@ -95,6 +97,24 @@ export default function AdminCommunicationsPage() {
     })
   }
 
+  async function handleBannerUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setBannerUploading(true)
+    try {
+      const formData = new FormData()
+      formData.append("file", file)
+      const res = await fetch("/api/upload", { method: "POST", body: formData })
+      if (res.ok) {
+        const data = await res.json()
+        setBannerImage(data.url)
+      }
+    } finally {
+      setBannerUploading(false)
+      e.target.value = ""
+    }
+  }
+
   function toggleProduct(id: string) {
     setSelectedProductIds(prev => prev.includes(id) ? prev.filter(p => p !== id) : prev.length >= 6 ? prev : [...prev, id])
   }
@@ -107,7 +127,8 @@ export default function AdminCommunicationsPage() {
   }, [selectedProductIds, products])
 
   function previewHtml() {
-    const body = `<h2 style="color:#2a1f14;font-size:22px;font-weight:300;margin:0 0 12px;">${emailSubject || "Your subject here"}</h2>
+    const bannerHtml = bannerImage ? `<img src="${bannerImage}" alt="" style="width:100%;max-width:552px;height:auto;display:block;margin:0 0 20px;" />` : ""
+    const body = `${bannerHtml}<h2 style="color:#2a1f14;font-size:22px;font-weight:300;margin:0 0 12px;">${emailSubject || "Your subject here"}</h2>
       <div style="color:#666;font-size:14px;line-height:1.6;">${emailContent ? `<p style="color:#666;font-size:14px;">${emailContent}</p>` : "<p>Your message body will appear here.</p>"}</div>
       ${buildProductCarouselHtml(carouselProducts)}
       <div style="margin:24px 0;"><a href="${ctaLink}" style="background:#2a1f14;color:#f5e6d3;padding:12px 24px;text-decoration:none;font-size:12px;text-transform:uppercase;display:inline-block;">${ctaText}</a></div>`
@@ -135,14 +156,14 @@ export default function AdminCommunicationsPage() {
         method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include",
         body: JSON.stringify({
           recipientType, to: emailTo, subject: emailSubject, heading: emailSubject, content: emailContent,
-          productIds: selectedProductIds, ctaText, ctaLink,
+          bannerImageUrl: bannerImage, productIds: selectedProductIds, ctaText, ctaLink,
           scheduledAt: sendMode === "schedule" && scheduledAt ? new Date(scheduledAt).toISOString() : undefined,
         }),
       })
       const data = await res.json()
       if (res.ok) {
         setSendResult(sendMode === "schedule" ? "✅ Scheduled!" : "✅ Sent!")
-        setEmailTo(""); setEmailSubject(""); setEmailContent(""); setSelectedProductIds([]); setScheduledAt(""); setSendMode("now")
+        setEmailTo(""); setEmailSubject(""); setEmailContent(""); setSelectedProductIds([]); setScheduledAt(""); setSendMode("now"); setBannerImage("")
         fetchLogs()
         if (view === "scheduled") fetchJobs()
       } else setSendResult(`❌ ${data.error}`)
@@ -202,6 +223,24 @@ export default function AdminCommunicationsPage() {
                 <input value={emailTo} onChange={e => setEmailTo(e.target.value)} required placeholder="email@example.com" className="w-full mt-1 px-3 py-2 border border-border bg-background text-xs focus:outline-none focus:border-[#c4956a]/50 text-foreground" />
               </div>
             )}
+          </div>
+
+          <div>
+            <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Banner Image (optional)</label>
+            <div className="flex items-center gap-3 mt-1">
+              {bannerImage && (
+                <div className="relative">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={bannerImage} alt="Banner" className="h-16 w-32 object-cover border border-border" />
+                  <button type="button" onClick={() => setBannerImage("")} className="absolute -top-1.5 -right-1.5 h-4 w-4 rounded-full bg-red-500 flex items-center justify-center"><X className="h-2.5 w-2.5 text-white" /></button>
+                </div>
+              )}
+              <label className="px-3 py-2 border border-dashed border-border text-[10px] uppercase tracking-wider text-muted-foreground cursor-pointer hover:border-[#c4956a]/50">
+                {bannerUploading ? "Uploading..." : bannerImage ? "Replace" : "Upload Banner"}
+                <input type="file" accept="image/*" className="hidden" onChange={handleBannerUpload} disabled={bannerUploading} />
+              </label>
+            </div>
+            <p className="text-[9px] text-muted-foreground mt-1">Recommended: 1200×400px, shows full-width at the top of the email.</p>
           </div>
 
           <div>
