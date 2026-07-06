@@ -107,7 +107,7 @@ export function WelcomePopup() {
                   </form>
                   {error && <p className="text-xs text-red-500 mt-3">{error}</p>}
                   <button onClick={close} className="text-[10px] uppercase tracking-wider text-muted-foreground hover:text-foreground mt-4">
-                    No thanks, I'll pay full price
+                    No thanks, I&apos;ll pay full price
                   </button>
                 </>
               ) : (
@@ -115,7 +115,7 @@ export function WelcomePopup() {
                   <div className="h-12 w-12 rounded-full bg-[#c4956a]/10 flex items-center justify-center mx-auto mb-4">
                     <Check className="h-5 w-5 text-[#c4956a]" />
                   </div>
-                  <h2 className="font-display text-xl font-light text-foreground mb-2">You're in!</h2>
+                  <h2 className="font-display text-xl font-light text-foreground mb-2">You&apos;re in!</h2>
                   <p className="text-sm text-muted-foreground leading-relaxed">
                     Check your inbox and use code <strong className="text-foreground">WELCOME10</strong> for 10% off your first order.
                   </p>
