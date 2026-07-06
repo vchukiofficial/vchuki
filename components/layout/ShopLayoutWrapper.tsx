@@ -1,6 +1,7 @@
 "use client"
 
 import { usePathname } from "next/navigation"
+import { WelcomePopup } from "@/components/marketing/WelcomePopup"
 
 interface Props {
   navbar: React.ReactNode
@@ -27,6 +28,7 @@ export function ShopLayoutWrapper({ navbar, footer, cartDrawer, mobileNav, child
       {footer}
       {cartDrawer}
       {mobileNav}
+      <WelcomePopup />
     </>
   )
 }
