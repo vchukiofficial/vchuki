@@ -7,6 +7,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { Check, Shield, Truck, ArrowLeft, Banknote, Package, Clock, MapPin, ShoppingBag, Smartphone } from "lucide-react"
 import { AddressForm } from "@/components/shared/AddressForm"
+import { getRecaptchaToken, isRecaptchaEnabled } from "@/lib/recaptchaClient"
 import type { Address } from "@/types"
 
 type Step = "details" | "payment" | "confirmation"
@@ -122,10 +123,12 @@ export default function CheckoutPage() {
   async function handlePlaceOrder() {
     setLoading(true)
     try {
+      const recaptchaToken = await getRecaptchaToken("checkout")
       const res = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          recaptchaToken,
           items: items.map((item) => ({
             product: item._id.split("-")[0] || item._id,
             variant: item.variantId,
@@ -498,6 +501,14 @@ export default function CheckoutPage() {
               >
                 {loading ? "Placing Order..." : `Place Order — ₹${total.toLocaleString()}`}
               </button>
+
+              {isRecaptchaEnabled() && (
+                <p className="text-[9px] text-muted-foreground/60 text-center">
+                  This site is protected by reCAPTCHA and the Google{" "}
+                  <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" className="underline">Privacy Policy</a> and{" "}
+                  <a href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer" className="underline">Terms of Service</a> apply.
+                </p>
+              )}
 
               {/* Trust */}
               <div className="flex items-center justify-center gap-4 text-[10px] text-muted-foreground pt-2">

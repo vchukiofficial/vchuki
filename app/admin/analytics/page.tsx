@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { ShoppingCart, Users, IndianRupee, Package, Download, Eye, Smartphone, Monitor, Tablet, Clock, Globe, Activity } from "lucide-react"
+import { ShoppingCart, Users, IndianRupee, Package, Download, Eye, Smartphone, Monitor, Tablet, Clock, Globe, Activity, Mail } from "lucide-react"
 import { exportToExcel } from "@/lib/admin/exportExcel"
 
 export default function AdminAnalyticsPage() {
@@ -165,28 +165,67 @@ export default function AdminAnalyticsPage() {
         </div>
       </div>
 
-      {/* Hourly Chart (text-based) */}
-      {tracking?.hourlyBreakdown?.length > 0 && (
-        <div className="p-4 border border-border bg-card">
-          <h3 className="text-sm font-medium text-foreground mb-4">Today&apos;s Traffic (Hourly)</h3>
-          <div className="flex items-end gap-1 h-24">
-            {Array.from({ length: 24 }, (_, h) => {
-              const data = tracking.hourlyBreakdown.find((d: any) => d._id === h)
-              const count = data?.count || 0
-              const max = Math.max(...tracking.hourlyBreakdown.map((d: any) => d.count), 1)
-              const height = (count / max) * 100
-              return (
-                <div key={h} className="flex-1 flex flex-col items-center gap-0.5">
-                  <div className="w-full bg-[#c4956a]/20 rounded-t relative" style={{ height: `${Math.max(height, 2)}%` }}>
-                    <div className="absolute inset-0 bg-[#c4956a]/60 rounded-t" style={{ height: `${height}%` }} />
-                  </div>
-                  {h % 4 === 0 && <span className="text-[7px] text-muted-foreground">{h}h</span>}
-                </div>
-              )
-            })}
+      {/* Identified Visitors — logged-in users, for remarketing */}
+      <div className="p-4 border border-border bg-card">
+        <h3 className="text-sm font-medium text-foreground mb-1 flex items-center gap-2"><Mail className="h-3.5 w-3.5 text-[#c4956a]" /> Identified Visitors</h3>
+        <p className="text-[10px] text-muted-foreground mb-4">Logged-in customers browsing the site in this period — reach out to convert them</p>
+        {tracking?.identifiedVisitors?.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs min-w-[480px]">
+              <thead>
+                <tr className="text-left text-muted-foreground border-b border-border">
+                  <th className="p-2 font-medium text-[10px] uppercase tracking-wider">Customer</th>
+                  <th className="p-2 font-medium text-[10px] uppercase tracking-wider">Pages Viewed</th>
+                  <th className="p-2 font-medium text-[10px] uppercase tracking-wider">Total Views</th>
+                  <th className="p-2 font-medium text-[10px] uppercase tracking-wider">Last Seen</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {tracking.identifiedVisitors.map((v: any) => (
+                  <tr key={v._id}>
+                    <td className="p-2">
+                      <p className="font-medium text-foreground">{v.name || "—"}</p>
+                      <a href={`mailto:${v.email}`} className="text-[#c4956a] hover:underline">{v.email}</a>
+                    </td>
+                    <td className="p-2 text-foreground">{v.pageCount}</td>
+                    <td className="p-2 text-foreground">{v.views}</td>
+                    <td className="p-2 text-muted-foreground">{new Date(v.lastSeen).toLocaleString("en-IN", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-        </div>
-      )}
+        ) : (
+          <p className="text-xs text-muted-foreground text-center py-6">No identified visitors in this period — only logged-in customers show up here.</p>
+        )}
+      </div>
+
+      {/* Hourly Chart */}
+      <div className="p-4 border border-border bg-card">
+        <h3 className="text-sm font-medium text-foreground mb-4">Today&apos;s Traffic (Hourly)</h3>
+        {tracking?.hourlyBreakdown?.length > 0 ? (
+          <div className="overflow-x-auto no-scrollbar">
+            <div className="flex items-end gap-1 h-24 min-w-[480px] md:min-w-0">
+              {Array.from({ length: 24 }, (_, h) => {
+                const data = tracking.hourlyBreakdown.find((d: any) => d._id === h)
+                const count = data?.count || 0
+                const max = Math.max(...tracking.hourlyBreakdown.map((d: any) => d.count), 1)
+                const height = (count / max) * 100
+                return (
+                  <div key={h} className="flex-1 flex flex-col items-center gap-0.5" title={`${h}:00 — ${count} views`}>
+                    <div className="w-full bg-[#c4956a]/20 rounded-t relative" style={{ height: `${Math.max(height, 2)}%` }}>
+                      <div className="absolute inset-0 bg-[#c4956a]/60 rounded-t" style={{ height: `${height}%` }} />
+                    </div>
+                    {h % 4 === 0 && <span className="text-[7px] text-muted-foreground">{h}h</span>}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        ) : (
+          <p className="text-xs text-muted-foreground text-center py-6">No traffic recorded in the last 24 hours</p>
+        )}
+      </div>
 
       {/* Store Metrics */}
       <div className="p-4 border border-border bg-card">

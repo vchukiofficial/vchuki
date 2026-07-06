@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react"
 import { usePathname } from "next/navigation"
+import { useSession } from "next-auth/react"
 
 function getSessionId() {
   if (typeof window === "undefined") return ""
@@ -15,6 +16,8 @@ function getSessionId() {
 
 export function PageTracker() {
   const pathname = usePathname()
+  const { data: session } = useSession()
+  const userId = session?.user?.id
   const startTime = useRef(Date.now())
   const lastPath = useRef("")
 
@@ -30,6 +33,7 @@ export function PageTracker() {
           path: lastPath.current,
           referrer: "",
           sessionId: getSessionId(),
+          userId,
           duration,
         }))
       }
@@ -46,6 +50,7 @@ export function PageTracker() {
         path: pathname,
         referrer: document.referrer || "",
         sessionId: getSessionId(),
+        userId,
         duration: 0,
       }),
     }).catch(() => {}) // Silent fail
@@ -58,6 +63,7 @@ export function PageTracker() {
           path: pathname,
           referrer: "",
           sessionId: getSessionId(),
+          userId,
           duration,
         }))
       }
@@ -65,7 +71,7 @@ export function PageTracker() {
 
     window.addEventListener("beforeunload", handleUnload)
     return () => window.removeEventListener("beforeunload", handleUnload)
-  }, [pathname])
+  }, [pathname, userId])
 
   return null
 }

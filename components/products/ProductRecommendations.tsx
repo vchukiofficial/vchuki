@@ -6,6 +6,7 @@ import Link from "next/link"
 import { ShoppingCart, Heart, Check, ArrowRight } from "lucide-react"
 import { useCartStore } from "@/store/cartStore"
 import { useUIStore } from "@/store/uiStore"
+import { useWishlistStore } from "@/store/wishlistStore"
 
 interface Variant {
   _id: string
@@ -38,7 +39,10 @@ export default function ProductRecommendations({ currentProductId, currentCatego
   const [loading, setLoading] = useState(true)
   const addItem = useCartStore((s) => s.addItem)
   const setCartOpen = useUIStore((s) => s.setCartOpen)
+  const { items: wishlistItems, toggle: toggleWishlist, load: loadWishlist } = useWishlistStore()
   const [addedId, setAddedId] = useState<string | null>(null)
+
+  useEffect(() => { loadWishlist() }, [loadWishlist])
 
   useEffect(() => {
     async function fetchRecommendations() {
@@ -154,10 +158,14 @@ export default function ProductRecommendations({ currentProductId, currentCatego
                   </span>
                   {/* Wishlist */}
                   <button
-                    className="absolute top-2 right-2 h-7 w-7 rounded-full bg-white/80 dark:bg-black/50 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                    onClick={(e) => e.preventDefault()}
+                    className={`absolute top-2 right-2 h-7 w-7 rounded-full backdrop-blur-sm flex items-center justify-center transition-all ${
+                      wishlistItems.includes(product._id)
+                        ? "bg-red-500/20 opacity-100"
+                        : "bg-white/80 dark:bg-black/50 opacity-100 md:opacity-0 md:group-hover:opacity-100"
+                    }`}
+                    onClick={(e) => { e.preventDefault(); toggleWishlist(product._id) }}
                   >
-                    <Heart className="h-3.5 w-3.5 text-foreground/70" />
+                    <Heart className={`h-3.5 w-3.5 ${wishlistItems.includes(product._id) ? "fill-red-500 text-red-500" : "text-foreground/70"}`} />
                   </button>
                 </div>
               </Link>

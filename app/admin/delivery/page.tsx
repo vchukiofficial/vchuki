@@ -205,18 +205,19 @@ export default function AdminDeliveryPage() {
 
           return (
             <div key={order._id} className={`p-4 border bg-card transition-colors ${selected.has(order._id) ? "border-[#c4956a]/30 bg-[#c4956a]/5" : "border-border hover:border-[#c4956a]/20"}`}>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <input type="checkbox" checked={selected.has(order._id)} onChange={() => toggleSelect(order._id)} className="accent-[#c4956a]" />
-                  <Icon className={`h-4 w-4 ${config.color}`} />
-                  <div>
-                    <div className="flex items-center gap-2">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                <div className="flex items-start md:items-center gap-3">
+                  <input type="checkbox" checked={selected.has(order._id)} onChange={() => toggleSelect(order._id)} className="accent-[#c4956a] mt-0.5 md:mt-0" />
+                  <Icon className={`h-4 w-4 ${config.color} mt-0.5 md:mt-0 flex-shrink-0`} />
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <p className="text-xs font-medium font-mono text-foreground">#{order._id?.slice(-8).toUpperCase()}</p>
                       {courier && (
                         <span className={`text-[9px] px-1.5 py-0.5 font-medium ${COURIER_COLORS[courier] || "bg-muted text-muted-foreground"}`}>
                           {courier}
                         </span>
                       )}
+                      <span className="text-xs font-medium text-foreground md:hidden">₹{order.finalAmount?.toLocaleString()}</span>
                     </div>
                     <p className="text-[10px] text-muted-foreground mt-0.5">
                       {order.shippingAddress?.name} · {order.shippingAddress?.city}, {order.shippingAddress?.state}
@@ -224,18 +225,18 @@ export default function AdminDeliveryPage() {
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-medium text-foreground">₹{order.finalAmount?.toLocaleString()}</span>
+                <div className="flex items-center gap-2 pl-7 md:pl-0">
+                  <span className="text-xs font-medium text-foreground hidden md:inline">₹{order.finalAmount?.toLocaleString()}</span>
                   <select
                     value={order.shippingStatus}
                     onChange={e => updateStatus(order._id, e.target.value)}
-                    className="text-[10px] bg-background border border-border px-2 py-1.5 focus:outline-none focus:border-[#c4956a]/50 text-foreground"
+                    className="text-[10px] bg-background border border-border px-2 py-1.5 focus:outline-none focus:border-[#c4956a]/50 text-foreground flex-1 md:flex-none"
                   >
                     {Object.entries(STATUS_CONFIG).map(([key, val]) => (
                       <option key={key} value={key}>{val.label}</option>
                     ))}
                   </select>
-                  <button onClick={() => setDeleteDialog({ open: true, type: "single", id: order._id })} className="h-6 w-6 border border-border flex items-center justify-center text-muted-foreground hover:text-red-500 transition-colors">
+                  <button onClick={() => setDeleteDialog({ open: true, type: "single", id: order._id })} className="h-6 w-6 border border-border flex items-center justify-center text-muted-foreground hover:text-red-500 transition-colors flex-shrink-0">
                     <Trash2 className="h-2.5 w-2.5" />
                   </button>
                 </div>

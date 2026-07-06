@@ -1,9 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
 import { usePathname } from "next/navigation"
-
-const LAUNCH_DATE = new Date("2025-07-07T09:00:00+05:30")
 
 interface Props {
   navbar: React.ReactNode
@@ -14,17 +11,10 @@ interface Props {
 }
 
 export function ShopLayoutWrapper({ navbar, footer, cartDrawer, mobileNav, children }: Props) {
-  const [isLaunched, setIsLaunched] = useState(true) // default true to avoid flash
   const pathname = usePathname()
 
-  useEffect(() => {
-    setIsLaunched(new Date() >= LAUNCH_DATE)
-  }, [])
-
-  // Only hide chrome on the homepage pre-launch and /vip page
-  const isHomepage = pathname === "/"
-  const isVipPage = pathname === "/vip"
-  const showChrome = isVipPage ? false : (isLaunched || !isHomepage)
+  // /vip is a standalone landing page without the usual site chrome
+  const showChrome = pathname !== "/vip"
 
   if (!showChrome) {
     return <main className="min-h-screen">{children}</main>

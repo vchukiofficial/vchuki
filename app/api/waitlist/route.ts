@@ -42,8 +42,8 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       message: earlyAccess
-        ? `You're #${position}! You've unlocked 10% off + free shipping on launch day.`
-        : `You're #${position} on the waitlist. We'll notify you when we drop.`,
+        ? `You're #${position}! You've unlocked 10% off + free shipping — check your email for your code.`
+        : `You're #${position} on the list. We'll email you with VIP perks and updates.`,
       position: entry.position,
       earlyAccess: entry.earlyAccess,
       spotsLeft: Math.max(0, 100 - position),

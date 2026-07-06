@@ -258,7 +258,7 @@ export default function AdminProductDetailPage() {
       <div className="grid lg:grid-cols-[1fr_1.5fr] gap-6">
         {/* Left — Product Images */}
         <div className="space-y-3">
-          <div className="relative aspect-[3/4] border border-border bg-card overflow-hidden">
+          <div className="relative aspect-[3/4] max-w-xs mx-auto lg:max-w-none border border-border bg-card overflow-hidden">
             {product.images?.[activeImage] ? (
               product.images[activeImage].match(/\.(mp4|webm|mov)$/i) ? (
                 <video src={product.images[activeImage]} controls className="absolute inset-0 w-full h-full object-contain p-4" />
@@ -288,10 +288,10 @@ export default function AdminProductDetailPage() {
                 {i === 0 && (
                   <span className="absolute top-0.5 left-0.5 text-[7px] uppercase tracking-wide bg-[#c4956a] text-white px-1 py-0.5 pointer-events-none">Cover</span>
                 )}
-                <button onClick={(e) => { e.stopPropagation(); removeProductImage(i) }} className="absolute top-0.5 right-0.5 h-4 w-4 bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <button onClick={(e) => { e.stopPropagation(); removeProductImage(i) }} className="absolute top-0.5 right-0.5 h-4 w-4 bg-red-500 text-white flex items-center justify-center opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                   <X className="h-2.5 w-2.5" />
                 </button>
-                <div className="absolute bottom-0.5 inset-x-0.5 flex justify-between opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="absolute bottom-0.5 inset-x-0.5 flex justify-between opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                   <button
                     onClick={(e) => { e.stopPropagation(); moveProductImage(i, -1) }}
                     disabled={i === 0}
@@ -413,11 +413,11 @@ export default function AdminProductDetailPage() {
                         {variantImages.map((img, i) => (
                           <div key={i} className="relative w-20 h-24 border border-border overflow-hidden group">
                             <Image src={img} alt={`${colorName} angle ${i + 1}`} fill className="object-cover" sizes="80px" />
-                            <button onClick={() => removeVariantImage(colorVariants[0]._id, i)} className="absolute top-0.5 right-0.5 h-4 w-4 bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onClick={() => removeVariantImage(colorVariants[0]._id, i)} className="absolute top-0.5 right-0.5 h-4 w-4 bg-red-500 text-white flex items-center justify-center opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                               <X className="h-2.5 w-2.5" />
                             </button>
                             <span className="absolute bottom-0.5 left-0.5 text-[8px] bg-black/60 text-white px-1">{i + 1}</span>
-                            <div className="absolute bottom-0.5 right-0.5 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="absolute bottom-0.5 right-0.5 flex gap-0.5 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                               <button
                                 onClick={() => moveVariantImage(colorVariants[0]._id, i, -1)}
                                 disabled={i === 0}

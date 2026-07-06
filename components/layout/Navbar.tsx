@@ -73,7 +73,7 @@ export default function Navbar() {
         {/* Top announcement bar */}
         <div className="bg-[#2a1f14] text-[#f5e6d3] text-center py-1.5 px-4">
           <p className="text-[8px] md:text-[10px] uppercase tracking-[0.15em] md:tracking-[0.2em] font-medium truncate">
-            ✨ Archive Debut Dropping July 7th • Join the VIP Waitlist
+            ✨ The Archive Debut Launches Tomorrow 12 PM • First 100 Get 10% Off
           </p>
         </div>
 

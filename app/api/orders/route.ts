@@ -5,6 +5,7 @@ import connectDB from "@/lib/mongodb"
 import Order from "@/models/Order"
 import ProductVariant from "@/models/ProductVariant"
 import User from "@/models/User"
+import { verifyRecaptcha } from "@/lib/recaptcha"
 
 function isSameAddress(a: any, b: any) {
   const norm = (v: string) => (v || "").trim().toLowerCase()
@@ -30,6 +31,12 @@ export async function POST(request: NextRequest) {
   // Validate required fields
   if (!body.items?.length || !body.shippingAddress || !body.finalAmount) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
+  }
+
+  // Bot protection — no-ops until RECAPTCHA_SECRET_KEY is configured
+  const recaptcha = await verifyRecaptcha(body.recaptchaToken, "checkout")
+  if (!recaptcha.valid) {
+    return NextResponse.json({ error: "Verification failed. Please refresh and try again." }, { status: 400 })
   }
 
   // Check if user is logged in (optional for guest checkout)

@@ -9,9 +9,8 @@ import { HeroSection } from "@/components/home/HeroSection"
 import { AnimatedSection } from "@/components/home/AnimatedSection"
 import { ShirtsVariantGrid } from "@/components/products/ShirtsVariantGrid"
 import { RajasthanPalette } from "@/components/home/RajasthanPalette"
-import { HomePageWrapper } from "@/components/home/HomePageWrapper"
-import { DroppingJulyBanner } from "@/components/home/DroppingJulyBanner"
 import { CategoryImageCarousel } from "@/components/home/CategoryImageCarousel"
+import { LaunchCountdownBanner } from "@/components/home/LaunchCountdownBanner"
 
 // FIX #5: Enable ISR caching - revalidate every 60 seconds
 export const revalidate = 60
@@ -113,8 +112,16 @@ async function getProducts() {
     colorImages[name] = (colorProducts[i] as any)?.images?.[0] || "/placeholder-product.svg"
   })
 
-  // Active hero video for the homepage background — falls back to the bundled default if none is active
-  const heroVideo = await HeroVideo.findOne({ isActive: true }).sort({ order: 1 }).lean()
+  // Active hero video for the homepage background — falls back to the bundled default if none is active.
+  // Respects an optional scheduled window (scheduledStart/scheduledEnd) so a video can be queued in advance.
+  const now = new Date()
+  const heroVideo = await HeroVideo.findOne({
+    isActive: true,
+    $and: [
+      { $or: [{ scheduledStart: { $exists: false } }, { scheduledStart: null }, { scheduledStart: { $lte: now } }] },
+      { $or: [{ scheduledEnd: { $exists: false } }, { scheduledEnd: null }, { scheduledEnd: { $gte: now } }] },
+    ],
+  }).sort({ order: 1 }).lean()
 
   return {
     bestsellers: JSON.parse(JSON.stringify(expandProductsToVariantCards(bestsellers, allVariants))),
@@ -142,7 +149,7 @@ export default async function HomePage() {
   })).filter((s) => s.image !== "/placeholder-product.svg")
 
   return (
-    <HomePageWrapper>
+    <>
       {/* H1 for SEO - Visible but styled as brand element */}
       <h1 className="sr-only">VCHUKI — Premium Cotton Linen Shirts & Short Kurtas for Men | Handcrafted in Jodhpur</h1>
 
@@ -208,8 +215,8 @@ export default async function HomePage() {
         </AnimatedSection>
       )}
 
-      {/* Dropping July */}
-      <DroppingJulyBanner />
+      {/* Archive Debut Countdown */}
+      <LaunchCountdownBanner />
 
       {/* Brand Story — Heritage Editorial */}
       <section className="relative py-14 md:py-24 overflow-hidden">
@@ -358,6 +365,6 @@ export default async function HomePage() {
           ))}
         </div>
       </div>
-    </HomePageWrapper>
+    </>
   )
 }

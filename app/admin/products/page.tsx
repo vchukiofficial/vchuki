@@ -462,7 +462,7 @@ export default function AdminProductsPage() {
               <div className="flex items-start gap-2.5">
                 <input type="checkbox" checked={selected.has(product._id)} onChange={() => toggleSelect(product._id)} className="accent-[#c4956a] mt-1" />
                 <div className="h-11 w-11 bg-card border border-border overflow-hidden relative flex-shrink-0">
-                  {product.images?.[0] && <Image src={product.images[0]} alt="" fill className="object-contain p-0.5" sizes="44px" />}
+                  <Image src={product.images?.[0] || "/placeholder-product.svg"} alt="" fill className="object-contain p-0.5" sizes="44px" />
                 </div>
                 <div className="min-w-0 flex-1">
                   <Link href={`/admin/products/${product._id}`} className="text-xs font-medium truncate text-foreground hover:text-[#c4956a] transition-colors block">{product.name}</Link>
@@ -521,7 +521,7 @@ export default function AdminProductsPage() {
                   <td className="p-3">
                     <div className="flex items-center gap-2.5">
                       <div className="h-9 w-9 bg-card border border-border overflow-hidden relative flex-shrink-0">
-                        {product.images?.[0] && <Image src={product.images[0]} alt="" fill className="object-contain p-0.5" sizes="36px" />}
+                        <Image src={product.images?.[0] || "/placeholder-product.svg"} alt="" fill className="object-contain p-0.5" sizes="36px" />
                       </div>
                       <div className="min-w-0">
                         <Link href={`/admin/products/${product._id}`} className="font-medium truncate max-w-[180px] text-foreground hover:text-[#c4956a] transition-colors block">{product.name}</Link>

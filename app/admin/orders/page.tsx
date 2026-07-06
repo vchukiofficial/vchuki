@@ -179,28 +179,32 @@ export default function AdminOrdersPage() {
             return (
               <div key={order._id} className={`border overflow-hidden transition-colors ${selected.has(order._id) ? "border-[#c4956a]/30 bg-[#c4956a]/5" : "border-border hover:border-[#c4956a]/20"}`}>
                 {/* Order Row */}
-                <div className="flex items-center justify-between p-4">
-                  <div className="flex items-center gap-3">
-                    <input type="checkbox" checked={selected.has(order._id)} onChange={() => toggleSelect(order._id)} className="accent-[#c4956a]" />
-                    <div className="h-8 w-8 rounded-full bg-card border border-border flex items-center justify-center cursor-pointer" onClick={() => setExpandedOrder(isExpanded ? null : order._id)}>
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 p-4">
+                  <div className="flex items-start md:items-center gap-3 min-w-0">
+                    <input type="checkbox" checked={selected.has(order._id)} onChange={() => toggleSelect(order._id)} className="accent-[#c4956a] mt-1 md:mt-0" />
+                    <div className="h-8 w-8 rounded-full bg-card border border-border flex items-center justify-center cursor-pointer flex-shrink-0" onClick={() => setExpandedOrder(isExpanded ? null : order._id)}>
                       <Package className="h-3.5 w-3.5 text-muted-foreground" />
                     </div>
-                    <div className="cursor-pointer" onClick={() => setExpandedOrder(isExpanded ? null : order._id)}>
+                    <div className="cursor-pointer min-w-0" onClick={() => setExpandedOrder(isExpanded ? null : order._id)}>
                       <p className="text-xs font-medium font-mono text-foreground">#{order._id?.slice(-8).toUpperCase()}</p>
-                      <p className="text-[10px] text-muted-foreground">
+                      <p className="text-[10px] text-muted-foreground truncate">
                         {(order as any).shippingAddress?.name || (order as any).user?.name || "Guest"}
                         {((order as any).user?.email || (order as any).guestEmail) && <span className="ml-1 text-muted-foreground/60">· {(order as any).user?.email || (order as any).guestEmail}</span>}
                       </p>
                       <p className="text-[9px] text-muted-foreground/60">{order.items?.length} items · {new Date(order.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <StatusBadge status={order.shippingStatus} />
-                    <span className="text-sm font-semibold text-foreground">₹{order.finalAmount?.toLocaleString()}</span>
-                    <button onClick={() => setDeleteDialog({ open: true, type: "single", id: order._id })} className="h-7 w-7 border border-border flex items-center justify-center text-muted-foreground hover:text-red-500 hover:border-red-500/30 transition-colors">
-                      <Trash2 className="h-3 w-3" />
-                    </button>
-                    <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform cursor-pointer ${isExpanded ? "rotate-180" : ""}`} onClick={() => setExpandedOrder(isExpanded ? null : order._id)} />
+                  <div className="flex items-center justify-between md:justify-end gap-3 pl-11 md:pl-0">
+                    <div className="flex items-center gap-2">
+                      <StatusBadge status={order.shippingStatus} />
+                      <span className="text-sm font-semibold text-foreground">₹{order.finalAmount?.toLocaleString()}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button onClick={() => setDeleteDialog({ open: true, type: "single", id: order._id })} className="h-7 w-7 border border-border flex items-center justify-center text-muted-foreground hover:text-red-500 hover:border-red-500/30 transition-colors">
+                        <Trash2 className="h-3 w-3" />
+                      </button>
+                      <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform cursor-pointer ${isExpanded ? "rotate-180" : ""}`} onClick={() => setExpandedOrder(isExpanded ? null : order._id)} />
+                    </div>
                   </div>
                 </div>
 

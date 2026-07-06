@@ -159,9 +159,14 @@ export default function AdminCustomersPage() {
                 </div>
               </div>
             </div>
-            <button onClick={() => toggleRole(user._id, user.role)} className="w-full mt-2.5 pt-2.5 border-t border-border text-[10px] py-1 text-foreground font-medium">
-              {user.role === "admin" ? "Revoke Admin" : "Make Admin"}
-            </button>
+            <div className="flex items-center gap-2 mt-2.5 pt-2.5 border-t border-border">
+              <button onClick={() => toggleRole(user._id, user.role)} className="flex-1 text-[10px] py-1 text-foreground font-medium">
+                {user.role === "admin" ? "Revoke Admin" : "Make Admin"}
+              </button>
+              <button onClick={() => setDeleteDialog({ open: true, type: "single", id: user._id })} className="text-muted-foreground hover:text-red-500 transition-colors">
+                <Trash2 className="h-3.5 w-3.5" />
+              </button>
+            </div>
           </div>
         ))}
         {paginated.length === 0 && (
@@ -196,9 +201,14 @@ export default function AdminCustomersPage() {
                 <td className="p-3"><span className={`px-2 py-0.5 text-[9px] uppercase tracking-wider font-medium ${user.role === "admin" ? "bg-[#c4956a]/10 text-[#c4956a]" : "bg-muted text-muted-foreground"}`}>{user.role}</span></td>
                 <td className="p-3 text-muted-foreground hidden md:table-cell">{new Date(user.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</td>
                 <td className="p-3">
-                  <button onClick={() => toggleRole(user._id, user.role)} className="text-[10px] px-2.5 py-1 border border-border hover:border-[#c4956a]/30 transition-colors text-foreground font-medium">
-                    {user.role === "admin" ? "Revoke" : "Make Admin"}
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button onClick={() => toggleRole(user._id, user.role)} className="text-[10px] px-2.5 py-1 border border-border hover:border-[#c4956a]/30 transition-colors text-foreground font-medium">
+                      {user.role === "admin" ? "Revoke" : "Make Admin"}
+                    </button>
+                    <button onClick={() => setDeleteDialog({ open: true, type: "single", id: user._id })} className="text-muted-foreground hover:text-red-500 transition-colors">
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}

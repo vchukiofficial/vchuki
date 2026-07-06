@@ -202,7 +202,7 @@ export function ShirtsVariantGrid({ products }: { products: VariantProduct[] }) 
                   className={`absolute top-2.5 right-2.5 h-7 w-7 rounded-full backdrop-blur-sm flex items-center justify-center transition-all ${
                     wishlistItems.includes(product.productId || product._id.split("-")[0])
                       ? "bg-red-500/20 opacity-100"
-                      : "bg-white/80 dark:bg-black/50 opacity-0 group-hover:opacity-100"
+                      : "bg-white/80 dark:bg-black/50 opacity-100 md:opacity-0 md:group-hover:opacity-100"
                   }`}
                   onClick={(e) => handleWishlistToggle(e, product.productId || product._id.split("-")[0])}
                 >

@@ -60,11 +60,11 @@ export function EarlyAccessClient() {
         >
           {/* Headline */}
           <h1 className="text-3xl md:text-4xl font-light tracking-tight text-foreground">
-            VIP <span className="font-semibold text-[#c4956a]">Early Access</span>
+            The Archive Debut — <span className="font-semibold text-[#c4956a]">Unique Styles</span>
           </h1>
 
           <p className="mt-4 text-sm text-muted-foreground leading-relaxed">
-            Premium linen blend shirts handcrafted in Jodhpur. Our debut collection drops <span className="text-[#c4956a] font-medium">July 7</span>.
+            Premium linen blend shirts handcrafted in Jodhpur. Our new collection launches tomorrow at 12 PM — join the VIP list for early access and exclusive perks.
           </p>
 
           {/* Scarcity — always visible */}
@@ -95,7 +95,7 @@ export function EarlyAccessClient() {
                 {response?.position && (
                   <p className="text-[11px] text-muted-foreground mt-2">Your position: #{response.position}</p>
                 )}
-                <p className="text-[11px] text-muted-foreground/60 mt-3">We&apos;ll notify you 2 hours before the public drop.</p>
+                <p className="text-[11px] text-muted-foreground/60 mt-3">Check your inbox for your VIP discount code.</p>
               </motion.div>
             ) : (
               <motion.form
@@ -118,14 +118,14 @@ export function EarlyAccessClient() {
                   type="tel"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  placeholder="WhatsApp number (optional, for launch alert)"
+                  placeholder="WhatsApp number (optional, for order updates)"
                   className="w-full px-4 py-4 bg-background border border-border text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-[#c4956a] transition-colors"
                 />
                 <button
                   type="submit"
                   className="w-full py-4 bg-[#2a1f14] dark:bg-[#c4956a] text-[#f5e6d3] dark:text-[#2a1f14] text-sm font-bold tracking-wider hover:opacity-90 transition-opacity"
                 >
-                  CLAIM MY VIP SPOT
+                  JOIN THE VIP CLUB
                 </button>
               </motion.form>
             )}
@@ -141,8 +141,8 @@ export function EarlyAccessClient() {
             >
               <p className="text-[10px] uppercase tracking-[0.2em] text-[#c4956a] font-medium text-center mb-3">What VIP members get</p>
               {[
-                "10% off on launch day (first 100 only)",
-                "2-hour early access before public launch",
+                "10% off your first order (first 100 only)",
+                "Early access to new drops and restocks",
                 "Free shipping on your first order",
               ].map((perk, i) => (
                 <div key={i} className="flex items-center gap-3 px-4 py-2.5 border border-[#c4956a]/10 bg-[#c4956a]/5">

@@ -179,8 +179,36 @@ Don't wait - the best sizes sell out fast!`)
         </div>
       </div>
 
-      {/* Table */}
-      <div className="border border-border overflow-x-auto">
+      {/* Mobile cards */}
+      <div className="md:hidden space-y-2">
+        {entries.map(entry => (
+          <div key={entry._id} className="p-3 border border-border bg-card">
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-[10px] text-muted-foreground">#{entry.position}</span>
+                  {entry.earlyAccess && <span className="text-[9px] px-1.5 py-0.5 bg-amber-500/10 text-amber-600 font-medium">VIP</span>}
+                  <span className="text-[9px] px-1.5 py-0.5 bg-muted text-muted-foreground capitalize">{entry.source}</span>
+                </div>
+                <p className="text-xs font-medium text-foreground mt-1 truncate">{entry.email}</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">{entry.phone || "No phone"} · {new Date(entry.createdAt).toLocaleDateString("en-IN")}</p>
+              </div>
+              <div className="flex items-center gap-1 flex-shrink-0">
+                <button onClick={() => openSingleEmail(entry.email)} className="h-7 w-7 border border-border flex items-center justify-center text-muted-foreground hover:text-[#c4956a] hover:border-[#c4956a]/30 transition-colors">
+                  <Mail className="h-3.5 w-3.5" />
+                </button>
+                <button onClick={() => setDeleteConfirm(entry._id)} className="h-7 w-7 border border-border flex items-center justify-center text-muted-foreground hover:text-red-500 hover:border-red-500/30 transition-colors">
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
+        {entries.length === 0 && <p className="text-sm text-muted-foreground text-center py-10 border border-border">No VIP signups yet</p>}
+      </div>
+
+      {/* Table - desktop */}
+      <div className="hidden md:block border border-border overflow-x-auto">
         <table className="w-full text-xs min-w-[600px]">
           <thead>
             <tr className="bg-muted/50">

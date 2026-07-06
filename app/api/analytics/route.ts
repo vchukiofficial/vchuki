@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import mongoose from "mongoose"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import connectDB from "@/lib/mongodb"
@@ -20,7 +21,7 @@ export async function POST(request: NextRequest) {
     userAgent: ua.substring(0, 200),
     device,
     sessionId: body.sessionId,
-    userId: body.userId || undefined,
+    userId: mongoose.isValidObjectId(body.userId) ? body.userId : undefined,
     ip,
     duration: body.duration || 0,
   })
@@ -49,6 +50,7 @@ export async function GET(request: NextRequest) {
     hourlyBreakdown,
     topReferrers,
     recentViews,
+    identifiedVisitors,
   ] = await Promise.all([
     // Total page views
     PageView.countDocuments({ createdAt: { $gte: since } }),
@@ -66,10 +68,10 @@ export async function GET(request: NextRequest) {
       { $match: { createdAt: { $gte: since } } },
       { $group: { _id: "$device", count: { $sum: 1 } } },
     ]),
-    // Hourly breakdown (last 24h)
+    // Hourly breakdown (last 24h, in IST so the hour labels match the store's timezone)
     PageView.aggregate([
       { $match: { createdAt: { $gte: new Date(Date.now() - 86400000) } } },
-      { $group: { _id: { $hour: "$createdAt" }, count: { $sum: 1 } } },
+      { $group: { _id: { $hour: { date: "$createdAt", timezone: "Asia/Kolkata" } }, count: { $sum: 1 } } },
       { $sort: { _id: 1 } },
     ]),
     // Top referrers
@@ -81,6 +83,16 @@ export async function GET(request: NextRequest) {
     ]),
     // Recent views
     PageView.find({ createdAt: { $gte: since } }).sort({ createdAt: -1 }).limit(20).lean(),
+    // Identified visitors — logged-in users we can actually target for remarketing
+    PageView.aggregate([
+      { $match: { createdAt: { $gte: since }, userId: { $exists: true, $ne: null } } },
+      { $group: { _id: "$userId", views: { $sum: 1 }, lastSeen: { $max: "$createdAt" }, paths: { $addToSet: "$path" } } },
+      { $sort: { lastSeen: -1 } },
+      { $limit: 50 },
+      { $lookup: { from: "users", localField: "_id", foreignField: "_id", as: "user" } },
+      { $unwind: "$user" },
+      { $project: { email: "$user.email", name: "$user.name", views: 1, lastSeen: 1, pageCount: { $size: "$paths" } } },
+    ]),
   ])
 
   // Today's views
@@ -95,6 +107,7 @@ export async function GET(request: NextRequest) {
     deviceBreakdown,
     hourlyBreakdown,
     topReferrers,
+    identifiedVisitors,
     recentViews: recentViews.map((v: any) => ({ path: v.path, device: v.device, createdAt: v.createdAt })),
   })
 }

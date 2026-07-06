@@ -168,15 +168,15 @@ export async function sendShippingUpdateEmail(to: string, data: { orderId: strin
 
 export async function sendWaitlistConfirmation(to: string, position: number, earlyAccess: boolean) {
   const perks = earlyAccess
-    ? `<div style="background:#f5e6d3;padding:16px;margin:16px 0;border-left:4px solid #c4956a;"><p style="font-size:14px;color:#2a1f14;margin:0;font-weight:bold;"> You've unlocked early access!</p><p style="font-size:12px;color:#666;margin:8px 0 0;">10% off + free shipping on launch day.</p></div>`
+    ? `<div style="background:#f5e6d3;padding:16px;margin:16px 0;border-left:4px solid #c4956a;"><p style="font-size:14px;color:#2a1f14;margin:0;font-weight:bold;"> You've unlocked VIP perks!</p><p style="font-size:12px;color:#666;margin:8px 0 0;">10% off + free shipping on your first order.</p></div>`
     : ""
   return sendViaTemplate("waitlist-confirmation", to, { position: String(position), perks },
-    "You're on the VCHUKI Waitlist! ",
+    "You're on the VCHUKI VIP List! ",
     `<h2 style="color:#2a1f14;">You're In!</h2>
-    <p style="color:#666;font-size:14px;">You're <strong>#{{position}}</strong> on our waitlist for the July collection drop.</p>
+    <p style="color:#666;font-size:14px;">You're <strong>#{{position}}</strong> on our VIP list.</p>
     {{perks}}
-    <p style="color:#666;font-size:13px;">We'll notify you the moment new styles go live. Stay tuned for fresh colors, premium linen, and modern designs.</p>
-    <div style="margin:24px 0;"><a href="https://vchuki.com/shirts" style="background:#2a1f14;color:#f5e6d3;padding:12px 24px;text-decoration:none;font-size:12px;text-transform:uppercase;">Shop Current Collection</a></div>
+    <p style="color:#666;font-size:13px;">Shop our full collection now, and look out for early access to new styles, colors, and restocks.</p>
+    <div style="margin:24px 0;"><a href="https://vchuki.com/shirts" style="background:#2a1f14;color:#f5e6d3;padding:12px 24px;text-decoration:none;font-size:12px;text-transform:uppercase;">Shop Collection</a></div>
     <p style="color:#999;font-size:11px;">Thank you for your interest in VCHUKI.</p>`
   )
 }
@@ -279,9 +279,9 @@ export async function sendPromoEmail(to: string, data: { subject: string; headin
 
 export async function sendVIPLaunchAlert(to: string, data: { name: string; discountCode: string }) {
   return sendViaTemplate("vip-launch-alert", to, { ...data, shopLink: "https://vchuki.com/shirts" },
-    " VIP Early Access is LIVE — 2 Hours Before Everyone!",
+    " The Archive Debut is LIVE — Unique Styles Just Dropped!",
     `<h2 style="color:#2a1f14;">It's GO Time! </h2>
-    <p style="color:#666;font-size:14px;">Hi {{name}}, your VIP early access is now <strong>LIVE</strong>.</p>
+    <p style="color:#666;font-size:14px;">Hi {{name}}, our new collection of unique styles is now <strong>LIVE</strong>.</p>
     <div style="background:#f5e6d3;padding:20px;margin:20px 0;border-left:4px solid #c4956a;text-align:center;"><p style="font-size:11px;color:#c4956a;margin:0;text-transform:uppercase;letter-spacing:2px;">Your VIP Code</p><p style="font-size:28px;font-weight:bold;color:#2a1f14;margin:8px 0;letter-spacing:4px;">{{discountCode}}</p><p style="font-size:12px;color:#666;margin:0;">10% off + Free Shipping</p></div>
     <div style="margin:24px 0;text-align:center;"><a href="{{shopLink}}" style="background:#2a1f14;color:#f5e6d3;padding:14px 32px;text-decoration:none;font-size:13px;text-transform:uppercase;font-weight:bold;">Shop Now →</a></div>`
   )
@@ -290,7 +290,7 @@ export async function sendVIPLaunchAlert(to: string, data: { name: string; disco
 // ============================================
 // HTML WRAPPER — all emails get this chrome
 // ============================================
-function wrapTemplate(content: string): string {
+export function wrapTemplate(content: string): string {
   return `<!DOCTYPE html><html><head><meta charset="utf-8"></head>
 <body style="margin:0;padding:0;background:#f5f5f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
 <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f5;padding:40px 0;"><tr><td align="center">
