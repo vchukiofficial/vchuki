@@ -5,7 +5,7 @@ import { useSession, signIn } from "next-auth/react"
 import { useCartStore } from "@/store/cartStore"
 import Image from "next/image"
 import Link from "next/link"
-import { Check, Shield, Truck, ArrowLeft, Banknote, Package, Clock, MapPin, ShoppingBag, Smartphone } from "lucide-react"
+import { Check, Shield, Truck, ArrowLeft, Banknote, Package, Clock, MapPin, ShoppingBag, Smartphone, Tag } from "lucide-react"
 import { AddressForm } from "@/components/shared/AddressForm"
 import { getRecaptchaToken, isRecaptchaEnabled } from "@/lib/recaptchaClient"
 import type { Address } from "@/types"
@@ -20,6 +20,9 @@ export default function CheckoutPage() {
   const [orderId, setOrderId] = useState("")
   const [confirmedTotal, setConfirmedTotal] = useState(0)
   const [paymentMethod, setPaymentMethod] = useState<"cod" | "upi">("cod")
+  const [couponInput, setCouponInput] = useState("")
+  const [couponError, setCouponError] = useState("")
+  const [applyingCoupon, setApplyingCoupon] = useState(false)
 
   // Form state
   const [form, setForm] = useState({
@@ -67,6 +70,25 @@ export default function CheckoutPage() {
   }
 
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
+
+  async function handleApplyCoupon() {
+    if (!couponInput.trim()) return
+    setCouponError("")
+    setApplyingCoupon(true)
+    try {
+      const res = await fetch(`/api/coupons/validate?code=${couponInput.toUpperCase()}&amount=${subtotal}`)
+      const data = await res.json()
+      if (!res.ok) {
+        setCouponError(data.error || "Invalid coupon")
+      } else {
+        applyCoupon(couponInput.toUpperCase(), data.discount)
+        setCouponInput("")
+      }
+    } catch {
+      setCouponError("Something went wrong. Try again.")
+    }
+    setApplyingCoupon(false)
+  }
 
   // A coupon applied earlier (possibly in a past session) persists in the cart store — re-check it's
   // still valid and re-priced against the current subtotal each time checkout loads, rather than
@@ -559,6 +581,44 @@ export default function CheckoutPage() {
               ))}
             </div>
 
+            {/* Coupon */}
+            <div className="border-t border-border mt-4 pt-4">
+              {!couponCode ? (
+                <div>
+                  <div className="flex gap-2">
+                    <div className="flex-1 relative">
+                      <Tag className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                      <input
+                        type="text"
+                        placeholder="Coupon code"
+                        value={couponInput}
+                        onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                        onKeyDown={(e) => e.key === "Enter" && handleApplyCoupon()}
+                        className="w-full pl-9 pr-3 py-2.5 border border-border bg-background text-xs font-mono uppercase focus:outline-none focus:border-[#c4956a]/50 text-foreground placeholder:text-muted-foreground/50 placeholder:normal-case"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleApplyCoupon}
+                      disabled={!couponInput || applyingCoupon}
+                      className="px-4 py-2.5 border border-[#c4956a]/30 text-[10px] font-medium uppercase tracking-wider text-[#c4956a] hover:bg-[#c4956a]/5 disabled:opacity-40 transition-colors"
+                    >
+                      {applyingCoupon ? "..." : "Apply"}
+                    </button>
+                  </div>
+                  {couponError && <p className="text-[10px] text-red-500 mt-1.5">{couponError}</p>}
+                </div>
+              ) : (
+                <div className="flex items-center justify-between p-2.5 bg-emerald-500/5 border border-emerald-500/20">
+                  <div className="flex items-center gap-2">
+                    <Tag className="h-3.5 w-3.5 text-emerald-600" />
+                    <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">{couponCode} applied — ₹{discount} off</span>
+                  </div>
+                  <button type="button" onClick={clearCoupon} className="text-[10px] text-muted-foreground hover:text-red-500 transition-colors">Remove</button>
+                </div>
+              )}
+            </div>
+
             {/* Pricing */}
             <div className="border-t border-border mt-4 pt-4 space-y-2 text-sm">
               <div className="flex justify-between text-muted-foreground">
@@ -567,16 +627,7 @@ export default function CheckoutPage() {
               </div>
               {discount > 0 && (
                 <div className="flex justify-between text-emerald-600 dark:text-emerald-400">
-                  <span className="flex items-center gap-1.5">
-                    Coupon {couponCode && `(${couponCode})`}
-                    <button
-                      type="button"
-                      onClick={clearCoupon}
-                      className="text-[10px] text-muted-foreground hover:text-red-500 transition-colors underline"
-                    >
-                      Remove
-                    </button>
-                  </span>
+                  <span>Coupon {couponCode && `(${couponCode})`}</span>
                   <span>-₹{discount.toLocaleString()}</span>
                 </div>
               )}
