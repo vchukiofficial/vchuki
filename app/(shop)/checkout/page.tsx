@@ -105,6 +105,28 @@ export default function CheckoutPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [couponCode, subtotal])
 
+  // Auto-apply a discount once we know who's checking out — VIPACCESS10 for waitlist members
+  // with early access, WELCOME10 for everyone else. Only runs while no coupon is applied yet,
+  // so a manual entry or an explicit "Remove" always wins over this.
+  useEffect(() => {
+    const email = (form.email || session?.user?.email || "").trim().toLowerCase()
+    if (couponCode || !email.includes("@") || subtotal <= 0) return
+    const timer = setTimeout(async () => {
+      try {
+        const checkRes = await fetch(`/api/waitlist/check?email=${encodeURIComponent(email)}`)
+        const { earlyAccess } = await checkRes.json()
+        const code = earlyAccess ? "VIPACCESS10" : "WELCOME10"
+        const res = await fetch(`/api/coupons/validate?code=${code}&amount=${subtotal}`)
+        const data = await res.json()
+        if (res.ok) applyCoupon(code, data.discount)
+      } catch {
+        // silent — auto-apply is a bonus, not a blocker
+      }
+    }, 600)
+    return () => clearTimeout(timer)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form.email, session?.user?.email, subtotal, couponCode])
+
   const shipping = subtotal >= 1599 ? 0 : 50
   const codCharge = paymentMethod === "cod" ? 50 : 0
   const totalDiscount = discount + comboDiscount
