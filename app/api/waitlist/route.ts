@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server"
 import connectDB from "@/lib/mongodb"
 import Waitlist from "@/models/Waitlist"
+import Counter from "@/models/Counter"
+
+const WAITLIST_COUNTER_ID = "waitlist_position"
 
 export async function POST(req: NextRequest) {
   try {
@@ -21,9 +24,14 @@ export async function POST(req: NextRequest) {
       })
     }
 
-    // Get current count to determine position
-    const count = await Waitlist.countDocuments()
-    const position = count + 1
+    // Atomic increment — avoids the race where concurrent signups read the same
+    // count and get assigned the same (or duplicate) position/earlyAccess status.
+    const counter = await Counter.findOneAndUpdate(
+      { _id: WAITLIST_COUNTER_ID },
+      { $inc: { seq: 1 } },
+      { upsert: true, new: true }
+    )
+    const position = counter.seq
     const earlyAccess = position <= 100 // First 100 get perks
 
     const entry = await Waitlist.create({
@@ -59,10 +67,14 @@ export async function POST(req: NextRequest) {
 export async function GET() {
   try {
     await connectDB()
-    const count = await Waitlist.countDocuments()
+    const [count, counter] = await Promise.all([
+      Waitlist.countDocuments(),
+      Counter.findById(WAITLIST_COUNTER_ID).lean(),
+    ])
+    const highestPosition = (counter as any)?.seq || 0
     return NextResponse.json({
       totalSignups: count,
-      earlyAccessSpotsLeft: Math.max(0, 100 - count),
+      earlyAccessSpotsLeft: Math.max(0, 100 - highestPosition),
     })
   } catch {
     return NextResponse.json({ error: "Something went wrong" }, { status: 500 })

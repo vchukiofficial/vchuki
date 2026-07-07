@@ -3,6 +3,10 @@
     {
       "path": "/api/cron/launch",
       "schedule": "30 3 * * *"
+    },
+    {
+      "path": "/api/cron/scheduled-emails",
+      "schedule": "*/5 * * * *"
     }
   ]
 }

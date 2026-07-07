@@ -11,6 +11,7 @@ import { ShirtsVariantGrid } from "@/components/products/ShirtsVariantGrid"
 import { RajasthanPalette } from "@/components/home/RajasthanPalette"
 import { CategoryImageCarousel } from "@/components/home/CategoryImageCarousel"
 import { LaunchCountdownBanner } from "@/components/home/LaunchCountdownBanner"
+import { NewsletterSignup } from "@/components/marketing/NewsletterSignup"
 import { getRandomCarouselProducts } from "@/lib/email/carouselProducts"
 
 // FIX #5: Enable ISR caching - revalidate every 60 seconds
@@ -343,12 +344,7 @@ export default async function HomePage() {
           <p className="text-[10px] uppercase tracking-[0.3em] text-[#c4956a] mb-3">Exclusive Access</p>
           <h2 className="text-lg md:text-3xl font-light tracking-tight text-[#f5e6d3]">Join the VCHUKI Club</h2>
           <p className="text-xs md:text-sm text-[#f5e6d3]/50 mt-3">Get 10% off your first order. Early access to drops.</p>
-          <form className="flex mt-6 md:mt-8 border border-[#c4956a]/30 overflow-hidden max-w-sm mx-auto">
-            <input type="email" placeholder="Your email" className="flex-1 min-w-0 px-3 md:px-4 py-3 bg-transparent text-sm text-[#f5e6d3] placeholder:text-[#f5e6d3]/30 outline-none" />
-            <button type="submit" className="px-4 md:px-6 py-3 bg-[#c4956a] text-[#2a1f14] text-[10px] md:text-xs font-bold tracking-wider hover:bg-[#d4a574] transition-colors whitespace-nowrap">
-              JOIN
-            </button>
-          </form>
+          <NewsletterSignup />
           <p className="text-[9px] text-[#f5e6d3]/30 mt-3">No spam. Unsubscribe anytime.</p>
         </div>
       </section>

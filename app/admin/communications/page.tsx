@@ -11,6 +11,7 @@ interface Counts { total: number; otp: number; order: number; shipping: number; 
 interface PickerProduct { _id: string; name: string; slug: string; basePrice: number; images: string[] }
 interface ScheduledJob {
   _id: string; recipientType: string; to: string; subject: string; heading: string
+  content: string; bannerImageUrl: string
   productIds: string[]; ctaText: string; ctaLink: string; scheduledAt: string
   status: string; sentCount: number; error?: string
 }
@@ -28,6 +29,7 @@ export default function AdminCommunicationsPage() {
   const [loading, setLoading] = useState(true)
 
   const [showCompose, setShowCompose] = useState(false)
+  const [editingJobId, setEditingJobId] = useState<string | null>(null)
   const [recipientType, setRecipientType] = useState<"custom" | "waitlist">("custom")
   const [emailTo, setEmailTo] = useState("")
   const [emailSubject, setEmailSubject] = useState("")
@@ -41,6 +43,7 @@ export default function AdminCommunicationsPage() {
   const [sending, setSending] = useState(false)
   const [sendResult, setSendResult] = useState<string | null>(null)
   const [showPreview, setShowPreview] = useState(false)
+  const [toast, setToast] = useState<string | null>(null)
 
   const [products, setProducts] = useState<PickerProduct[]>([])
   const [productsLoading, setProductsLoading] = useState(false)
@@ -115,6 +118,38 @@ export default function AdminCommunicationsPage() {
     }
   }
 
+  function resetComposeForm() {
+    setEditingJobId(null)
+    setRecipientType("custom"); setEmailTo(""); setEmailSubject(""); setEmailContent("")
+    setBannerImage(""); setSelectedProductIds([]); setCtaText("Shop Now"); setCtaLink("https://vchuki.com/shirts")
+    setSendMode("now"); setScheduledAt(""); setSendResult(null)
+  }
+
+  function toggleCompose() {
+    if (showCompose) resetComposeForm()
+    setShowCompose(!showCompose)
+  }
+
+  function editJob(job: ScheduledJob) {
+    const hasUnsavedDraft = showCompose && !editingJobId && (emailSubject || emailContent)
+    if (hasUnsavedDraft && !confirm("You have an unsaved new campaign in progress. Discard it and edit this one instead?")) return
+    setEditingJobId(job._id)
+    setRecipientType(job.recipientType === "waitlist" ? "waitlist" : "custom")
+    setEmailTo(job.to)
+    setEmailSubject(job.subject)
+    setEmailContent(job.content)
+    setBannerImage(job.bannerImageUrl || "")
+    setSelectedProductIds(job.productIds || [])
+    setCtaText(job.ctaText)
+    setCtaLink(job.ctaLink)
+    setSendMode("schedule")
+    const d = new Date(job.scheduledAt)
+    const pad = (n: number) => String(n).padStart(2, "0")
+    setScheduledAt(`${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`)
+    setSendResult(null)
+    setShowCompose(true)
+  }
+
   function toggleProduct(id: string) {
     setSelectedProductIds(prev => prev.includes(id) ? prev.filter(p => p !== id) : prev.length >= 6 ? prev : [...prev, id])
   }
@@ -151,21 +186,28 @@ export default function AdminCommunicationsPage() {
   async function handleSendEmail(e: React.FormEvent) {
     e.preventDefault()
     setSending(true); setSendResult(null)
+    const isEditing = !!editingJobId
     try {
-      const res = await fetch("/api/admin/communications/schedule", {
-        method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include",
-        body: JSON.stringify({
-          recipientType, to: emailTo, subject: emailSubject, heading: emailSubject, content: emailContent,
-          bannerImageUrl: bannerImage, productIds: selectedProductIds, ctaText, ctaLink,
-          scheduledAt: sendMode === "schedule" && scheduledAt ? new Date(scheduledAt).toISOString() : undefined,
-        }),
-      })
+      const res = await fetch(
+        isEditing ? `/api/admin/communications/schedule/${editingJobId}` : "/api/admin/communications/schedule",
+        {
+          method: isEditing ? "PUT" : "POST", headers: { "Content-Type": "application/json" }, credentials: "include",
+          body: JSON.stringify({
+            recipientType, to: emailTo, subject: emailSubject, heading: emailSubject, content: emailContent,
+            bannerImageUrl: bannerImage, productIds: selectedProductIds, ctaText, ctaLink,
+            scheduledAt: sendMode === "schedule" && scheduledAt ? new Date(scheduledAt).toISOString() : undefined,
+          }),
+        }
+      )
       const data = await res.json()
       if (res.ok) {
-        setSendResult(sendMode === "schedule" ? "✅ Scheduled!" : "✅ Sent!")
-        setEmailTo(""); setEmailSubject(""); setEmailContent(""); setSelectedProductIds([]); setScheduledAt(""); setSendMode("now"); setBannerImage("")
+        const successMsg = isEditing ? "✅ Campaign updated!" : sendMode === "schedule" ? "✅ Scheduled!" : "✅ Sent!"
+        resetComposeForm()
+        setShowCompose(false)
+        setToast(successMsg)
+        setTimeout(() => setToast(null), 4000)
         fetchLogs()
-        if (view === "scheduled") fetchJobs()
+        fetchJobs()
       } else setSendResult(`❌ ${data.error}`)
     } catch { setSendResult("❌ Network error") }
     setSending(false)
@@ -177,6 +219,13 @@ export default function AdminCommunicationsPage() {
     if (res.ok) fetchJobs()
   }
 
+  async function sendJobNow(id: string) {
+    if (!confirm("Send this campaign right now instead of waiting for its scheduled time?")) return
+    const res = await fetch(`/api/admin/communications/schedule/${id}/send-now`, { method: "POST", credentials: "include" })
+    const data = await res.json()
+    if (res.ok) { fetchJobs(); fetchLogs() } else alert(data.error || "Failed to send")
+  }
+
   const typeIcon: Record<string, any> = { otp: Key, order: ShoppingCart, shipping: Truck, marketing: Megaphone, reset: Key, welcome: Mail }
   const typeColor: Record<string, string> = { otp: "text-blue-600 bg-blue-500/10", order: "text-emerald-600 bg-emerald-500/10", shipping: "text-amber-600 bg-amber-500/10", marketing: "text-purple-600 bg-purple-500/10", reset: "text-orange-600 bg-orange-500/10", welcome: "text-[#c4956a] bg-[#c4956a]/10" }
   const jobStatusColor: Record<string, string> = { pending: "text-amber-600 bg-amber-500/10", sent: "text-emerald-600 bg-emerald-500/10", failed: "text-red-500 bg-red-500/10", cancelled: "text-muted-foreground bg-muted" }
@@ -185,14 +234,17 @@ export default function AdminCommunicationsPage() {
 
   return (
     <div className="space-y-5">
+      {toast && (
+        <div className="fixed top-4 right-4 z-[80] px-4 py-2.5 bg-emerald-600 text-white text-xs font-medium shadow-lg">{toast}</div>
+      )}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-medium tracking-tight text-foreground">Communications</h1>
           <p className="text-xs text-muted-foreground mt-0.5">OTP logs, email transactions, marketing</p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={() => setShowCompose(!showCompose)} className="flex items-center gap-1.5 px-3 py-1.5 bg-[#2a1f14] dark:bg-[#c4956a] text-[#f5e6d3] dark:text-[#2a1f14] text-[10px] font-medium uppercase tracking-wider hover:opacity-90">
-            <Send className="h-3 w-3" /> Compose
+          <button onClick={toggleCompose} className="flex items-center gap-1.5 px-3 py-1.5 bg-[#2a1f14] dark:bg-[#c4956a] text-[#f5e6d3] dark:text-[#2a1f14] text-[10px] font-medium uppercase tracking-wider hover:opacity-90">
+            <Send className="h-3 w-3" /> {editingJobId ? "Editing Campaign" : "Compose"}
           </button>
           <button onClick={handleExport} className="flex items-center gap-1.5 px-3 py-1.5 border border-border text-[10px] font-medium hover:border-[#c4956a]/30 text-foreground">
             <Download className="h-3 w-3" /> Export
@@ -206,7 +258,7 @@ export default function AdminCommunicationsPage() {
       {/* Compose */}
       {showCompose && (
         <form onSubmit={handleSendEmail} className="p-4 border border-[#c4956a]/20 bg-[#c4956a]/5 space-y-4">
-          <h3 className="text-sm font-medium text-foreground flex items-center gap-2"><Send className="h-3.5 w-3.5 text-[#c4956a]" /> New Campaign</h3>
+          <h3 className="text-sm font-medium text-foreground flex items-center gap-2"><Send className="h-3.5 w-3.5 text-[#c4956a]" /> {editingJobId ? "Edit Scheduled Campaign" : "New Campaign"}</h3>
 
           {/* Recipients */}
           <div className="grid md:grid-cols-2 gap-3">
@@ -301,8 +353,11 @@ export default function AdminCommunicationsPage() {
           <div className="flex items-center gap-3 pt-1">
             <button type="button" onClick={() => setShowPreview(true)} className="flex items-center gap-1.5 px-4 py-2 border border-border text-[10px] font-medium uppercase hover:border-[#c4956a]/30 text-foreground"><Eye className="h-3 w-3" /> Preview</button>
             <button type="submit" disabled={sending} className="px-4 py-2 bg-[#2a1f14] dark:bg-[#c4956a] text-[#f5e6d3] dark:text-[#2a1f14] text-[10px] font-medium uppercase disabled:opacity-50">
-              {sending ? "Sending..." : sendMode === "schedule" ? "Schedule Campaign" : "Send Now"}
+              {sending ? "Saving..." : editingJobId ? "Save Changes" : sendMode === "schedule" ? "Schedule Campaign" : "Send Now"}
             </button>
+            {editingJobId && (
+              <button type="button" onClick={() => { resetComposeForm(); setShowCompose(false) }} className="text-[10px] uppercase tracking-wider text-muted-foreground hover:text-foreground">Cancel Edit</button>
+            )}
             {sendResult && <span className="text-xs">{sendResult}</span>}
           </div>
         </form>
@@ -408,7 +463,11 @@ export default function AdminCommunicationsPage() {
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <span className={`text-[9px] px-1.5 py-0.5 font-medium uppercase ${jobStatusColor[job.status] || "bg-muted"}`}>{job.status}{job.status === "sent" ? ` (${job.sentCount})` : ""}</span>
                   {job.status === "pending" && (
-                    <button onClick={() => cancelJob(job._id)} className="text-[10px] px-2 py-1 border border-border hover:border-red-500/40 hover:text-red-500 text-muted-foreground">Cancel</button>
+                    <>
+                      <button onClick={() => sendJobNow(job._id)} className="text-[10px] px-2 py-1 border border-border hover:border-emerald-500/40 hover:text-emerald-600 text-muted-foreground">Send Now</button>
+                      <button onClick={() => editJob(job)} className="text-[10px] px-2 py-1 border border-border hover:border-[#c4956a]/40 hover:text-foreground text-muted-foreground">Edit</button>
+                      <button onClick={() => cancelJob(job._id)} className="text-[10px] px-2 py-1 border border-border hover:border-red-500/40 hover:text-red-500 text-muted-foreground">Cancel</button>
+                    </>
                   )}
                 </div>
               </div>
