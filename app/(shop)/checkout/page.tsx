@@ -14,7 +14,7 @@ type Step = "details" | "payment" | "confirmation"
 
 export default function CheckoutPage() {
   const { data: session } = useSession()
-  const { items, discount, comboDiscount, comboLabel, couponCode, clearCart } = useCartStore()
+  const { items, discount, comboDiscount, comboLabel, couponCode, clearCart, clearCoupon, applyCoupon } = useCartStore()
   const [step, setStep] = useState<Step>("details")
   const [loading, setLoading] = useState(false)
   const [orderId, setOrderId] = useState("")
@@ -67,6 +67,22 @@ export default function CheckoutPage() {
   }
 
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
+
+  // A coupon applied earlier (possibly in a past session) persists in the cart store — re-check it's
+  // still valid and re-priced against the current subtotal each time checkout loads, rather than
+  // silently trusting a stale flat amount from whenever it was first applied.
+  useEffect(() => {
+    if (!couponCode || subtotal <= 0) return
+    fetch(`/api/coupons/validate?code=${couponCode}&amount=${subtotal}`)
+      .then((r) => r.json().then((data) => ({ ok: r.ok, data })))
+      .then(({ ok, data }) => {
+        if (!ok) clearCoupon()
+        else if (data.discount !== discount) applyCoupon(couponCode, data.discount)
+      })
+      .catch(() => {})
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [couponCode, subtotal])
+
   const shipping = subtotal >= 1599 ? 0 : 50
   const codCharge = paymentMethod === "cod" ? 50 : 0
   const totalDiscount = discount + comboDiscount
@@ -551,7 +567,16 @@ export default function CheckoutPage() {
               </div>
               {discount > 0 && (
                 <div className="flex justify-between text-emerald-600 dark:text-emerald-400">
-                  <span>Coupon {couponCode && `(${couponCode})`}</span>
+                  <span className="flex items-center gap-1.5">
+                    Coupon {couponCode && `(${couponCode})`}
+                    <button
+                      type="button"
+                      onClick={clearCoupon}
+                      className="text-[10px] text-muted-foreground hover:text-red-500 transition-colors underline"
+                    >
+                      Remove
+                    </button>
+                  </span>
                   <span>-₹{discount.toLocaleString()}</span>
                 </div>
               )}
