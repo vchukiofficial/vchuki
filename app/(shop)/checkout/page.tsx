@@ -23,6 +23,7 @@ export default function CheckoutPage() {
   const [couponInput, setCouponInput] = useState("")
   const [couponError, setCouponError] = useState("")
   const [applyingCoupon, setApplyingCoupon] = useState(false)
+  const [autoApplyDismissedFor, setAutoApplyDismissedFor] = useState("")
 
   // Form state
   const [form, setForm] = useState({
@@ -110,7 +111,7 @@ export default function CheckoutPage() {
   // so a manual entry or an explicit "Remove" always wins over this.
   useEffect(() => {
     const email = (form.email || session?.user?.email || "").trim().toLowerCase()
-    if (couponCode || !email.includes("@") || subtotal <= 0) return
+    if (couponCode || !email.includes("@") || subtotal <= 0 || email === autoApplyDismissedFor) return
     const timer = setTimeout(async () => {
       try {
         const checkRes = await fetch(`/api/waitlist/check?email=${encodeURIComponent(email)}`)
@@ -125,7 +126,12 @@ export default function CheckoutPage() {
     }, 600)
     return () => clearTimeout(timer)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [form.email, session?.user?.email, subtotal, couponCode])
+  }, [form.email, session?.user?.email, subtotal, couponCode, autoApplyDismissedFor])
+
+  function handleRemoveCoupon() {
+    setAutoApplyDismissedFor((form.email || session?.user?.email || "").trim().toLowerCase())
+    clearCoupon()
+  }
 
   const shipping = subtotal >= 1599 ? 0 : 50
   const codCharge = paymentMethod === "cod" ? 50 : 0
@@ -636,7 +642,7 @@ export default function CheckoutPage() {
                     <Tag className="h-3.5 w-3.5 text-emerald-600" />
                     <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">{couponCode} applied — ₹{discount} off</span>
                   </div>
-                  <button type="button" onClick={clearCoupon} className="text-[10px] text-muted-foreground hover:text-red-500 transition-colors">Remove</button>
+                  <button type="button" onClick={handleRemoveCoupon} className="text-[10px] text-muted-foreground hover:text-red-500 transition-colors">Remove</button>
                 </div>
               )}
             </div>
