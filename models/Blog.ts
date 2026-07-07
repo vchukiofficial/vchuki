@@ -20,6 +20,8 @@ export interface IBlog extends Document {
   updatedAt: Date
 }
 
+
+
 const BlogSchema: Schema = new Schema({
   title: { type: String, required: true },
   slug: { type: String, required: true, unique: true },
