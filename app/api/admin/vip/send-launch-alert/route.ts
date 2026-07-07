@@ -1,11 +1,13 @@
-import { NextRequest, NextResponse } from "next/server"
+import { NextResponse } from "next/server"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth"
 import connectDB from "@/lib/mongodb"
 import Waitlist from "@/models/Waitlist"
 import Coupon from "@/models/Coupon"
 import { sendVIPLaunchAlert } from "@/lib/email/brevo"
 import { buildProductCarouselHtml } from "@/lib/email/productCarousel"
 import { getRandomCarouselProducts } from "@/lib/email/carouselProducts"
-import { VIP_EARLY_ACCESS_DATE, LAUNCH_DAY_END } from "@/lib/launchSchedule"
+import { LAUNCH_DAY_END } from "@/lib/launchSchedule"
 
 const VIP_LAUNCH_CODE = "VIPACCESS10"
 
@@ -17,33 +19,28 @@ async function ensureLaunchCoupon() {
     type: "percentage",
     value: 10,
     maxValue: 300,
-    validFrom: VIP_EARLY_ACCESS_DATE,
-    validTo: LAUNCH_DAY_END, // launch day only
+    validFrom: new Date(),
+    validTo: LAUNCH_DAY_END,
     usageLimit: 1000,
     isActive: true,
   })
 }
 
-// Triggered by Vercel Cron (see vercel.json) once daily — safe to call repeatedly,
-// each waitlist entry is only ever emailed once (tracked via launchEmailSentAt).
-export async function GET(request: NextRequest) {
-  const authHeader = request.headers.get("authorization")
-  if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-  }
+// Admin-triggered replacement for the old Vercel Cron job — Hobby plan crons only run once a
+// day with ±59min precision, too imprecise for a fixed 9AM launch moment. The admin clicks this
+// button when they're ready; each waitlist entry is still only ever emailed once (launchEmailSentAt).
+export async function POST() {
+  const session = await getServerSession(authOptions)
+  if (!session || session.user.role !== "admin") return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
   await connectDB()
-
-  const now = new Date()
-  if (now < VIP_EARLY_ACCESS_DATE) {
-    return NextResponse.json({ status: "waiting", launchesAt: VIP_EARLY_ACCESS_DATE })
-  }
-
   await ensureLaunchCoupon()
 
   const pending = await Waitlist.find({ earlyAccess: true, launchEmailSentAt: { $exists: false } }).lean()
+  const alreadySent = await Waitlist.countDocuments({ earlyAccess: true, launchEmailSentAt: { $exists: true } })
+
   if (pending.length === 0) {
-    return NextResponse.json({ status: "done", sent: 0 })
+    return NextResponse.json({ status: "done", sent: 0, alreadySent })
   }
 
   const carousel = buildProductCarouselHtml(await getRandomCarouselProducts())
@@ -59,9 +56,9 @@ export async function GET(request: NextRequest) {
       await Waitlist.updateOne({ _id: (entry as any)._id }, { launchEmailSentAt: new Date() })
       sent++
     } catch {
-      // leave launchEmailSentAt unset so the next cron run retries this entry
+      // leave launchEmailSentAt unset so the admin can retry by clicking again
     }
   }
 
-  return NextResponse.json({ status: "sent", sent, total: pending.length })
+  return NextResponse.json({ status: "sent", sent, total: pending.length, alreadySent })
 }

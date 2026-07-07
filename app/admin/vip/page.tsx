@@ -26,6 +26,8 @@ export default function AdminVIPPage() {
   const [sending, setSending] = useState(false)
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null)
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
+  const [launchAlertConfirm, setLaunchAlertConfirm] = useState(false)
+  const [sendingLaunchAlert, setSendingLaunchAlert] = useState(false)
 
   useEffect(() => { fetchEntries() }, [])
 
@@ -112,6 +114,23 @@ Don't wait - the best sizes sell out fast!`)
     setSending(false)
   }
 
+  async function handleSendLaunchAlert() {
+    setSendingLaunchAlert(true)
+    try {
+      const res = await fetch("/api/admin/vip/send-launch-alert", { method: "POST" })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || "Failed to send")
+      setToast({
+        message: data.sent > 0 ? `Sent to ${data.sent} VIP member${data.sent === 1 ? "" : "s"} (${data.alreadySent} already had it)` : `Everyone already has their launch alert (${data.alreadySent} sent)`,
+        type: "success",
+      })
+    } catch (err: any) {
+      setToast({ message: err.message || "Failed to send launch alert", type: "error" })
+    }
+    setSendingLaunchAlert(false)
+    setLaunchAlertConfirm(false)
+  }
+
   async function handleExport() {
     await exportToExcel({
       title: "VIP Waitlist",
@@ -151,8 +170,11 @@ Don't wait - the best sizes sell out fast!`)
           <p className="text-xs text-muted-foreground mt-0.5">{entries.length} signups · Manage early access members</p>
         </div>
         <div className="flex gap-2 flex-wrap">
-          <button onClick={openLaunchEmail} className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 text-white text-[10px] font-medium uppercase tracking-wider hover:bg-emerald-700 transition-colors">
-            <Zap className="h-3 w-3" /> Send Launch Access
+          <button onClick={() => setLaunchAlertConfirm(true)} className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 text-white text-[10px] font-medium uppercase tracking-wider hover:bg-emerald-700 transition-colors">
+            <Zap className="h-3 w-3" /> Send VIP Launch Alert
+          </button>
+          <button onClick={openLaunchEmail} className="flex items-center gap-1.5 px-3 py-1.5 border border-emerald-600/40 text-emerald-600 text-[10px] font-medium uppercase tracking-wider hover:bg-emerald-600/10 transition-colors">
+            <Mail className="h-3 w-3" /> Custom Launch Email
           </button>
           <button onClick={openBulkEmail} className="flex items-center gap-1.5 px-3 py-1.5 bg-[#2a1f14] dark:bg-[#c4956a] text-[#f5e6d3] dark:text-[#2a1f14] text-[10px] font-medium uppercase tracking-wider">
             <Mail className="h-3 w-3" /> Email All
@@ -315,6 +337,30 @@ Don't wait - the best sizes sell out fast!`)
               >
                 <Send className="h-3 w-3" />
                 {sending ? "Sending..." : emailModal.type === "single" ? "Send Email" : `Send to ${entries.length} Members`}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Launch Alert Confirmation Modal */}
+      {launchAlertConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => !sendingLaunchAlert && setLaunchAlertConfirm(false)} />
+          <div className="relative w-full max-w-sm bg-background border border-border shadow-xl p-6 text-center">
+            <div className="w-10 h-10 mx-auto mb-3 bg-emerald-500/10 border border-emerald-500/20 rounded-full flex items-center justify-center">
+              <Zap className="h-5 w-5 text-emerald-500" />
+            </div>
+            <h3 className="text-sm font-medium text-foreground">Send VIP Launch Alert?</h3>
+            <p className="text-xs text-muted-foreground mt-1">
+              Emails every VIP member who hasn&apos;t received it yet with the VIPACCESS10 code (10% off) and a product carousel. Safe to click more than once — already-emailed members are skipped.
+            </p>
+            <div className="flex gap-2 mt-5 justify-center">
+              <button onClick={() => setLaunchAlertConfirm(false)} disabled={sendingLaunchAlert} className="px-4 py-2 text-xs border border-border text-muted-foreground hover:text-foreground transition-colors">
+                Cancel
+              </button>
+              <button onClick={handleSendLaunchAlert} disabled={sendingLaunchAlert} className="px-4 py-2 text-xs bg-emerald-600 text-white hover:bg-emerald-700 transition-colors disabled:opacity-50">
+                {sendingLaunchAlert ? "Sending..." : "Send Now"}
               </button>
             </div>
           </div>
