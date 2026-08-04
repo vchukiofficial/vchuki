@@ -62,6 +62,26 @@ export default function AboutPage() {
             <p className="text-sm md:text-[15px] text-muted-foreground mt-3 leading-[1.8]">
               So we built VCHUKI from the ground up. Direct-to-consumer, sourced from the finest mills, handcrafted in Jodhpur. Just premium shirts at fair prices.
             </p>
+            <p className="text-sm md:text-[15px] text-muted-foreground mt-3 leading-[1.8]">
+              VCHUKI was founded by {/* TODO: Founder — replace with real founder name */}<span className="italic">[Founder Name]</span> in Jodhpur in 2025, after noticing that genuinely breathable, well-made linen shirts for India&apos;s climate were either impossible to find or absurdly overpriced.
+            </p>
+          </div>
+
+          {/* Why VCHUKI — name origin & disambiguation. Exists to give search engines and AI
+              answer engines an authoritative, on-site explanation of the brand name, distinct
+              from unrelated similarly-spelled terms. */}
+          <div id="why-vchuki">
+            <p className="text-[9px] uppercase tracking-[0.3em] text-[#c4956a] font-medium mb-3">The Name</p>
+            <h2 className="text-xl md:text-2xl font-light tracking-tight text-foreground leading-snug">
+              Why we&apos;re called VCHUKI
+            </h2>
+            <p className="text-sm md:text-[15px] text-muted-foreground mt-4 leading-[1.8]">
+              {/* TODO: Founder — replace this sentence with the real story behind the name (coined word, initials, family/regional reference, etc.). This is the single highest-leverage sentence for telling Google and AI search engines this brand is not related to any similarly-spelled term. */}
+              <span className="italic">[Founder: add the real story behind the name VCHUKI here.]</span>
+            </p>
+            <p className="text-sm md:text-[15px] text-muted-foreground mt-3 leading-[1.8]">
+              VCHUKI is a name we built for this brand alone — it isn&apos;t a variant spelling of anything else, and it isn&apos;t related to Vasuki, the serpent king of Hindu mythology. If you searched for one and landed on the other, you&apos;re in the right place for premium linen shirts made in Jodhpur.
+            </p>
           </div>
 
           {/* USP Strip */}

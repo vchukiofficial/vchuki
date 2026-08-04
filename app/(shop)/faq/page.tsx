@@ -11,6 +11,7 @@ const FAQ_SECTIONS = [
   {
     title: "About VCHUKI",
     faqs: [
+      { q: "Is VCHUKI the same as Vasuki?", a: "No. VCHUKI is an Indian premium menswear brand based in Jodhpur, Rajasthan, founded in 2025. Vasuki is an unrelated figure from Hindu mythology. The names are spelled and pronounced differently — see the story behind our name on the About page." },
       { q: "What is VCHUKI?", a: "VCHUKI is India's premium cotton linen blend menswear brand, handcrafted in Jodhpur, Rajasthan. We specialize in full sleeve shirts, half sleeve shirts, and short kurtas made from premium LEE fabric — a cotton-linen blend that's breathable, soft, and perfect for Indian weather. Every garment passes 47 quality checks." },
       { q: "Is VCHUKI an Indian brand?", a: "Yes, VCHUKI is a proudly Indian brand founded in Jodhpur, Rajasthan. All our garments are designed and handcrafted locally using Rajasthan's finest textile heritage. We combine traditional Indian craftsmanship with modern luxury aesthetics." },
       { q: "Where is VCHUKI located?", a: "VCHUKI is based in Jodhpur, Rajasthan, India — the Blue City known for its rich textile heritage. Our workshop and design studio are located here, where every shirt and kurta is handcrafted by skilled artisans." },

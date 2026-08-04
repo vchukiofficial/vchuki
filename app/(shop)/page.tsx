@@ -161,6 +161,17 @@ export default async function HomePage() {
 
       <HeroSection videoUrl={heroVideoUrl} />
 
+      {/* Entity Definition Block — visible, crawlable copy stating what VCHUKI is in plain prose.
+          Exists so search engines and AI answer engines have an unambiguous first-party definition
+          to extract, distinct from unrelated similarly-spelled terms. */}
+      <section className="border-b border-border bg-background">
+        <div className="container py-6 md:py-8 max-w-3xl mx-auto text-center px-5">
+          <p className="text-sm md:text-[15px] text-muted-foreground leading-relaxed">
+            <span className="text-foreground font-medium">VCHUKI is an independent Indian menswear brand</span>, founded in 2025 and based in Jodhpur, Rajasthan. We design and manufacture premium cotton-linen shirts and short kurtas for men, sold direct-to-consumer across India. Every VCHUKI shirt is handcrafted locally and passes 47 individual quality checks before it ships. VCHUKI is not affiliated with any mythological or unrelated use of a similar-sounding name — we&apos;re a menswear label, and this is our only site.
+          </p>
+        </div>
+      </section>
+
       {/* Fabric Story Strip */}
       <section className="border-y border-[#c4956a]/20 bg-[#2a1f14] dark:bg-[#1a1209]">
         <div className="container py-5 md:py-6">

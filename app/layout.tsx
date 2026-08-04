@@ -81,6 +81,7 @@ const organizationSchema = {
   logo: "https://vchuki.com/logo.svg",
   image: "https://vchuki.com/og-image.png",
   description: "VCHUKI is India's premium linen shirt brand for men. Handcrafted in Jodhpur, Rajasthan with 47 quality checks. Shop formal, casual, linen shirts & short kurtas.",
+  disambiguatingDescription: "VCHUKI is an Indian premium menswear brand based in Jodhpur, Rajasthan — not to be confused with Vasuki, the serpent deity of Hindu mythology.",
   foundingDate: "2025",
   foundingLocation: { "@type": "Place", name: "Jodhpur, Rajasthan, India" },
   sameAs: [
@@ -119,66 +120,6 @@ const websiteSchema = {
   publisher: { "@type": "Organization", name: "VCHUKI", url: "https://vchuki.com" },
 }
 
-const localBusinessSchema = {
-  "@context": "https://schema.org",
-  "@type": "ClothingStore",
-  name: "VCHUKI",
-  image: "https://vchuki.com/og-image.png",
-  url: "https://vchuki.com",
-  telephone: "+91-9252891189",
-  email: "support@vchuki.com",
-  priceRange: "\u20b9\u20b9",
-  address: {
-    "@type": "PostalAddress",
-    streetAddress: "Jodhpur",
-    addressLocality: "Jodhpur",
-    addressRegion: "Rajasthan",
-    postalCode: "342001",
-    addressCountry: "IN",
-  },
-  geo: { "@type": "GeoCoordinates", latitude: 26.2389, longitude: 73.0243 },
-  openingHoursSpecification: {
-    "@type": "OpeningHoursSpecification",
-    dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
-    opens: "10:00",
-    closes: "19:00",
-  },
-  areaServed: { "@type": "Country", name: "India" },
-  brand: { "@type": "Brand", name: "VCHUKI", url: "https://vchuki.com" },
-}
-
-const faqSchema = {
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  mainEntity: [
-    {
-      "@type": "Question",
-      name: "What is VCHUKI?",
-      acceptedAnswer: { "@type": "Answer", text: "VCHUKI is India's premium linen shirt brand for men, handcrafted in Jodhpur, Rajasthan. We offer formal shirts, casual shirts, linen shirts, and short kurtas with 47 quality checks per garment." },
-    },
-    {
-      "@type": "Question",
-      name: "Where is VCHUKI located?",
-      acceptedAnswer: { "@type": "Answer", text: "VCHUKI is based in Jodhpur, Rajasthan, India. All our shirts are handcrafted locally using Rajasthan's finest textile heritage." },
-    },
-    {
-      "@type": "Question",
-      name: "Does VCHUKI offer free shipping?",
-      acceptedAnswer: { "@type": "Answer", text: "Yes, VCHUKI offers free shipping on all orders above \u20b91,599 across India. Standard delivery takes 3-7 business days." },
-    },
-    {
-      "@type": "Question",
-      name: "What is VCHUKI's return policy?",
-      acceptedAnswer: { "@type": "Answer", text: "VCHUKI offers a 7-day hassle-free return policy. If you're not satisfied with your purchase, you can return it within 7 days for a full refund." },
-    },
-    {
-      "@type": "Question",
-      name: "What types of shirts does VCHUKI sell?",
-      acceptedAnswer: { "@type": "Answer", text: "VCHUKI sells premium linen full sleeve shirts, linen half sleeve shirts, short kurtas (full & half sleeve), all handcrafted in Jodhpur with premium linen blend fabric." },
-    },
-  ],
-}
-
 const brandSchema = {
   "@context": "https://schema.org",
   "@type": "Brand",
@@ -206,14 +147,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessSchema) }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
         />
         <script
           type="application/ld+json"
