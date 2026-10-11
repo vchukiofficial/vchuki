@@ -7,7 +7,7 @@ import { IndianRupee, ShoppingCart, Package, Users, TrendingUp, AlertTriangle, T
 import Link from "next/link"
 
 export default function AdminDashboard() {
-  const { stats, orders, products, reviews, loading, fetchStats, fetchOrders, fetchProducts, fetchReviews } = useAdminStore()
+  const { stats, today, orders, products, reviews, loading, fetchStats, fetchOrders, fetchProducts, fetchReviews } = useAdminStore()
 
   useEffect(() => {
     fetchStats()
@@ -19,7 +19,7 @@ export default function AdminDashboard() {
   const isLoading = loading.stats
 
   const pendingOrders = orders.filter(o => o.shippingStatus === "pending").length
-  const pendingReviews = reviews.length
+  const pendingReviews = reviews.filter((r: any) => r.status === "pending").length
 
   // "—" beats a fake number: null means there isn't enough data yet to compute a real change.
   const changeLabel = (pct: number | null | undefined, suffix = " vs last month") =>
@@ -40,6 +40,19 @@ export default function AdminDashboard() {
             {stats.oldestStaleHours > 0 && ` — oldest is ${Math.floor(stats.oldestStaleHours / 24)}d ${stats.oldestStaleHours % 24}h old`}. Review now →
           </p>
         </Link>
+      )}
+
+      {/* Today — what needs attention right now. Each tile opens the page that handles it. */}
+      {today && (
+        <div>
+          <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-medium mb-2">Today</p>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            <TodayTile href="/admin/orders" label="Website sales" value={`₹${today.onlineRevenue.toLocaleString("en-IN")}`} sub={`${today.onlineOrders} order${today.onlineOrders === 1 ? "" : "s"}`} />
+            <TodayTile href="/admin/pos" label="Shop sales" value={`₹${today.storeRevenue.toLocaleString("en-IN")}`} sub={`${today.storeOrders} bill${today.storeOrders === 1 ? "" : "s"}`} />
+            <TodayTile href="/admin/shipments" label="To ship" value={today.toShip} sub="Website orders not dispatched" tone={today.toShip > 0 ? "amber" : undefined} />
+            <TodayTile href="/admin/stock" label="Stock alerts" value={today.outOfStock} sub={`sold out · ${today.lowStock} low (≤5)`} tone={today.outOfStock > 0 ? "red" : today.lowStock > 0 ? "amber" : undefined} />
+          </div>
+        </div>
       )}
 
       {/* KPIs */}
@@ -133,6 +146,21 @@ export default function AdminDashboard() {
         </div>
       </div>
     </div>
+  )
+}
+
+function TodayTile({ href, label, value, sub, tone }: { href: string; label: string; value: string | number; sub: string; tone?: "amber" | "red" }) {
+  const toneClass = tone === "red"
+    ? "border-red-500/30 bg-red-500/5"
+    : tone === "amber"
+    ? "border-amber-500/30 bg-amber-500/5"
+    : "bg-card hover:shadow-sm"
+  return (
+    <Link href={href} className={`p-4 rounded-lg border transition-all hover:border-[#c4956a]/40 ${toneClass}`}>
+      <p className="text-[10px] uppercase tracking-[0.1em] text-muted-foreground font-medium">{label}</p>
+      <p className={`text-2xl font-semibold mt-1 tracking-tight ${tone === "red" ? "text-red-600" : tone === "amber" ? "text-amber-600" : ""}`}>{value}</p>
+      <p className="text-[10px] text-muted-foreground mt-0.5">{sub}</p>
+    </Link>
   )
 }
 

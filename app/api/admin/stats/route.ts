@@ -6,6 +6,7 @@ import Order from "@/models/Order"
 import Product from "@/models/Product"
 import User from "@/models/User"
 import PageView from "@/models/PageView"
+import ProductVariant from "@/models/ProductVariant"
 
 // Real-money revenue for a set of orders: paid orders in full, plus live (not
 // cancelled/returned) COD orders, which count as revenue on the honor system
@@ -34,6 +35,9 @@ export async function GET() {
   const since30 = new Date(now.getTime() - 30 * day)
   const since60 = new Date(now.getTime() - 60 * day)
   const since24h = new Date(now.getTime() - day)
+  // Midnight in India — the server runs on UTC, so "today" must be computed in IST
+  const istOffset = 5.5 * 60 * 60 * 1000
+  const todayStart = new Date(Math.floor((now.getTime() + istOffset) / day) * day - istOffset)
 
   const [
     totalOrders,
@@ -44,6 +48,8 @@ export async function GET() {
     usersPrev30,
     sessionsLast30,
     stalePendingOrders,
+    outOfStock,
+    lowStock,
   ] = await Promise.all([
     Order.countDocuments(),
     Product.countDocuments({ isActive: true }),
@@ -56,6 +62,8 @@ export async function GET() {
       .sort({ createdAt: 1 })
       .select("createdAt")
       .lean(),
+    ProductVariant.countDocuments({ stock: { $lte: 0 } }),
+    ProductVariant.countDocuments({ stock: { $gt: 0, $lte: 5 } }),
   ])
 
   const ordersLast30 = allOrders.filter((o: any) => new Date(o.createdAt) >= since30)
@@ -84,6 +92,12 @@ export async function GET() {
 
   const recentOrders = await Order.find().sort({ createdAt: -1 }).limit(5).lean()
 
+  const ordersToday = allOrders.filter((o: any) => new Date(o.createdAt) >= todayStart)
+  const live = (o: any) => !["cancelled", "returned"].includes(o.shippingStatus)
+  const onlineToday = ordersToday.filter((o: any) => !isStore(o) && live(o))
+  const storeToday = ordersToday.filter((o: any) => isStore(o) && live(o))
+  const toShip = onlineOrders.filter((o: any) => ["pending", "confirmed", "packaging"].includes(o.shippingStatus)).length
+
   return NextResponse.json({
     stats: {
       totalOrders,
@@ -105,6 +119,16 @@ export async function GET() {
       oldestStaleHours: stalePendingOrders.length
         ? Math.round((now.getTime() - new Date((stalePendingOrders[0] as any).createdAt).getTime()) / (60 * 60 * 1000))
         : 0,
+    },
+    // "Today" strip on the dashboard — IST calendar day
+    today: {
+      onlineOrders: onlineToday.length,
+      onlineRevenue: revenueOf(onlineToday),
+      storeOrders: storeToday.length,
+      storeRevenue: revenueOf(storeToday),
+      toShip,
+      outOfStock,
+      lowStock,
     },
     recentOrders,
   })

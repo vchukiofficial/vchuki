@@ -14,27 +14,87 @@ import {
 import { signOut } from "next-auth/react"
 import { motion, AnimatePresence } from "framer-motion"
 
-const nav = [
-  { href: "/admin", icon: LayoutDashboard, label: "Dashboard" },
-  { href: "/admin/orders", icon: ShoppingCart, label: "Orders" },
-  { href: "/admin/shipments", icon: Box, label: "Shipments" },
-  { href: "/admin/delivery", icon: Truck, label: "Delivery" },
-  { href: "/admin/returns", icon: RotateCcw, label: "Returns" },
-  { href: "/admin/products", icon: Package, label: "Products" },
-  { href: "/admin/stock", icon: PackageX, label: "Stock" },
-  { href: "/admin/pos", icon: ScanBarcode, label: "Shop Billing" },
-  { href: "/admin/customers", icon: Users, label: "Customers" },
-  { href: "/admin/vip", icon: Crown, label: "VIP Waitlist" },
-  { href: "/admin/reviews", icon: Star, label: "Reviews" },
-  { href: "/admin/coupons", icon: Tag, label: "Coupons" },
-  { href: "/admin/combo-offers", icon: Zap, label: "Combo Offers" },
-  { href: "/admin/campaigns", icon: Megaphone, label: "Campaigns" },
-  { href: "/admin/communications", icon: Mail, label: "Communications" },
-  { href: "/admin/email-templates", icon: Mail, label: "Email Templates" },
-  { href: "/admin/hero-videos", icon: Video, label: "Hero Videos" },
-  { href: "/admin/analytics", icon: BarChart3, label: "Analytics" },
-  { href: "/admin/settings", icon: Settings, label: "Settings" },
+type NavItem = { href: string; icon: typeof LayoutDashboard; label: string }
+
+const navGroups: { title?: string; items: NavItem[] }[] = [
+  { items: [{ href: "/admin", icon: LayoutDashboard, label: "Dashboard" }] },
+  {
+    title: "Sales",
+    items: [
+      { href: "/admin/orders", icon: ShoppingCart, label: "Orders" },
+      { href: "/admin/pos", icon: ScanBarcode, label: "Shop Billing" },
+      { href: "/admin/shipments", icon: Box, label: "Shipments" },
+      { href: "/admin/delivery", icon: Truck, label: "Delivery" },
+      { href: "/admin/returns", icon: RotateCcw, label: "Returns" },
+    ],
+  },
+  {
+    title: "Catalogue & Stock",
+    items: [
+      { href: "/admin/products", icon: Package, label: "Products" },
+      { href: "/admin/stock", icon: PackageX, label: "Stock" },
+    ],
+  },
+  {
+    title: "Customers",
+    items: [
+      { href: "/admin/customers", icon: Users, label: "Customers" },
+      { href: "/admin/vip", icon: Crown, label: "VIP Waitlist" },
+      { href: "/admin/reviews", icon: Star, label: "Reviews" },
+    ],
+  },
+  {
+    title: "Marketing",
+    items: [
+      { href: "/admin/coupons", icon: Tag, label: "Coupons" },
+      { href: "/admin/combo-offers", icon: Zap, label: "Combo Offers" },
+      { href: "/admin/campaigns", icon: Megaphone, label: "Campaigns" },
+      { href: "/admin/communications", icon: Mail, label: "Communications" },
+      { href: "/admin/email-templates", icon: Mail, label: "Email Templates" },
+      { href: "/admin/hero-videos", icon: Video, label: "Hero Videos" },
+    ],
+  },
+  {
+    title: "Insights",
+    items: [
+      { href: "/admin/analytics", icon: BarChart3, label: "Analytics" },
+      { href: "/admin/settings", icon: Settings, label: "Settings" },
+    ],
+  },
 ]
+
+// Flat list — the mobile bottom bar shows the first four (Dashboard, Orders, Shop Billing, Shipments)
+const nav = navGroups.flatMap((g) => g.items)
+
+function GroupedNav({ pathname, size, onNavigate }: { pathname: string; size: "desktop" | "mobile"; onNavigate?: () => void }) {
+  return (
+    <>
+      {navGroups.map((group, gi) => (
+        <div key={group.title || gi} className={gi > 0 ? "pt-3" : ""}>
+          {group.title && (
+            <p className="px-3 pb-1 text-[9px] uppercase tracking-[0.15em] text-muted-foreground/60 font-semibold">{group.title}</p>
+          )}
+          {group.items.map((item) => {
+            const active = pathname === item.href || (item.href !== "/admin" && pathname.startsWith(item.href))
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={onNavigate}
+                className={`flex items-center gap-2.5 px-3 transition-colors ${size === "mobile" ? "py-2.5 text-[13px]" : "py-2 text-[12px]"} ${
+                  active ? "bg-[#c4956a]/10 text-foreground font-medium border-l-2 border-[#c4956a] -ml-[1px]" : "text-muted-foreground hover:text-foreground hover:bg-foreground/[0.03]"
+                }`}
+              >
+                <item.icon className={size === "mobile" ? "h-4 w-4" : "h-3.5 w-3.5"} strokeWidth={1.5} />
+                {item.label}
+              </Link>
+            )
+          })}
+        </div>
+      ))}
+    </>
+  )
+}
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { data: session, status } = useSession()
@@ -56,22 +116,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <p className="text-[8px] tracking-[0.12em] text-[#c4956a]">ADMIN PANEL</p>
         </div>
 
-        <nav className="flex-1 p-2 space-y-0.5 overflow-auto">
-          {nav.map((item) => {
-            const active = pathname === item.href || (item.href !== "/admin" && pathname.startsWith(item.href))
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`flex items-center gap-2.5 px-3 py-2 text-[12px] transition-colors ${
-                  active ? "bg-[#c4956a]/10 text-foreground font-medium border-l-2 border-[#c4956a] -ml-[1px]" : "text-muted-foreground hover:text-foreground hover:bg-foreground/[0.03]"
-                }`}
-              >
-                <item.icon className="h-3.5 w-3.5" strokeWidth={1.5} />
-                {item.label}
-              </Link>
-            )
-          })}
+        <nav className="flex-1 p-2 overflow-auto">
+          <GroupedNav pathname={pathname} size="desktop" />
         </nav>
 
         <div className="p-3 border-t border-border">
@@ -127,23 +173,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 </button>
               </div>
 
-              <nav className="p-2 space-y-0.5">
-                {nav.map((item) => {
-                  const active = pathname === item.href || (item.href !== "/admin" && pathname.startsWith(item.href))
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      onClick={() => setMobileMenuOpen(false)}
-                      className={`flex items-center gap-2.5 px-3 py-2.5 text-[13px] transition-colors ${
-                        active ? "bg-[#c4956a]/10 text-foreground font-medium border-l-2 border-[#c4956a] -ml-[1px]" : "text-muted-foreground hover:text-foreground hover:bg-foreground/[0.03]"
-                      }`}
-                    >
-                      <item.icon className="h-4 w-4" strokeWidth={1.5} />
-                      {item.label}
-                    </Link>
-                  )
-                })}
+              <nav className="p-2">
+                <GroupedNav pathname={pathname} size="mobile" onNavigate={() => setMobileMenuOpen(false)} />
               </nav>
 
               <div className="p-3 border-t border-border">

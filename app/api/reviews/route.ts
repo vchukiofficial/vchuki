@@ -4,7 +4,13 @@ import { authOptions } from "@/lib/auth"
 import connectDB from "@/lib/mongodb"
 import Review from "@/models/Review"
 
+// Full list (including pending/hidden reviews) is for the admin panel only;
+// product pages load their approved reviews server-side.
 export async function GET() {
+  const session = await getServerSession(authOptions)
+  if (!session || session.user.role !== "admin") {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+  }
   await connectDB()
   const reviews = await Review.find().populate("user", "name").populate("product", "name slug").sort({ createdAt: -1 }).lean()
   return NextResponse.json({ reviews })

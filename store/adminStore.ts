@@ -24,6 +24,15 @@ interface AdminState {
     staleOrderCount: number
     oldestStaleHours: number
   } | null
+  today: {
+    onlineOrders: number
+    onlineRevenue: number
+    storeOrders: number
+    storeRevenue: number
+    toShip: number
+    outOfStock: number
+    lowStock: number
+  } | null
 
   // Loading
   loading: { products: boolean; orders: boolean; users: boolean; coupons: boolean; reviews: boolean; stats: boolean }
@@ -54,6 +63,7 @@ export const useAdminStore = create<AdminState>((set, get) => ({
   coupons: [],
   reviews: [],
   stats: null,
+  today: null,
   loading: { products: true, orders: true, users: true, coupons: true, reviews: true, stats: true },
 
   fetchProducts: async () => {
@@ -95,7 +105,7 @@ export const useAdminStore = create<AdminState>((set, get) => ({
     set((s) => ({ loading: { ...s.loading, stats: true } }))
     const res = await fetch("/api/admin/stats")
     const data = await res.json()
-    set((s) => ({ stats: data.stats, loading: { ...s.loading, stats: false } }))
+    set((s) => ({ stats: data.stats, today: data.today || null, loading: { ...s.loading, stats: false } }))
   },
 
   deleteProduct: async (id) => {

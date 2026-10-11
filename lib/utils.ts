@@ -23,6 +23,8 @@ export const paymentMethodLabel = (method: string) => {
     case "upi": return "UPI / Google Pay"
     case "razorpay": return "Razorpay"
     case "stripe": return "Stripe"
+    case "cash": return "Cash (Shop)"
+    case "card": return "Card (Shop)"
     default: return method
   }
 }

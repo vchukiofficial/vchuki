@@ -26,15 +26,35 @@ export default function AdminOrdersPage() {
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; type: "single" | "bulk"; id?: string }>({ open: false, type: "single" })
   const [deleting, setDeleting] = useState(false)
+  const [channel, setChannel] = useState<"all" | "online" | "store">("all")
   const [page, setPage] = useState(1)
   const PER_PAGE = 15
 
   useEffect(() => { fetchOrders() }, [fetchOrders])
+  useEffect(() => { setPage(1) }, [filter, search, channel])
+
+  const isStore = (o: any) => o.channel === "store"
+
+  // Matches order ID, product, or the customer's name / phone / email — what you have
+  // in hand when a customer calls about their order
+  function matchesSearch(o: any, q: string) {
+    const needle = q.trim().toLowerCase()
+    if (!needle) return true
+    const digits = needle.replace(/\D/g, "")
+    const haystack = [
+      o._id, o.shippingAddress?.name, o.user?.name, o.user?.email, o.guestEmail,
+      ...(o.items || []).map((i: any) => i.name),
+    ].filter(Boolean).join(" ").toLowerCase()
+    if (haystack.includes(needle)) return true
+    const phones = [o.shippingAddress?.phone, o.guestPhone].filter(Boolean).map((p: string) => p.replace(/\D/g, ""))
+    return digits.length >= 4 && phones.some((p: string) => p.includes(digits))
+  }
 
   const filtered = orders.filter(o => {
+    if (channel === "store" && !isStore(o)) return false
+    if (channel === "online" && isStore(o)) return false
     if (filter !== "all" && o.shippingStatus !== filter) return false
-    if (search && !o._id.includes(search) && !o.items?.some((i: any) => i.name?.toLowerCase().includes(search.toLowerCase()))) return false
-    return true
+    return matchesSearch(o, search)
   })
 
   const counts: Record<string, number> = { all: orders.length }
@@ -147,9 +167,20 @@ export default function AdminOrdersPage() {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by order ID or product..."
+            placeholder="Search by order ID, product, customer name, phone or email..."
             className="w-full pl-9 pr-4 py-2.5 border border-border bg-background text-xs focus:outline-none focus:border-[#c4956a]/50 transition-colors text-foreground placeholder:text-muted-foreground/50"
           />
+        </div>
+        <div className="flex border border-border">
+          {([["all", "All"], ["online", "Website"], ["store", "Shop"]] as const).map(([value, label]) => (
+            <button
+              key={value}
+              onClick={() => setChannel(value)}
+              className={`px-3 text-[10px] font-medium uppercase tracking-wider transition-colors ${channel === value ? "bg-[#2a1f14] dark:bg-[#c4956a] text-[#f5e6d3] dark:text-[#2a1f14]" : "text-muted-foreground hover:text-foreground"}`}
+            >
+              {label}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -186,7 +217,10 @@ export default function AdminOrdersPage() {
                       <Package className="h-3.5 w-3.5 text-muted-foreground" />
                     </div>
                     <div className="cursor-pointer min-w-0" onClick={() => setExpandedOrder(isExpanded ? null : order._id)}>
-                      <p className="text-xs font-medium font-mono text-foreground">#{order._id?.slice(-8).toUpperCase()}</p>
+                      <p className="text-xs font-medium font-mono text-foreground">
+                        #{order._id?.slice(-8).toUpperCase()}
+                        {isStore(order) && <span className="ml-2 align-middle font-sans text-[9px] uppercase tracking-wider px-1.5 py-0.5 bg-[#c4956a]/15 text-[#c4956a]">Shop</span>}
+                      </p>
                       <p className="text-[10px] text-muted-foreground truncate">
                         {(order as any).shippingAddress?.name || (order as any).user?.name || "Guest"}
                         {((order as any).user?.email || (order as any).guestEmail) && <span className="ml-1 text-muted-foreground/60">· {(order as any).user?.email || (order as any).guestEmail}</span>}

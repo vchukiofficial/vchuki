@@ -87,7 +87,8 @@ export default function AdminProductsPage() {
   }
 
   function addVariant() {
-    setVariants([...variants, { color: "", hex: "#000000", sizes: ALL_SIZES.slice(1, 6).map(s => ({ size: s, stock: 50 })), images: [] }])
+    // Stock starts at 0 — the website and shop share real counts, so never assume pieces exist
+    setVariants([...variants, { color: "", hex: "#000000", sizes: ALL_SIZES.slice(1, 6).map(s => ({ size: s, stock: 0 })), images: [] }])
   }
 
   function removeVariant(i: number) {
@@ -113,7 +114,7 @@ export default function AdminProductsPage() {
     if (existing >= 0) {
       nv[variantIdx].sizes.splice(existing, 1)
     } else {
-      nv[variantIdx].sizes.push({ size, stock: 50 })
+      nv[variantIdx].sizes.push({ size, stock: 0 })
       nv[variantIdx].sizes.sort((a, b) => ALL_SIZES.indexOf(a.size) - ALL_SIZES.indexOf(b.size))
     }
     setVariants(nv)
