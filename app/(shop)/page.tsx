@@ -161,17 +161,6 @@ export default async function HomePage() {
 
       <HeroSection videoUrl={heroVideoUrl} />
 
-      {/* Entity Definition Block — visible, crawlable copy stating what VCHUKI is in plain prose.
-          Exists so search engines and AI answer engines have an unambiguous first-party definition
-          to extract, distinct from unrelated similarly-spelled terms. */}
-      <section className="border-b border-border bg-background">
-        <div className="container py-6 md:py-8 max-w-3xl mx-auto text-center px-5">
-          <p className="text-sm md:text-[15px] text-muted-foreground leading-relaxed">
-            <span className="text-foreground font-medium">VCHUKI is an independent Indian menswear brand</span>, founded in 2025 and based in Jodhpur, Rajasthan. We design and manufacture premium cotton-linen shirts and short kurtas for men, sold direct-to-consumer across India. Every VCHUKI shirt is handcrafted locally and passes 47 individual quality checks before it ships. VCHUKI is not affiliated with any mythological or unrelated use of a similar-sounding name — we&apos;re a menswear label, and this is our only site.
-          </p>
-        </div>
-      </section>
-
       {/* Fabric Story Strip */}
       <section className="border-y border-[#c4956a]/20 bg-[#2a1f14] dark:bg-[#1a1209]">
         <div className="container py-5 md:py-6">
@@ -232,6 +221,24 @@ export default async function HomePage() {
         </AnimatedSection>
       )}
 
+      {/* New Arrivals */}
+      {newArrivals.length > 0 && (
+        <AnimatedSection className="py-10 md:py-16">
+          <div className="container">
+            <div className="flex items-end justify-between mb-6 md:mb-8">
+              <div>
+                <p className="text-[10px] md:text-[11px] uppercase tracking-[0.25em] text-[#c4956a] font-medium">Just Dropped</p>
+                <h2 className="text-2xl md:text-4xl font-light tracking-tight mt-1 text-foreground">New Arrivals</h2>
+              </div>
+              <Link href="/shirts?tag=new-launch" className="group flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
+                View All <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
+              </Link>
+            </div>
+            <ShirtsVariantGrid products={newArrivals} />
+          </div>
+        </AnimatedSection>
+      )}
+
       {/* Archive Debut Countdown */}
       <LaunchCountdownBanner carouselProducts={launchCarouselProducts} />
 
@@ -279,24 +286,6 @@ export default async function HomePage() {
         </AnimatedSection>
       )}
 
-      {/* New Arrivals */}
-      {newArrivals.length > 0 && (
-        <AnimatedSection className="py-10 md:py-16">
-          <div className="container">
-            <div className="flex items-end justify-between mb-6 md:mb-8">
-              <div>
-                <p className="text-[10px] md:text-[11px] uppercase tracking-[0.25em] text-[#c4956a] font-medium">Just Dropped</p>
-                <h2 className="text-2xl md:text-4xl font-light tracking-tight mt-1 text-foreground">New Arrivals</h2>
-              </div>
-              <Link href="/shirts?tag=new-launch" className="group flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
-                View All <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
-              </Link>
-            </div>
-            <ShirtsVariantGrid products={newArrivals} />
-          </div>
-        </AnimatedSection>
-      )}
-
       {/* Why VCHUKI */}
       <section className="border-y border-border">
         <AnimatedSection className="container py-10 md:py-16">
@@ -308,7 +297,7 @@ export default async function HomePage() {
             {[
               { num: "47", label: "Quality Checks", sub: "Per shirt crafted" },
               { num: "100%", label: "Premium Fabric", sub: "Finest linen mills" },
-              { num: "14", label: "Day Returns", sub: "No questions asked" },
+              { num: "7", label: "Day Returns", sub: "Hassle-free" },
               { num: "5", label: "Curated Colors", sub: "Rajasthan-inspired" },
             ].map((item) => (
               <div key={item.label} className="group">
@@ -344,6 +333,18 @@ export default async function HomePage() {
             ))}
           </div>
         </AnimatedSection>
+      </section>
+
+      {/* Entity Definition Block — visible, crawlable copy stating what VCHUKI is in plain prose.
+          Exists so search engines and AI answer engines have an unambiguous first-party definition
+          to extract, distinct from unrelated similarly-spelled terms. Kept below the products so
+          shoppers reach the shirts first. */}
+      <section className="border-t border-border bg-background">
+        <div className="container py-6 md:py-8 max-w-3xl mx-auto text-center px-5">
+          <p className="text-sm md:text-[15px] text-muted-foreground leading-relaxed">
+            <span className="text-foreground font-medium">VCHUKI is an independent Indian menswear brand</span>, founded in 2025 and based in Jodhpur, Rajasthan. We design and manufacture premium cotton-linen shirts and short kurtas for men, sold direct-to-consumer across India. Every VCHUKI shirt is handcrafted locally and passes 47 individual quality checks before it ships. VCHUKI is not affiliated with any mythological or unrelated use of a similar-sounding name — we&apos;re a menswear label, and this is our only site.
+          </p>
+        </div>
       </section>
 
       {/* Newsletter */}

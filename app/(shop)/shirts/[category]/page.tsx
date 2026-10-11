@@ -251,8 +251,8 @@ export default async function CategoryPage({ params, searchParams }: Props) {
         })}
       </div>
 
-      {/* Filters + Products Grid */}
-      <div className="flex gap-0">
+      {/* Filters + Products Grid (bottom padding clears the mobile Sort | Filter bar) */}
+      <div className="flex gap-0 pb-12 md:pb-0">
         <Suspense fallback={null}>
           <ProductFilters />
         </Suspense>

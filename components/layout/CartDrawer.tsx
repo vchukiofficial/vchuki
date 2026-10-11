@@ -6,6 +6,24 @@ import { X, ShoppingCart, Minus, Plus, Trash2 } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
+import { FREE_SHIPPING_THRESHOLD } from "@/lib/constants"
+
+function FreeShippingProgress({ subtotal }: { subtotal: number }) {
+  const remaining = FREE_SHIPPING_THRESHOLD - subtotal
+  const pct = Math.min(100, Math.round((subtotal / FREE_SHIPPING_THRESHOLD) * 100))
+  return (
+    <div>
+      <p className="text-[11px] text-foreground">
+        {remaining > 0
+          ? <>You&apos;re <span className="font-semibold text-[#c4956a]">₹{remaining.toLocaleString()}</span> away from <span className="font-semibold">FREE shipping</span></>
+          : <span className="font-semibold text-emerald-600">🎉 You&apos;ve unlocked FREE shipping</span>}
+      </p>
+      <div className="mt-1.5 h-1.5 w-full bg-border overflow-hidden rounded-full">
+        <div className={`h-full rounded-full transition-all duration-500 ${remaining > 0 ? "bg-[#c4956a]" : "bg-emerald-600"}`} style={{ width: `${pct}%` }} />
+      </div>
+    </div>
+  )
+}
 
 export default function CartDrawer() {
   const { items, removeItem, updateQuantity } = useCartStore()
@@ -89,7 +107,7 @@ export default function CartDrawer() {
                   <span className="text-sm text-muted-foreground">Subtotal</span>
                   <span className="text-lg font-bold">₹{subtotal.toLocaleString()}</span>
                 </div>
-                <p className="text-[10px] text-muted-foreground">Free shipping on orders above ₹1,599</p>
+                <FreeShippingProgress subtotal={subtotal} />
                 <Link href="/checkout" onClick={() => setCartOpen(false)} className="block w-full py-3.5 bg-[#2a1f14] text-[#f5e6d3] text-center text-xs font-medium tracking-wider uppercase hover:bg-[#1a1209] transition-colors">
                   Checkout
                 </Link>

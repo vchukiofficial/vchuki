@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation"
 import { useState } from "react"
-import { SlidersHorizontal, X } from "lucide-react"
+import { SlidersHorizontal, ArrowUpDown, X } from "lucide-react"
 
 const priceRanges = [
   { label: "Under ₹799", min: 0, max: 799 },
@@ -16,8 +16,7 @@ const sortOptions = [
   { label: "Newest", value: "newest" },
   { label: "Price: Low to High", value: "price-asc" },
   { label: "Price: High to Low", value: "price-desc" },
-  { label: "Bestsellers", value: "bestseller" },
-  { label: "Rating", value: "rating" },
+  { label: "Top Rated", value: "rating" },
 ]
 
 const tagFilters = [
@@ -31,7 +30,7 @@ const tagFilters = [
 export default function ProductFilters() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [mobileOpen, setMobileOpen] = useState(false)
+  const [sheet, setSheet] = useState<"sort" | "filter" | null>(null)
 
   const currentSort = searchParams.get("sort") || "newest"
   const currentPrice = searchParams.get("price") || ""
@@ -51,21 +50,20 @@ export default function ProductFilters() {
 
   function clearAll() {
     router.push(window.location.pathname)
-    setMobileOpen(false)
+    setSheet(null)
   }
 
-  const hasFilters = currentPrice || currentTag || currentSize || currentSort !== "newest"
+  const activeFilterCount = [currentPrice, currentTag, currentSize].filter(Boolean).length
+  const hasFilters = activeFilterCount > 0 || currentSort !== "newest"
 
-  const filterContent = (
-    <div className="space-y-6">
-      {/* Sort */}
+  const sortContent = (
       <div>
         <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-2.5">Sort By</p>
         <div className="space-y-1">
           {sortOptions.map((opt) => (
             <button
               key={opt.value}
-              onClick={() => applyFilter("sort", opt.value === "newest" ? "" : opt.value)}
+              onClick={() => { applyFilter("sort", opt.value === "newest" ? "" : opt.value); setSheet(null) }}
               className={`w-full text-left px-3 py-2 text-xs transition-colors ${
                 (currentSort === opt.value || (!currentSort && opt.value === "newest"))
                   ? "bg-[#c4956a]/10 text-[#c4956a] font-medium border-l-2 border-[#c4956a]"
@@ -77,7 +75,10 @@ export default function ProductFilters() {
           ))}
         </div>
       </div>
+  )
 
+  const filterContent = (
+    <div className="space-y-6">
       {/* Tags */}
       <div>
         <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-2.5">Collection</p>
@@ -157,41 +158,51 @@ export default function ProductFilters() {
     <>
       {/* Desktop: Always visible left sidebar */}
       <aside className="hidden md:block w-56 flex-shrink-0 pr-6 border-r border-border">
-        {filterContent}
+        <div className="space-y-6">
+          {sortContent}
+          {filterContent}
+        </div>
       </aside>
 
-      {/* Mobile: Filter button + slide-in drawer */}
-      <div className="md:hidden">
-        <button
-          onClick={() => setMobileOpen(true)}
-          className="fixed bottom-[72px] right-4 z-40 flex items-center gap-1.5 px-4 py-2.5 bg-[#2a1f14] dark:bg-[#c4956a] text-[#f5e6d3] dark:text-[#2a1f14] text-[10px] font-bold tracking-wider uppercase shadow-lg shadow-black/20 rounded-full"
-        >
-          <SlidersHorizontal className="h-3.5 w-3.5" />
-          Filters
-          {hasFilters && <span className="h-1.5 w-1.5 rounded-full bg-[#c4956a] dark:bg-[#2a1f14]" />}
+      {/* Mobile: Sort | Filter bar pinned just above the bottom nav */}
+      <div className="md:hidden fixed bottom-[56px] inset-x-0 z-40 grid grid-cols-2 h-12 bg-background border-t border-border shadow-[0_-4px_12px_rgba(0,0,0,0.06)]">
+        <button onClick={() => setSheet("sort")} className="flex items-center justify-center gap-2 text-xs font-medium text-foreground border-r border-border">
+          <ArrowUpDown className="h-4 w-4" />
+          Sort
+          {currentSort !== "newest" && <span className="h-1.5 w-1.5 rounded-full bg-[#c4956a]" />}
+        </button>
+        <button onClick={() => setSheet("filter")} className="flex items-center justify-center gap-2 text-xs font-medium text-foreground">
+          <SlidersHorizontal className="h-4 w-4" />
+          Filter
+          {activeFilterCount > 0 && (
+            <span className="h-4 min-w-4 px-1 rounded-full bg-[#c4956a] text-white text-[9px] font-bold flex items-center justify-center">{activeFilterCount}</span>
+          )}
         </button>
       </div>
 
-      {/* Mobile drawer overlay */}
-      {mobileOpen && (
-        <div className="fixed inset-0 z-50 md:hidden">
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
-          <div className="absolute right-0 top-0 bottom-0 w-[280px] bg-background border-l border-border overflow-y-auto p-5 animate-in slide-in-from-right duration-300">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-sm font-medium text-foreground">Filters & Sort</h2>
-              <button onClick={() => setMobileOpen(false)} className="h-8 w-8 flex items-center justify-center border border-border text-muted-foreground hover:text-foreground">
+      {/* Mobile bottom sheet */}
+      {sheet && (
+        <div className="fixed inset-0 z-[60] md:hidden">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setSheet(null)} />
+          <div className="absolute inset-x-0 bottom-0 max-h-[80vh] bg-background rounded-t-2xl overflow-y-auto p-5 pb-8 animate-in slide-in-from-bottom duration-300">
+            <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-border" />
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-sm font-medium text-foreground">{sheet === "sort" ? "Sort By" : "Filter"}</h2>
+              <button onClick={() => setSheet(null)} aria-label="Close" className="h-8 w-8 flex items-center justify-center border border-border text-muted-foreground hover:text-foreground">
                 <X className="h-4 w-4" />
               </button>
             </div>
-            {filterContent}
-            <div className="mt-6 pt-4 border-t border-border">
-              <button
-                onClick={() => setMobileOpen(false)}
-                className="w-full py-3 bg-[#2a1f14] dark:bg-[#c4956a] text-[#f5e6d3] dark:text-[#2a1f14] text-xs font-medium tracking-wider uppercase"
-              >
-                Apply Filters
-              </button>
-            </div>
+            {sheet === "sort" ? sortContent : (
+              <>
+                {filterContent}
+                <button
+                  onClick={() => setSheet(null)}
+                  className="mt-6 w-full py-3 bg-[#2a1f14] dark:bg-[#c4956a] text-[#f5e6d3] dark:text-[#2a1f14] text-xs font-medium tracking-wider uppercase"
+                >
+                  Show Results
+                </button>
+              </>
+            )}
           </div>
         </div>
       )}

@@ -31,3 +31,14 @@ export const BUSINESS = {
   founded: "2025",
   tagline: "Premium Linen Blend Shirts — Crafted in Jodhpur",
 }
+
+/** Cart value at which shipping becomes free (matches the cart and checkout pages). */
+export const FREE_SHIPPING_THRESHOLD = 1599
+
+/** Messages rotated in the top announcement bar — edit here to change what shoppers see. */
+export const ANNOUNCEMENTS = [
+  "Free shipping on orders above ₹1,599",
+  "Cash on Delivery available across India",
+  "7-day easy returns & exchanges",
+  "Handcrafted in Jodhpur · Premium cotton-linen",
+]

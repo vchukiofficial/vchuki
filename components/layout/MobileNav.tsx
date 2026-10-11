@@ -8,7 +8,7 @@ import { usePathname } from "next/navigation"
 
 export default function MobileNav() {
   const { toggleCart } = useUIStore()
-  const items = useCartStore((s) => s.items)
+  const units = useCartStore((s) => s.items.reduce((n, i) => n + i.quantity, 0))
   const pathname = usePathname()
 
   const tabs = [
@@ -32,9 +32,9 @@ export default function MobileNav() {
         })}
         <button onClick={toggleCart} className="flex flex-col items-center justify-center gap-0.5 text-muted-foreground relative">
           <ShoppingCart className="h-[18px] w-[18px]" strokeWidth={1.5} />
-          {items.length > 0 && (
-            <span className="absolute top-2 right-4 h-3.5 w-3.5 rounded-full bg-[#c4956a] text-white text-[7px] font-bold flex items-center justify-center">
-              {items.length}
+          {units > 0 && (
+            <span className="absolute top-1.5 left-1/2 ml-1 min-w-4 h-4 px-1 rounded-full bg-[#c4956a] text-white text-[9px] font-bold flex items-center justify-center">
+              {units > 9 ? "9+" : units}
             </span>
           )}
           <span className="text-[9px] tracking-wide font-medium">Bag</span>

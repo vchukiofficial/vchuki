@@ -5,6 +5,7 @@ import Image from "next/image"
 import { ShoppingCart, User, Heart, Menu, X, Search, ChevronDown } from "lucide-react"
 import { ThemeToggle } from "@/components/ThemeToggle"
 import SearchOverlay from "./SearchOverlay"
+import { AnnouncementBar } from "./AnnouncementBar"
 import { useUIStore } from "@/store/uiStore"
 import { useCartStore } from "@/store/cartStore"
 import { useSession } from "next-auth/react"
@@ -71,11 +72,7 @@ export default function Navbar() {
     <>
       <nav className={`sticky top-0 z-50 w-full transition-all duration-300 ${scrolled ? "bg-background/98 backdrop-blur-md border-b shadow-sm" : "bg-transparent border-b border-transparent"}`}>
         {/* Top announcement bar */}
-        <div className="bg-[#2a1f14] text-[#f5e6d3] text-center py-1.5 px-4">
-          <p className="text-[8px] md:text-[10px] uppercase tracking-[0.15em] md:tracking-[0.2em] font-medium truncate">
-            ✨ The Archive Debut Launches Tomorrow 12 PM • First 100 Get 10% Off
-          </p>
-        </div>
+        <AnnouncementBar />
 
         <div className="container flex h-14 md:h-16 items-center justify-between">
           {/* Left - Mobile menu + Nav */}

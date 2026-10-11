@@ -28,6 +28,13 @@ interface VariantProduct {
   variantId?: string
   variantStock?: number
   availableSizes?: { size: string; stock: number }[]
+  rating?: number
+  reviewCount?: number
+}
+
+function discountPct(comparePrice: number | undefined, price: number | undefined) {
+  if (!comparePrice || !price || comparePrice <= price) return 0
+  return Math.round(((comparePrice - price) / comparePrice) * 100)
 }
 
 function QuickAddVariant({ product, onSizeSelect }: { product: VariantProduct; onSizeSelect?: (size: string) => void }) {
@@ -139,6 +146,15 @@ export function ShirtsVariantGrid({ products }: { products: VariantProduct[] }) 
     setSelectedSizes((prev) => ({ ...prev, [productId]: size }))
   }
 
+  // Colours available per product, so each card can show its sibling swatches
+  const coloursByProduct = new Map<string, { name: string; hex: string }[]>()
+  for (const p of products) {
+    if (!p.productId || !p.variantColor?.hex) continue
+    const key = String(p.productId)
+    if (!coloursByProduct.has(key)) coloursByProduct.set(key, [])
+    coloursByProduct.get(key)!.push(p.variantColor)
+  }
+
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
       {products.map((product) => {
@@ -158,6 +174,8 @@ export function ShirtsVariantGrid({ products }: { products: VariantProduct[] }) 
           linkParams.set("size", sizeForLink)
         }
         const productHref = `/product/${product.slug}${linkParams.toString() ? `?${linkParams.toString()}` : ""}`
+        const off = discountPct(product.comparePrice, displayPrice)
+        const swatches = product.productId ? coloursByProduct.get(String(product.productId)) || [] : []
 
         return (
           <div key={product._id} className="group">
@@ -184,12 +202,17 @@ export function ShirtsVariantGrid({ products }: { products: VariantProduct[] }) 
                   />
                 )}
                 {/* Badges */}
-                {product.tags?.includes("new-launch") && (
-                  <span className="absolute top-2.5 left-2.5 text-[8px] uppercase tracking-[0.1em] bg-[#c4956a] text-white px-2 py-0.5 font-medium">New</span>
-                )}
-                {product.tags?.includes("bestseller") && !product.tags?.includes("new-launch") && (
-                  <span className="absolute top-2.5 left-2.5 text-[8px] uppercase tracking-[0.1em] bg-[#2a1f14] text-[#f5e6d3] px-2 py-0.5 font-medium">Bestseller</span>
-                )}
+                <div className="absolute top-2.5 left-2.5 flex flex-col items-start gap-1">
+                  {product.tags?.includes("new-launch") && (
+                    <span className="text-[9px] uppercase tracking-[0.1em] bg-[#c4956a] text-white px-2 py-0.5 font-medium">New</span>
+                  )}
+                  {product.tags?.includes("bestseller") && !product.tags?.includes("new-launch") && (
+                    <span className="text-[9px] uppercase tracking-[0.1em] bg-[#2a1f14] text-[#f5e6d3] px-2 py-0.5 font-medium">Bestseller</span>
+                  )}
+                  {off >= 5 && (
+                    <span className="text-[9px] uppercase tracking-[0.05em] bg-emerald-600 text-white px-2 py-0.5 font-semibold">{off}% Off</span>
+                  )}
+                </div>
                 {/* Color indicator */}
                 {isVariant && product.variantColor?.hex && (
                   <div className="absolute bottom-2.5 left-2.5 flex items-center gap-1.5 bg-background/80 backdrop-blur-sm px-2 py-1 border border-border">
@@ -229,19 +252,40 @@ export function ShirtsVariantGrid({ products }: { products: VariantProduct[] }) 
             {/* Product info */}
             <div className="pt-2.5">
               <Link href={productHref}>
-                <h2 className="text-[11px] md:text-xs font-normal line-clamp-1 text-foreground/80 group-hover:text-foreground transition-colors">{product.name}</h2>
+                <h2 className="text-xs md:text-[13px] font-normal line-clamp-1 text-foreground/85 group-hover:text-foreground transition-colors">{product.name}</h2>
+                {/* Only real reviews — nothing shown until the product has at least one */}
+                {!!product.reviewCount && product.reviewCount > 0 && (
+                  <p className="flex items-center gap-1 mt-0.5 text-[10px] text-muted-foreground">
+                    <span className="inline-flex items-center gap-0.5 bg-emerald-600 text-white px-1 font-semibold">{(product.rating || 0).toFixed(1)} ★</span>
+                    ({product.reviewCount})
+                  </p>
+                )}
                 <div className="flex items-center gap-2 mt-0.5">
                   <p className="text-sm font-semibold text-foreground">₹{displayPrice?.toLocaleString()}</p>
-                  {product.comparePrice && product.comparePrice > (displayPrice || 0) && (
-                    <p className="text-xs text-muted-foreground line-through">₹{product.comparePrice.toLocaleString()}</p>
+                  {off > 0 && (
+                    <p className="text-xs text-muted-foreground line-through">₹{product.comparePrice!.toLocaleString()}</p>
                   )}
-                  {product.comparePrice && product.comparePrice > (displayPrice || 0) && (
-                    <span className="text-[9px] px-1 py-0.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold">
-                      {Math.round(((product.comparePrice - (displayPrice || 0)) / product.comparePrice) * 100)}% OFF
-                    </span>
+                  {off > 0 && (
+                    <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold">{off}% off</span>
                   )}
                 </div>
               </Link>
+              {/* Other colours of this shirt */}
+              {swatches.length > 1 && (
+                <div className="flex items-center gap-1 mt-1.5">
+                  {swatches.slice(0, 5).map((c) => (
+                    <Link
+                      key={c.name}
+                      href={`/product/${product.slug}?color=${encodeURIComponent(c.name)}`}
+                      title={c.name}
+                      aria-label={`${product.name} in ${c.name}`}
+                      className={`h-3.5 w-3.5 rounded-full border ${c.name === product.variantColor?.name ? "border-foreground ring-1 ring-offset-1 ring-foreground/40" : "border-border"}`}
+                      style={{ backgroundColor: c.hex }}
+                    />
+                  ))}
+                  {swatches.length > 5 && <span className="text-[10px] text-muted-foreground ml-0.5">+{swatches.length - 5}</span>}
+                </div>
+              )}
               {/* Mobile always-visible add to cart */}
               <div className="mt-2 md:hidden">
                 <QuickAddVariant product={product} onSizeSelect={(size) => handleSizeSelect(product._id, size)} />

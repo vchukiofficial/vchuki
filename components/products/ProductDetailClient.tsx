@@ -46,7 +46,21 @@ export default function ProductDetailClient({ product, variants, reviews, siblin
   const [added, setAdded] = useState(false)
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false)
   const [showStickyBar, setShowStickyBar] = useState(false)
+  const [deliveryWindow, setDeliveryWindow] = useState("")
   const addToBagRef = useRef<HTMLDivElement>(null)
+
+  // 3–7 business days (see shipping policy), skipping Sundays
+  useEffect(() => {
+    const addBusinessDays = (days: number) => {
+      const d = new Date()
+      while (days > 0) {
+        d.setDate(d.getDate() + 1)
+        if (d.getDay() !== 0) days--
+      }
+      return d.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })
+    }
+    setDeliveryWindow(`${addBusinessDays(3)} – ${addBusinessDays(7)}`)
+  }, [])
 
   useEffect(() => {
     const el = addToBagRef.current
@@ -359,11 +373,16 @@ export default function ProductDetailClient({ product, variants, reviews, siblin
             </a>
           </div>
 
-          {/* Combo Offers */}
-          <ComboOfferWidget category={product.category} productName={product.name} />
-
-          {/* Steal Deals */}
-          <StealDeals currentProductId={product._id} currentCategory={product.category} />
+          {/* Delivery promise — dates computed on the client so server and browser agree */}
+          {deliveryWindow && (
+            <div className="flex items-start gap-2 px-3 py-2.5 border border-border bg-card/50 text-xs">
+              <Truck className="h-4 w-4 text-[#c4956a] flex-shrink-0 mt-0.5" strokeWidth={1.5} />
+              <div>
+                <p className="text-foreground">Get it by <span className="font-semibold">{deliveryWindow}</span></p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">Ships from Jodhpur · Cash on Delivery available</p>
+              </div>
+            </div>
+          )}
 
           {/* Trust Badges */}
           <div className="grid grid-cols-3 gap-3 pt-4 border-t border-border">
@@ -409,6 +428,10 @@ export default function ProductDetailClient({ product, variants, reviews, siblin
               <p>Each VCHUKI shirt is crafted from premium linen sourced from the finest mills. The fabric undergoes 47 quality checks before it reaches you — ensuring breathability, softness, and a luxurious drape that gets better with every wash.</p>
             </div>
           </details>
+
+          {/* Upsells sit below the product facts so they don't crowd the buy decision */}
+          <ComboOfferWidget category={product.category} productName={product.name} />
+          <StealDeals currentProductId={product._id} currentCategory={product.category} />
         </div>
       </div>
 
