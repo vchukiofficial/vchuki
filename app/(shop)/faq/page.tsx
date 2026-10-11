@@ -47,7 +47,7 @@ const FAQ_SECTIONS = [
       { q: "What is VCHUKI's return policy?", a: "VCHUKI offers a 7-day hassle-free return policy. If you're not satisfied with your purchase, you can return it within 7 days of delivery for a full refund. The product must be unworn, unwashed, and in original packaging with tags attached." },
       { q: "Does VCHUKI ship all over India?", a: "Yes, VCHUKI ships to all serviceable pin codes across India. We use premium courier partners for safe and timely delivery. You'll receive tracking details via email and SMS once your order is dispatched." },
       { q: "How long does VCHUKI delivery take?", a: "Standard delivery takes 3-7 business days. Metro cities (Delhi, Mumbai, Bangalore, etc.) typically receive orders in 3-4 days. Tier 2/3 cities may take 5-7 days. You'll get real-time tracking updates." },
-      { q: "Does VCHUKI offer Cash on Delivery?", a: "Yes, VCHUKI offers Cash on Delivery (COD) with a ₹50 COD handling charge. We also accept UPI, credit/debit cards, and net banking via Razorpay for instant payment confirmation." },
+      { q: "Does VCHUKI offer Cash on Delivery?", a: "Yes, VCHUKI offers Cash on Delivery (COD) with a ₹50 COD handling charge. We also accept UPI (Google Pay, PhonePe, or any UPI app) — card and net banking payments are coming soon." },
     ],
   },
   {

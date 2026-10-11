@@ -20,18 +20,34 @@ export default function AdminDashboard() {
 
   const pendingOrders = orders.filter(o => o.shippingStatus === "pending").length
   const pendingReviews = reviews.length
-  const aov = stats?.revenue && stats?.totalOrders ? Math.round(stats.revenue / stats.totalOrders) : 0
+
+  // "—" beats a fake number: null means there isn't enough data yet to compute a real change.
+  const changeLabel = (pct: number | null | undefined, suffix = " vs last month") =>
+    pct === null || pct === undefined ? "Not enough data yet" : `${pct >= 0 ? "+" : ""}${pct}%${suffix}`
 
   return (
     <div className="space-y-6">
       <SectionHeader title="Dashboard" description="Welcome back. Here's your business at a glance." />
 
+      {stats && stats.staleOrderCount > 0 && (
+        <Link
+          href="/admin/orders"
+          className="flex items-center gap-3 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-red-700 dark:text-red-400 hover:bg-red-500/15 transition-colors"
+        >
+          <AlertTriangle className="h-4 w-4 flex-shrink-0" />
+          <p className="text-xs font-medium">
+            {stats.staleOrderCount} order{stats.staleOrderCount > 1 ? "s" : ""} unconfirmed for over 24 hours
+            {stats.oldestStaleHours > 0 && ` — oldest is ${Math.floor(stats.oldestStaleHours / 24)}d ${stats.oldestStaleHours % 24}h old`}. Review now →
+          </p>
+        </Link>
+      )}
+
       {/* KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <StatCard icon={IndianRupee} label="Revenue" value={isLoading ? "..." : `₹${(stats?.revenue || 0).toLocaleString()}`} change="+12.5% vs last month" trend="up" />
+        <StatCard icon={IndianRupee} label="Revenue" value={isLoading ? "..." : `₹${(stats?.revenue || 0).toLocaleString()}`} change={changeLabel(stats?.revenueChangePct)} trend={stats?.revenueChangePct != null && stats.revenueChangePct >= 0 ? "up" : "down"} />
         <StatCard icon={ShoppingCart} label="Orders" value={isLoading ? "..." : stats?.totalOrders || 0} change={`${pendingOrders} pending`} />
         <StatCard icon={Package} label="Products" value={isLoading ? "..." : stats?.totalProducts || 0} change="Active in catalog" />
-        <StatCard icon={Users} label="Customers" value={isLoading ? "..." : stats?.totalUsers || 0} change="+15% this month" trend="up" />
+        <StatCard icon={Users} label="Customers" value={isLoading ? "..." : stats?.totalUsers || 0} change={changeLabel(stats?.customersChangePct)} trend={stats?.customersChangePct != null && stats.customersChangePct >= 0 ? "up" : "down"} />
       </div>
 
       <div className="grid lg:grid-cols-3 gap-4">
@@ -91,22 +107,25 @@ export default function AdminDashboard() {
               <AlertTriangle className="h-3 w-3 text-amber-500" /> Alerts
             </h3>
             <div className="space-y-2">
+              {stats && stats.staleOrderCount > 0 && (
+                <AlertItem color="bg-red-500" text={`${stats.staleOrderCount} orders unconfirmed 24h+`} />
+              )}
               <AlertItem color="bg-amber-500" text={`${pendingOrders} orders pending shipment`} />
               <AlertItem color="bg-blue-500" text={`${pendingReviews} reviews to moderate`} />
               <AlertItem color="bg-emerald-500" text={`${products.length} products active`} />
             </div>
           </div>
 
-          {/* Performance */}
+          {/* Performance — last 30 days, computed from real orders/sessions. "—" means not enough data yet. */}
           <div className="rounded-lg border bg-card p-4">
             <h3 className="text-xs font-medium mb-3 flex items-center gap-1.5 uppercase tracking-wider text-muted-foreground">
-              <TrendingUp className="h-3 w-3 text-emerald-500" /> Performance
+              <TrendingUp className="h-3 w-3 text-emerald-500" /> Performance (30d)
             </h3>
             <div className="space-y-2.5">
-              <MetricRow label="Avg Order Value" value={`₹${aov.toLocaleString()}`} />
-              <MetricRow label="Conversion Rate" value="3.2%" />
-              <MetricRow label="Return Rate" value="2.1%" />
-              <MetricRow label="Repeat Customers" value="24%" />
+              <MetricRow label="Avg Order Value" value={stats?.avgOrderValue ? `₹${stats.avgOrderValue.toLocaleString()}` : "—"} />
+              <MetricRow label="Conversion Rate" value={stats?.conversionRatePct != null ? `${stats.conversionRatePct}%` : "—"} />
+              <MetricRow label="Return Rate" value={stats?.returnRatePct != null ? `${stats.returnRatePct}%` : "—"} />
+              <MetricRow label="Repeat Customers" value={stats?.repeatRatePct != null ? `${stats.repeatRatePct}%` : "—"} />
             </div>
           </div>
         </div>

@@ -8,7 +8,20 @@ interface AdminState {
   users: User[]
   coupons: Coupon[]
   reviews: Review[]
-  stats: { revenue: number; totalOrders: number; totalProducts: number; totalUsers: number } | null
+  stats: {
+    revenue: number
+    totalOrders: number
+    totalProducts: number
+    totalUsers: number
+    revenueChangePct: number | null
+    customersChangePct: number | null
+    conversionRatePct: number | null
+    returnRatePct: number | null
+    repeatRatePct: number | null
+    avgOrderValue: number
+    staleOrderCount: number
+    oldestStaleHours: number
+  } | null
 
   // Loading
   loading: { products: boolean; orders: boolean; users: boolean; coupons: boolean; reviews: boolean; stats: boolean }

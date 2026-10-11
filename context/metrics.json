@@ -1,0 +1,29 @@
+{
+  "generatedAt": "2026-08-04T18:34:11.013Z",
+  "week": {
+    "orders": 3,
+    "revenue": 2197,
+    "aov": 732.3333333333334,
+    "cod": 1,
+    "prepaid": 2,
+    "delivered": 0,
+    "rto": 0,
+    "shipped": 0,
+    "customers": 4,
+    "repeat": 1,
+    "unknownStatus": 0
+  },
+  "month": {
+    "orders": 5,
+    "revenue": 3695,
+    "aov": 739,
+    "cod": 2,
+    "prepaid": 3,
+    "delivered": 0,
+    "rto": 0,
+    "shipped": 0,
+    "customers": 4,
+    "repeat": 1,
+    "unknownStatus": 0
+  }
+}

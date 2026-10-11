@@ -30,7 +30,7 @@ export default function PrivacyPolicyPage() {
         <h3>Personal Information (provided by you)</h3>
         <p>When you create an account or make a purchase: full name, email address, phone number, shipping address, billing address.</p>
         <h3>Payment Information</h3>
-        <p>Payment processing is handled securely by Razorpay. We do <strong>NOT</strong> store your credit card numbers, CVV, UPI PIN, or banking passwords on our servers. All payment data is encrypted and processed by PCI-DSS Level 1 compliant payment gateways.</p>
+        <p>VCHUKI currently accepts payment via UPI (paid directly to our verified business UPI ID through your own UPI app) and Cash on Delivery (COD), collected by our courier partner at the time of delivery. We do <strong>NOT</strong> store your UPI PIN, credit card numbers, CVV, or banking passwords on our servers — for UPI payments, this information never passes through VCHUKI at all. If we add a third-party payment gateway in the future, this section will be updated to name it and its security certification.</p>
         <h3>Automatically Collected Information</h3>
         <p>IP address, browser type, device information, pages visited, time spent on pages, and referring URLs for analytics purposes.</p>
 
@@ -48,7 +48,7 @@ export default function PrivacyPolicyPage() {
         <h2>3. Data Sharing</h2>
         <p>We <strong>never sell, rent, or trade</strong> your personal information to third parties. We share data only with:</p>
         <ul className="list-disc pl-5 space-y-1">
-          <li><strong>Payment processors</strong> (Razorpay) — for secure transaction processing</li>
+          <li><strong>Payment processors</strong> — none currently; UPI payments go directly to our business account and are never routed through VCHUKI&apos;s servers. This will be updated if a third-party gateway is added.</li>
           <li><strong>Shipping partners</strong> (Delhivery, Shiprocket) — for order delivery only</li>
           <li><strong>Analytics services</strong> (Google Analytics) — anonymized data for website improvement</li>
           <li><strong>Law enforcement</strong> — only when required by law or court order</li>

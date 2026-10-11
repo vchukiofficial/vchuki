@@ -32,7 +32,7 @@ export default function TermsPage() {
 
         <h2>3. Orders & Payment</h2>
         <p>By placing an order, you confirm that the information provided is accurate. We reserve the right to cancel orders if fraud is suspected, items are out of stock, or pricing errors occur.</p>
-        <p>We accept payments via: UPI, Credit/Debit Cards, Net Banking, Wallets, and Cash on Delivery (COD). All online payments are processed through Razorpay&apos;s secure payment gateway.</p>
+        <p>We currently accept payments via UPI (Google Pay, PhonePe, or any UPI app) and Cash on Delivery (COD). Card and net banking payments will be added in the future.</p>
 
         <h2>4. Shipping & Delivery</h2>
         <p>Delivery timelines are estimates and may vary based on location and courier availability. VCHUKI is not liable for delays caused by courier partners, natural disasters, or circumstances beyond our control. See our <Link href="/shipping-policy" className="text-primary hover:underline">Shipping Policy</Link> for details.</p>
