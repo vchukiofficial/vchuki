@@ -9,7 +9,7 @@ import {
   LayoutDashboard, Package, ShoppingCart, Users, Tag,
   Star, Truck, BarChart3, Settings, ArrowLeft, LogOut,
   Megaphone, RotateCcw, Box, Zap, Mail, PackageX, Crown, Video,
-  Menu, X, MoreHorizontal
+  Menu, X, MoreHorizontal, ScanBarcode
 } from "lucide-react"
 import { signOut } from "next-auth/react"
 import { motion, AnimatePresence } from "framer-motion"
@@ -22,6 +22,7 @@ const nav = [
   { href: "/admin/returns", icon: RotateCcw, label: "Returns" },
   { href: "/admin/products", icon: Package, label: "Products" },
   { href: "/admin/stock", icon: PackageX, label: "Stock" },
+  { href: "/admin/pos", icon: ScanBarcode, label: "Shop Billing" },
   { href: "/admin/customers", icon: Users, label: "Customers" },
   { href: "/admin/vip", icon: Crown, label: "VIP Waitlist" },
   { href: "/admin/reviews", icon: Star, label: "Reviews" },

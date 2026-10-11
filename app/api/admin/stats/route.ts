@@ -48,7 +48,7 @@ export async function GET() {
     Order.countDocuments(),
     Product.countDocuments({ isActive: true }),
     User.countDocuments(),
-    Order.find().select("finalAmount paymentStatus paymentMethod shippingStatus user guestEmail guestPhone createdAt").lean(),
+    Order.find().select("finalAmount paymentStatus paymentMethod shippingStatus channel user guestEmail guestPhone createdAt").lean(),
     User.countDocuments({ createdAt: { $gte: since30 } }),
     User.countDocuments({ createdAt: { $gte: since60, $lt: since30 } }),
     PageView.distinct("sessionId", { createdAt: { $gte: since30 } }).then((s) => s.length),
@@ -65,8 +65,14 @@ export async function GET() {
   const revenueLast30 = revenueOf(ordersLast30)
   const revenuePrev30 = revenueOf(ordersPrev30)
 
-  const delivered = allOrders.filter((o: any) => o.shippingStatus === "delivered").length
-  const returned = allOrders.filter((o: any) => o.shippingStatus === "returned").length
+  // Shop counter sales are "delivered" on the spot and have no web session, so delivery,
+  // return and conversion rates only look at website orders.
+  const isStore = (o: any) => o.channel === "store"
+  const onlineOrders = allOrders.filter((o: any) => !isStore(o))
+  const onlineLast30 = ordersLast30.filter((o: any) => !isStore(o))
+
+  const delivered = onlineOrders.filter((o: any) => o.shippingStatus === "delivered").length
+  const returned = onlineOrders.filter((o: any) => o.shippingStatus === "returned").length
 
   const customerKey = (o: any) => String(o.user || o.guestEmail || o.guestPhone || "")
   const byCustomer = new Map<string, number>()
@@ -84,10 +90,12 @@ export async function GET() {
       totalProducts,
       totalUsers,
       revenue,
+      onlineRevenue30: revenueOf(onlineLast30),
+      storeRevenue30: revenueOf(ordersLast30.filter(isStore)),
       // Real, computed — not hardcoded. null means "not enough data yet" rather than a fake number.
       revenueChangePct: pct(revenueLast30 - revenuePrev30, revenuePrev30),
       customersChangePct: pct(usersLast30 - usersPrev30, usersPrev30),
-      conversionRatePct: pct(ordersLast30.length, sessionsLast30),
+      conversionRatePct: pct(onlineLast30.length, sessionsLast30),
       returnRatePct: pct(returned, delivered + returned),
       repeatRatePct: pct(repeatCustomers, byCustomer.size),
       avgOrderValue: ordersLast30.length ? Math.round(revenueLast30 / ordersLast30.length) : 0,

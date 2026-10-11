@@ -12,6 +12,7 @@ export interface IProductVariant extends Document {
   stock: number
   priceAdjustment: number // % or flat amount
   sku: string
+  barcode?: string
   images: string[]
 }
 
@@ -27,6 +28,8 @@ const ProductVariantSchema: Schema = new Schema({
   stock: { type: Number, default: 0, min: 0 },
   priceAdjustment: { type: Number, default: 0 },
   sku: { type: String, unique: true, sparse: true },
+  // Printed on shop labels and scanned at the counter (Code128). Assigned by lib/inventory.
+  barcode: { type: String, unique: true, sparse: true },
   images: [String],
 }, { timestamps: true })
 

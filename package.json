@@ -20,6 +20,7 @@
     "exceljs": "^4.4.0",
     "file-saver": "^2.0.5",
     "framer-motion": "^11.3.30",
+    "jsbarcode": "^3.12.3",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.451.0",
     "mongodb": "^6.10.0",

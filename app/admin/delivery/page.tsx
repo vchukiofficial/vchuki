@@ -41,7 +41,7 @@ export default function AdminDeliveryPage() {
     setLoading(true)
     fetch("/api/orders", { credentials: "include" })
       .then(r => r.json())
-      .then(d => { setOrders(d.orders || []); setLoading(false) })
+      .then(d => { setOrders((d.orders || []).filter((o: any) => o.channel !== "store")); setLoading(false) })
       .catch(() => setLoading(false))
   }
 

@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import connectDB from "@/lib/mongodb"
 import Order from "@/models/Order"
-import ProductVariant from "@/models/ProductVariant"
+import { returnStock } from "@/lib/inventory"
 
 export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions)
@@ -54,16 +54,13 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     update.$push = { timeline: { $each: pushOps } }
   }
 
+  const previous = await Order.findById(params.id).select("shippingStatus").lean() as any
   const order = await Order.findByIdAndUpdate(params.id, update, { new: true })
 
-  // Restore stock if order is cancelled or returned
-  if (body.shippingStatus && (body.shippingStatus === "cancelled" || body.shippingStatus === "returned") && order) {
-    const o = order as any
-    for (const item of o.items || []) {
-      if (item.variant) {
-        await ProductVariant.findByIdAndUpdate(item.variant, { $inc: { stock: item.quantity || 1 } })
-      }
-    }
+  // Restore stock if order is cancelled or returned (once — not again on cancelled → returned)
+  const released = (s?: string) => s === "cancelled" || s === "returned"
+  if (order && released(body.shippingStatus) && !released(previous?.shippingStatus)) {
+    await returnStock((order as any).items || [], { reason: "order_restored", order: (order as any)._id, note: `Order ${body.shippingStatus}`, by: session.user.email || undefined })
   }
 
   // Send shipping update email (async, non-blocking)
@@ -113,12 +110,8 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
 
   // Restore stock before deleting
   const order = await Order.findById(params.id).lean() as any
-  if (order && order.shippingStatus !== "delivered") {
-    for (const item of order.items || []) {
-      if (item.variant) {
-        await ProductVariant.findByIdAndUpdate(item.variant, { $inc: { stock: item.quantity || 1 } })
-      }
-    }
+  if (order && !["delivered", "cancelled", "returned"].includes(order.shippingStatus)) {
+    await returnStock(order.items || [], { reason: "order_restored", order: order._id, note: "Order deleted", by: session.user.email || undefined })
   }
 
   await Order.findByIdAndDelete(params.id)

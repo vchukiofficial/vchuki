@@ -3,7 +3,8 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import connectDB from "@/lib/mongodb"
 import Order from "@/models/Order"
-import ProductVariant from "@/models/ProductVariant"
+import mongoose from "mongoose"
+import { takeStock, returnStock } from "@/lib/inventory"
 import User from "@/models/User"
 import { verifyRecaptcha } from "@/lib/recaptcha"
 
@@ -42,14 +43,17 @@ export async function POST(request: NextRequest) {
   // Check if user is logged in (optional for guest checkout)
   const session = await getServerSession(authOptions)
 
-  // Deduct stock for each item
-  for (const item of body.items) {
-    if (item.variant) {
-      await ProductVariant.findByIdAndUpdate(item.variant, { $inc: { stock: -(item.quantity || 1) } })
-    }
+  // Take stock up front, all-or-nothing, so the website can't sell a piece the shop already sold
+  const orderId = new mongoose.Types.ObjectId()
+  const stock = await takeStock(body.items, { reason: "online_order", order: orderId })
+  if (!stock.ok) {
+    const item: any = stock.line
+    const left = stock.available ? `only ${stock.available} left` : "just sold out"
+    return NextResponse.json({ error: `${item.name || "An item"} (${item.size || ""}) ${left}. Please update your cart.` }, { status: 409 })
   }
 
   const order = await Order.create({
+    _id: orderId,
     user: session?.user?.id || undefined,
     guestEmail: body.guestEmail || undefined,
     guestPhone: body.guestPhone || undefined,
@@ -66,6 +70,9 @@ export async function POST(request: NextRequest) {
     paymentStatus: "pending",
     shippingStatus: "pending",
     timeline: [{ event: "Order placed", timestamp: new Date() }],
+  }).catch(async (err: unknown) => {
+    await returnStock(body.items, { reason: "order_restored", order: orderId, note: "Order could not be saved" })
+    throw err
   })
 
   // Send order confirmation email (async, non-blocking)

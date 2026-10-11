@@ -171,3 +171,10 @@
 ::-webkit-scrollbar-thumb:hover { background: hsl(35 40% 55%); }
 .dark ::-webkit-scrollbar-track { background: hsl(25 15% 8%); }
 .dark ::-webkit-scrollbar-thumb { background: hsl(25 10% 25%); }
+
+/* Admin printing (barcode labels, shop receipts): only the .print-area is printed */
+@media print {
+  body * { visibility: hidden; }
+  .print-area, .print-area * { visibility: visible; }
+  .print-area { position: absolute; left: 0; top: 0; width: 100%; }
+}

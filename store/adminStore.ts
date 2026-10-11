@@ -10,6 +10,8 @@ interface AdminState {
   reviews: Review[]
   stats: {
     revenue: number
+    onlineRevenue30: number
+    storeRevenue30: number
     totalOrders: number
     totalProducts: number
     totalUsers: number

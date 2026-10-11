@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import connectDB from "@/lib/mongodb"
 import ProductVariant from "@/models/ProductVariant"
+import StockMovement from "@/models/StockMovement"
+import { nextBarcode } from "@/lib/inventory"
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   await connectDB()
@@ -28,8 +30,13 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     stock: body.stock || 0,
     priceAdjustment: body.priceAdjustment || 0,
     sku: body.sku,
+    barcode: body.barcode || await nextBarcode(),
     images: body.images || [],
   })
+
+  if (variant.stock > 0) {
+    await StockMovement.create({ variant: variant._id, product: variant.product, change: variant.stock, balanceAfter: variant.stock, reason: "restock", note: "Opening stock", by: session.user.email || undefined }).catch(() => {})
+  }
 
   return NextResponse.json(variant, { status: 201 })
 }

@@ -122,6 +122,8 @@ export default function AdminDashboard() {
               <TrendingUp className="h-3 w-3 text-emerald-500" /> Performance (30d)
             </h3>
             <div className="space-y-2.5">
+              <MetricRow label="Online Revenue" value={stats ? `₹${(stats.onlineRevenue30 || 0).toLocaleString()}` : "—"} />
+              <MetricRow label="Shop Revenue" value={stats ? `₹${(stats.storeRevenue30 || 0).toLocaleString()}` : "—"} />
               <MetricRow label="Avg Order Value" value={stats?.avgOrderValue ? `₹${stats.avgOrderValue.toLocaleString()}` : "—"} />
               <MetricRow label="Conversion Rate" value={stats?.conversionRatePct != null ? `${stats.conversionRatePct}%` : "—"} />
               <MetricRow label="Return Rate" value={stats?.returnRatePct != null ? `${stats.returnRatePct}%` : "—"} />
