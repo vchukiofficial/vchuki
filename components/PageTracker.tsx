@@ -25,6 +25,9 @@ export function PageTracker() {
     // Don't track admin pages
     if (pathname.startsWith("/admin") || pathname.startsWith("/api")) return
 
+    // Meta Pixel page view (no-op until the pixel is configured)
+    try { window.fbq?.("track", "PageView") } catch { /* ignore */ }
+
     // Send duration for previous page
     if (lastPath.current && lastPath.current !== pathname) {
       const duration = Math.round((Date.now() - startTime.current) / 1000)

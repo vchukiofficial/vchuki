@@ -30,7 +30,7 @@ const DEFAULT_SHADES: Omit<ShadeData, "image">[] = [
     accent: "#DCCEB8",
   },
   {
-    name: "Sage Heritage",
+    name: "Olive Green",
     hex: "#8A8F63",
     mood: "Masculine. Earthy. Premium.",
     story: "Inspired by royal courtyard gardens and botanical calm",

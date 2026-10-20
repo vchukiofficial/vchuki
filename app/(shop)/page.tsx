@@ -105,7 +105,7 @@ async function getProducts() {
 
   // Fetch color images for RajasthanPalette (first product matching each color name)
   const colorNames = ["Desert Sand", "Olive Green", "Golden Dune", "Ivory White"]
-  const paletteNames = ["Desert Sand", "Sage Heritage", "Golden Dune", "Ivory White"]
+  const paletteNames = ["Desert Sand", "Olive Green", "Golden Dune", "Ivory White"]
   const colorProducts = await Promise.all(
     colorNames.map(c => Product.findOne({ isActive: true, name: { $regex: c, $options: "i" }, "images.0": { $exists: true } }).select("images").lean())
   )
@@ -296,9 +296,9 @@ export default async function HomePage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-10 text-center">
             {[
               { num: "47", label: "Quality Checks", sub: "Per shirt crafted" },
-              { num: "100%", label: "Premium Fabric", sub: "Finest linen mills" },
+              { num: "COD", label: "Across India", sub: "Pay on delivery" },
               { num: "7", label: "Day Returns", sub: "Hassle-free" },
-              { num: "5", label: "Curated Colors", sub: "Rajasthan-inspired" },
+              { num: "4", label: "Curated Colors", sub: "Rajasthan-inspired" },
             ].map((item) => (
               <div key={item.label} className="group">
                 <p className="text-3xl md:text-4xl font-light tracking-tight text-[#c4956a] group-hover:scale-105 transition-transform">{item.num}</p>
@@ -342,7 +342,7 @@ export default async function HomePage() {
       <section className="border-t border-border bg-background">
         <div className="container py-6 md:py-8 max-w-3xl mx-auto text-center px-5">
           <p className="text-sm md:text-[15px] text-muted-foreground leading-relaxed">
-            <span className="text-foreground font-medium">VCHUKI is an independent Indian menswear brand</span>, founded in 2025 and based in Jodhpur, Rajasthan. We design and manufacture premium cotton-linen shirts and short kurtas for men, sold direct-to-consumer across India. Every VCHUKI shirt is handcrafted locally and passes 47 individual quality checks before it ships. VCHUKI is not affiliated with any mythological or unrelated use of a similar-sounding name — we&apos;re a menswear label, and this is our only site.
+            <span className="text-foreground font-medium">VCHUKI is an independent Indian menswear brand</span>, founded in 2025 and based in Jodhpur, Rajasthan. We design and manufacture premium cotton-linen shirts and short kurtas for men, sold direct-to-consumer across India. Every VCHUKI shirt is handcrafted locally and passes 47 individual quality checks before it ships.
           </p>
         </div>
       </section>

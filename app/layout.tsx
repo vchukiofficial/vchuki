@@ -5,6 +5,7 @@ import "./globals.css"
 import { Providers } from "@/components/Providers"
 import { PageTracker } from "@/components/PageTracker"
 import Script from "next/script"
+import { BUSINESS } from "@/lib/constants"
 
 const inter = Inter({
   subsets: ["latin"],
@@ -52,8 +53,6 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    site: "@vchuki",
-    creator: "@vchuki",
     title: "VCHUKI — Premium Cotton Linen Blend Shirts for Men",
     description: "India's finest premium linen shirt brand. Handcrafted in Jodhpur. Shop formal, casual & linen shirts online.",
     images: ["/og-image.png"],
@@ -84,13 +83,7 @@ const organizationSchema = {
   disambiguatingDescription: "VCHUKI is an Indian premium menswear brand based in Jodhpur, Rajasthan — not to be confused with Vasuki, the serpent deity of Hindu mythology.",
   foundingDate: "2025",
   foundingLocation: { "@type": "Place", name: "Jodhpur, Rajasthan, India" },
-  sameAs: [
-    "https://instagram.com/vchuki",
-    "https://twitter.com/vchuki",
-    "https://facebook.com/vchuki",
-    "https://youtube.com/@vchuki",
-    "https://pinterest.com/vchuki",
-  ],
+  sameAs: Object.values(BUSINESS.social),
   contactPoint: [
     { "@type": "ContactPoint", telephone: "+91-9252891189", contactType: "customer service", areaServed: "IN", availableLanguage: ["English", "Hindi"] },
     { "@type": "ContactPoint", email: "support@vchuki.com", contactType: "customer support" },
@@ -163,6 +156,13 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <Script id="gtag" strategy="afterInteractive">
           {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-SSR2JS2VWN');`}
         </Script>
+        {/* Meta Pixel — set NEXT_PUBLIC_META_PIXEL_ID in Vercel to switch it on. Page views on
+            client-side navigation are sent from PageTracker. */}
+        {process.env.NEXT_PUBLIC_META_PIXEL_ID && (
+          <Script id="meta-pixel" strategy="afterInteractive">
+            {`!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','${process.env.NEXT_PUBLIC_META_PIXEL_ID}');`}
+          </Script>
+        )}
       </body>
     </html>
   )

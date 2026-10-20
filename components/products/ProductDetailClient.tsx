@@ -14,6 +14,16 @@ import { SizeGuide } from "./SizeGuide"
 import { ComboOfferWidget } from "./ComboOfferWidget"
 import { StealDeals } from "./StealDeals"
 import { buildCartItemFromVariant } from "@/lib/cart/buildCartItem"
+import { DEFAULT_FABRIC, FREE_SHIPPING_THRESHOLD, SHIPPING_FEE } from "@/lib/constants"
+import { track } from "@/lib/analytics"
+
+/** Products are a cotton-linen blend. Older variants were saved as "100% Premium Linen",
+ * which over-promises and drives returns — show the honest blend label instead until the
+ * stored value is corrected (see scripts/fixFabricLabels.ts). */
+function fabricLabel(stored?: string) {
+  if (!stored || /100\s*%\s*(premium\s*)?linen/i.test(stored)) return DEFAULT_FABRIC
+  return stored
+}
 
 interface Props {
   product: Product
@@ -29,6 +39,9 @@ export default function ProductDetailClient({ product, variants, reviews, siblin
   const { items: wishlistItems, toggle: toggleWishlist, load: loadWishlist } = useWishlistStore()
 
   useEffect(() => { loadWishlist() }, [loadWishlist])
+  useEffect(() => {
+    track.viewItem({ id: product.slug, name: product.name, price: product.basePrice })
+  }, [product.slug, product.name, product.basePrice])
 
   const sizes = useMemo(() => [...new Set(variants.map((v) => v.size))], [variants])
   const colors = useMemo(() => [...new Map(variants.map((v) => [v.color.name, v.color])).values()], [variants])
@@ -379,7 +392,9 @@ export default function ProductDetailClient({ product, variants, reviews, siblin
               <Truck className="h-4 w-4 text-[#c4956a] flex-shrink-0 mt-0.5" strokeWidth={1.5} />
               <div>
                 <p className="text-foreground">Get it by <span className="font-semibold">{deliveryWindow}</span></p>
-                <p className="text-[10px] text-muted-foreground mt-0.5">Ships from Jodhpur · Cash on Delivery available</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">
+                  Ships from Jodhpur · {price >= FREE_SHIPPING_THRESHOLD ? "Free shipping" : `₹${SHIPPING_FEE} shipping (free above ₹${FREE_SHIPPING_THRESHOLD.toLocaleString()})`} · COD available
+                </p>
               </div>
             </div>
           )}
@@ -410,7 +425,7 @@ export default function ProductDetailClient({ product, variants, reviews, siblin
               <span className="text-muted-foreground group-open:rotate-180 transition-transform">▾</span>
             </summary>
             <div className="mt-3 space-y-1.5 text-xs text-muted-foreground">
-              <p>Fabric: {selectedVariant?.fabric || "Premium Linen Blend"}</p>
+              <p>Fabric: {fabricLabel(selectedVariant?.fabric)}</p>
               <p>Fit: <span className="capitalize">{selectedVariant?.fit || "Regular"}</span></p>
               <p>SKU: {selectedVariant?.sku || "—"}</p>
               <p>Care: Machine wash cold, tumble dry low</p>
@@ -425,7 +440,7 @@ export default function ProductDetailClient({ product, variants, reviews, siblin
               <span className="text-muted-foreground group-open:rotate-180 transition-transform">▾</span>
             </summary>
             <div className="mt-3 text-xs text-muted-foreground leading-relaxed">
-              <p>Each VCHUKI shirt is crafted from premium linen sourced from the finest mills. The fabric undergoes 47 quality checks before it reaches you — ensuring breathability, softness, and a luxurious drape that gets better with every wash.</p>
+              <p>Each VCHUKI shirt is cut from a breathable cotton-linen blend: the linen keeps it cool, the cotton keeps it soft and less prone to creasing. The fabric undergoes 47 quality checks before it reaches you — ensuring breathability, softness, and a luxurious drape that gets better with every wash.</p>
             </div>
           </details>
 

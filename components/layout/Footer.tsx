@@ -23,7 +23,7 @@ export default function Footer() {
             <div className="flex gap-4 mt-5">
               {Object.entries(BUSINESS.social).map(([platform, url]) => (
                 <a key={platform} href={url} target="_blank" rel="noopener noreferrer" className="text-[#f5e6d3]/40 hover:text-[#c4956a] transition-colors" aria-label={platform}>
-                  <span className="text-xs font-medium">{platform.charAt(0).toUpperCase()}</span>
+                  <span className="text-xs font-medium">{platform === "instagram" ? "Instagram · @vchukiofficial" : platform.charAt(0).toUpperCase() + platform.slice(1)}</span>
                 </a>
               ))}
             </div>
@@ -35,7 +35,7 @@ export default function Footer() {
             <div className="space-y-2.5 text-sm">
               <Link href="/shirts" className="block text-[#f5e6d3]/60 hover:text-[#f5e6d3] transition-colors">All Shirts</Link>
               <Link href="/shirts/linen-half-sleeve" className="block text-[#f5e6d3]/60 hover:text-[#f5e6d3] transition-colors">Half Sleeve Shirts</Link>
-              <Link href="/shirts/linen" className="block text-[#f5e6d3]/60 hover:text-[#f5e6d3] transition-colors">Full Sleeve Shirts</Link>
+              <Link href="/shirts/linen-full-sleeve" className="block text-[#f5e6d3]/60 hover:text-[#f5e6d3] transition-colors">Full Sleeve Shirts</Link>
               <Link href="/shirts/kurta-half-sleeve" className="block text-[#f5e6d3]/60 hover:text-[#f5e6d3] transition-colors">Half Kurta</Link>
               <Link href="/shirts/kurta-full-sleeve" className="block text-[#f5e6d3]/60 hover:text-[#f5e6d3] transition-colors">Full Kurta</Link>
             </div>

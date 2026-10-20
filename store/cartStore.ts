@@ -2,6 +2,7 @@ import { create } from "zustand"
 import { persist } from "zustand/middleware"
 import type { CartItem } from "@/types"
 import { calculateComboDiscount, type CartItemForCombo } from "@/lib/comboOffers"
+import { track } from "@/lib/analytics"
 
 interface CartState {
   items: CartItem[]
@@ -51,6 +52,7 @@ export const useCartStore = create<CartState>()(
         }
         const combo = recalcCombo(updated)
         set({ items: updated, comboDiscount: combo.discount, comboLabel: combo.appliedOffer })
+        track.addToCart({ id: newItem.sku || newItem._id, name: newItem.name, price: newItem.price, quantity: newItem.quantity, size: newItem.size, color: newItem.color })
       },
       updateQuantity: (id, quantity) => {
         if (quantity < 1) return

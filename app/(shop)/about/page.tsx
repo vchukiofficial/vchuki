@@ -136,10 +136,10 @@ export default function AboutPage() {
             <div className="grid grid-cols-3 gap-3 md:gap-4">
               {[
                 { stat: "47", label: "Quality Checks" },
-                { stat: "100%", label: "Premium Linen Blend" },
+                { stat: "Cotton", label: "Linen Blend" },
                 { stat: "7 Day", label: "Easy Returns" },
-                { stat: "5", label: "Curated Colors" },
-                { stat: "4.8★", label: "Avg Rating" },
+                { stat: "4", label: "Curated Colors" },
+                { stat: "Jodhpur", label: "Handcrafted" },
                 { stat: "COD", label: "Available" },
               ].map((item) => (
                 <div key={item.label} className="p-4 border border-border text-center hover:border-[#c4956a]/30 transition-colors">

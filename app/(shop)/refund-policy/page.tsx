@@ -18,56 +18,41 @@ export default function RefundPolicyPage() {
       </nav>
 
       <h1 className="text-2xl md:text-3xl font-bold mb-2">Return & Exchange Policy</h1>
-      <p className="text-sm text-muted-foreground mb-8">Effective from July 2025 · Last updated: July 7, 2025</p>
+      <p className="text-sm text-muted-foreground mb-8">Last updated: October 20, 2026</p>
 
       <div className="prose prose-sm max-w-none space-y-6 text-muted-foreground [&_h2]:text-foreground [&_h2]:text-lg [&_h2]:font-bold [&_h2]:mt-8 [&_h2]:mb-3 [&_p]:leading-relaxed">
 
-        <h2>Return & Exchange Policy</h2>
-        <ol className="list-decimal pl-5 space-y-3">
-          <li>Hassle-free returns within <strong>7 days</strong> of delivery; specific conditions apply based on products and promotions.</li>
-          <li>Prepaid orders will be refunded to the original payment method. COD orders can be refunded as store credits or directly to a UPI ID of your choice.</li>
-          <li>Issues with defective, incorrect, or damaged products must be reported within <strong>24 hours</strong> of delivery with photographic evidence.</li>
-          <li>Items purchased during special sales with free product offers (such as BOGO, combo deals, or promotional bundles) are <strong>ineligible for returns</strong>.</li>
-          <li>First-time customers enjoy free returns on their first order — no return fee applies. For all subsequent orders, a reverse shipment fee of <strong>₹25 per item</strong> is charged, up to ₹100 per order.</li>
-          <li>To ensure standard hygiene, accessories including belts, caps, and pocket squares <strong>cannot be returned</strong> once delivered.</li>
-        </ol>
+        <h2>The short version</h2>
+        <ul className="list-disc pl-5 space-y-2">
+          <li><strong>Wrong size? Free size exchange</strong> within 7 days of delivery, subject to stock.</li>
+          <li><strong>Returns</strong> are accepted within <strong>7 days</strong> of delivery for unworn, unwashed items with tags attached.</li>
+          <li>Your <strong>first return is free</strong>. After that, a reverse pickup fee of ₹25 per item applies (maximum ₹100 per order).</li>
+          <li>Received something <strong>damaged, defective or wrong</strong>? Tell us within 48 hours with a photo and we&apos;ll replace it free.</li>
+          <li>Combo and bundle orders can be <strong>exchanged for a different size</strong>; returns on bundles must include every item in the bundle.</li>
+        </ul>
 
-        <h2>For VCHUKI Premium Members</h2>
-        <ol className="list-decimal pl-5 space-y-3">
-          <li>Premium members can return or exchange online orders within <strong>15 days</strong>. Any loyalty points earned on the order will be revoked if items are returned.</li>
-          <li>Free gifts received with orders can only be <strong>exchanged, not returned</strong>.</li>
-          <li>Items purchased together with a free gift are only eligible for <strong>exchange, not return</strong>, to prevent misuse.</li>
-          <li>If you redeem loyalty points within 8 days before they are credited to your account, the associated order is only eligible for exchange, not return.</li>
-          <li>First-time customers enjoy free returns on their first order. For subsequent orders, a reverse shipment fee of ₹25 per item applies, up to ₹100 per order.</li>
-        </ol>
+        <h2>Refunds</h2>
+        <p>Prepaid (UPI) orders are refunded to the original payment method. Cash on Delivery orders are refunded to a UPI ID of your choice, or as instant store credit if you prefer.</p>
 
         <h2>Conditions for Return Eligibility</h2>
         <ul className="list-disc pl-5 space-y-2">
-          <li>Product must be <strong>unused, unwashed, and unaltered</strong></li>
-          <li>All original tags must be <strong>attached and intact</strong> — returns with removed, torn, or broken tags will NOT be accepted</li>
-          <li>All original packaging must be intact</li>
-          <li>Product must be in the same condition as received</li>
-          <li><strong>2-3 clear product photos</strong> must be uploaded with the return request (showing product front, back, and tag)</li>
-          <li>Return request must be raised within 7 days of delivery</li>
-          <li>Products marked &quot;Final Sale&quot; or &quot;Non-Returnable&quot; cannot be returned</li>
+          <li>Product is <strong>unused, unwashed and unaltered</strong>, with original tags attached</li>
+          <li>Request raised within 7 days of delivery, with 2–3 clear photos (front, back and tag)</li>
+          <li>Original packaging included where possible</li>
         </ul>
 
-        <h2>Items NOT Eligible for Return</h2>
+        <h2>Not Eligible for Return</h2>
         <ul className="list-disc pl-5 space-y-2">
-          <li>Products with <strong>tag removed, torn, or broken</strong> — this is strictly enforced</li>
-          <li>Products that have been worn, washed, ironed, or altered</li>
-          <li>Products without original VCHUKI packaging</li>
-          <li>Return requests without 2-3 product photos</li>
-          <li>Items purchased under BOGO, combo, or promotional offers</li>
-          <li>Accessories (belts, caps, pocket squares) — hygiene policy</li>
-          <li>Products returned after 7 days of delivery</li>
+          <li>Products that have been worn, washed, ironed or altered</li>
+          <li>Products with tags removed or damaged</li>
+          <li>Requests raised more than 7 days after delivery</li>
           <li>Products with customer-caused damage (stains, tears, etc.)</li>
         </ul>
 
         <h2>Exchange Process</h2>
         <p>We offer exchanges for size or color changes subject to stock availability. To initiate an exchange:</p>
         <ol className="list-decimal pl-5 space-y-1">
-          <li>Contact us at {BUSINESS.email.support} with your order number</li>
+          <li>WhatsApp us at {BUSINESS.phone} or email {BUSINESS.email.support} with your order number</li>
           <li>Our team will confirm availability within 24 hours</li>
           <li>A pickup will be scheduled at your address</li>
           <li>Replacement will be shipped after receiving the original item</li>

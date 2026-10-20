@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import connectDB from "@/lib/mongodb"
 import Review from "@/models/Review"
+import { recomputeProductRating } from "@/lib/reviewStats"
 
 export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions)
@@ -14,6 +15,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   const body = await request.json()
   const review = await Review.findByIdAndUpdate(params.id, body, { new: true })
   if (!review) return NextResponse.json({ error: "Not found" }, { status: 404 })
+  await recomputeProductRating(review.product)
   return NextResponse.json(review)
 }
 
@@ -24,6 +26,7 @@ export async function DELETE(_request: NextRequest, { params }: { params: { id: 
   }
 
   await connectDB()
-  await Review.findByIdAndDelete(params.id)
+  const deleted = await Review.findByIdAndDelete(params.id)
+  if (deleted) await recomputeProductRating(deleted.product)
   return NextResponse.json({ message: "Deleted" })
 }

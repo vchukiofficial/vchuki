@@ -152,11 +152,9 @@ export default function AdminSettingsPage() {
       <div className="p-4 border border-border bg-card space-y-3">
         <h3 className="text-sm font-medium text-foreground flex items-center gap-2"><Globe className="h-3.5 w-3.5 text-[#c4956a]" /> Social Media Links</h3>
         <div className="space-y-2 text-xs">
-          <Row label="Instagram" value={BUSINESS.social.instagram} />
-          <Row label="Twitter/X" value={BUSINESS.social.twitter} />
-          <Row label="Facebook" value={BUSINESS.social.facebook} />
-          <Row label="YouTube" value={BUSINESS.social.youtube} />
-          <Row label="Pinterest" value={BUSINESS.social.pinterest} />
+          {Object.entries(BUSINESS.social).map(([platform, url]) => (
+            <Row key={platform} label={platform.charAt(0).toUpperCase() + platform.slice(1)} value={url} />
+          ))}
         </div>
       </div>
 

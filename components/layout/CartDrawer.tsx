@@ -4,6 +4,7 @@ import { useCartStore } from "@/store/cartStore"
 import { useUIStore } from "@/store/uiStore"
 import { X, ShoppingCart, Minus, Plus, Trash2 } from "lucide-react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import { FREE_SHIPPING_THRESHOLD } from "@/lib/constants"
@@ -28,6 +29,14 @@ function FreeShippingProgress({ subtotal }: { subtotal: number }) {
 export default function CartDrawer() {
   const { items, removeItem, updateQuantity } = useCartStore()
   const { isCartOpen, setCartOpen } = useUIStore()
+  const router = useRouter()
+
+  // Navigate first, then close. Closing the drawer unmounts the link mid-click, which on some
+  // browsers left shoppers on the product page instead of reaching checkout.
+  function goToCheckout() {
+    router.push("/checkout")
+    setCartOpen(false)
+  }
 
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
 
@@ -76,7 +85,7 @@ export default function CartDrawer() {
                   {items.map((item) => (
                     <div key={item._id + item.sku} className="flex gap-3 p-3 border border-border/50 hover:border-[#c4956a]/20 transition-colors">
                       <div className="relative h-20 w-16 overflow-hidden bg-secondary flex-shrink-0">
-                        <Image src={item.images?.[0] || "/placeholder.jpg"} alt={item.name} fill className="object-cover" />
+                        <Image src={item.images?.[0] || "/placeholder.jpg"} alt={item.name} fill sizes="64px" loading="eager" className="object-cover" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-medium truncate">{item.name}</p>
@@ -108,9 +117,9 @@ export default function CartDrawer() {
                   <span className="text-lg font-bold">₹{subtotal.toLocaleString()}</span>
                 </div>
                 <FreeShippingProgress subtotal={subtotal} />
-                <Link href="/checkout" onClick={() => setCartOpen(false)} className="block w-full py-3.5 bg-[#2a1f14] text-[#f5e6d3] text-center text-xs font-medium tracking-wider uppercase hover:bg-[#1a1209] transition-colors">
-                  Checkout
-                </Link>
+                <button type="button" onClick={goToCheckout} onMouseEnter={() => router.prefetch("/checkout")} className="block w-full py-3.5 bg-[#2a1f14] dark:bg-[#c4956a] text-[#f5e6d3] dark:text-[#2a1f14] text-center text-xs font-medium tracking-wider uppercase hover:opacity-90 transition-opacity">
+                  Checkout · ₹{subtotal.toLocaleString()}
+                </button>
                 <Link href="/cart" onClick={() => setCartOpen(false)} className="block w-full py-3 border border-[#c4956a]/30 text-center text-xs font-medium tracking-wider uppercase hover:bg-[#c4956a]/5 transition-colors">
                   View Full Bag
                 </Link>

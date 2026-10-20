@@ -14,10 +14,10 @@ interface HeroCategory {
 }
 
 const CATEGORIES: HeroCategory[] = [
-  { label: "Half Sleeve Shirts", slug: "linen-half-sleeve", tagline: "Summer Ease", basePrice: 799, comparePrice: 1499 },
-  { label: "Full Sleeve Shirts", slug: "linen-full-sleeve", tagline: "Timeless Luxury", basePrice: 899, comparePrice: 1699 },
-  { label: "Half Kurta", slug: "kurta-half-sleeve", tagline: "Modern Ethnic", basePrice: 999, comparePrice: 1899 },
-  { label: "Full Kurta", slug: "kurta-full-sleeve", tagline: "Heritage Craft", basePrice: 1099, comparePrice: 1999 },
+  { label: "Half Sleeve Shirts", slug: "linen-half-sleeve", tagline: "Summer Ease", basePrice: 699, comparePrice: 1399 },
+  { label: "Full Sleeve Shirts", slug: "linen-full-sleeve", tagline: "Timeless Luxury", basePrice: 799, comparePrice: 1599 },
+  { label: "Half Kurta", slug: "kurta-half-sleeve", tagline: "Modern Ethnic", basePrice: 699, comparePrice: 1399 },
+  { label: "Full Kurta", slug: "kurta-full-sleeve", tagline: "Heritage Craft", basePrice: 799, comparePrice: 1599 },
 ]
 
 interface Props {

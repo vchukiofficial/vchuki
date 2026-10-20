@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useSession, signIn } from "next-auth/react"
 import { useCartStore } from "@/store/cartStore"
 import Image from "next/image"
@@ -9,6 +9,8 @@ import { Check, Shield, Truck, ArrowLeft, Banknote, Package, Clock, MapPin, Shop
 import { AddressForm } from "@/components/shared/AddressForm"
 import { getRecaptchaToken, isRecaptchaEnabled } from "@/lib/recaptchaClient"
 import type { Address } from "@/types"
+import { FREE_SHIPPING_THRESHOLD, SHIPPING_FEE, COD_FEE, DELIVERY_DAYS } from "@/lib/constants"
+import { track } from "@/lib/analytics"
 
 type Step = "details" | "payment" | "confirmation"
 
@@ -71,6 +73,16 @@ export default function CheckoutPage() {
   }
 
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
+  const analyticsItems = items.map((i) => ({ id: i.sku || i._id, name: i.name, price: i.price, quantity: i.quantity, size: i.size, color: i.color }))
+
+  // Fire begin_checkout once per visit to checkout, once the persisted cart has loaded.
+  const checkoutTracked = useRef(false)
+  useEffect(() => {
+    if (checkoutTracked.current || items.length === 0) return
+    checkoutTracked.current = true
+    track.beginCheckout(analyticsItems)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items.length])
 
   async function handleApplyCoupon() {
     if (!couponInput.trim()) return
@@ -133,8 +145,10 @@ export default function CheckoutPage() {
     clearCoupon()
   }
 
-  const shipping = subtotal >= 1599 ? 0 : 50
-  const codCharge = paymentMethod === "cod" ? 50 : 0
+  const shipping = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE
+  // The COD fee is only shown once the shopper is choosing how to pay — adding it on the
+  // details step made a ₹799 shirt jump to ₹899 before any choice was made.
+  const codCharge = step === "payment" && paymentMethod === "cod" ? COD_FEE : 0
   const totalDiscount = discount + comboDiscount
   const total = subtotal - totalDiscount + shipping + codCharge
 
@@ -184,6 +198,7 @@ export default function CheckoutPage() {
       return
     }
     setStep("payment")
+    track.addPaymentInfo(analyticsItems, paymentMethod)
   }
 
   async function handlePlaceOrder() {
@@ -225,6 +240,7 @@ export default function CheckoutPage() {
 
       const data = await res.json()
       if (res.ok) {
+        track.purchase(String(data.orderId), total, analyticsItems, paymentMethod)
         setOrderId(data.orderId)
         setConfirmedTotal(total)
         clearCart()
@@ -544,7 +560,8 @@ export default function CheckoutPage() {
                     <Smartphone className="h-4 w-4 text-muted-foreground" />
                     <div className="flex-1">
                       <span className="text-sm font-medium text-foreground">UPI / Google Pay</span>
-                      <p className="text-[10px] text-muted-foreground">Scan QR or pay via your UPI app</p>
+                      <span className="ml-2 text-[9px] px-1.5 py-0.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold uppercase tracking-wider">Save ₹{COD_FEE}</span>
+                      <p className="text-[10px] text-muted-foreground">Scan QR or pay via your UPI app · no COD fee</p>
                     </div>
                     <span className="text-sm font-semibold text-foreground">₹{(subtotal - totalDiscount + shipping).toLocaleString()}</span>
                   </label>
@@ -553,9 +570,9 @@ export default function CheckoutPage() {
                     <Banknote className="h-4 w-4 text-muted-foreground" />
                     <div className="flex-1">
                       <span className="text-sm font-medium text-foreground">Cash on Delivery</span>
-                      <p className="text-[10px] text-muted-foreground">+₹50 COD charge · Pay when you receive</p>
+                      <p className="text-[10px] text-muted-foreground">+₹{COD_FEE} COD fee · Pay when you receive</p>
                     </div>
-                    <span className="text-sm font-semibold text-foreground">₹{(subtotal - totalDiscount + shipping + 50).toLocaleString()}</span>
+                    <span className="text-sm font-semibold text-foreground">₹{(subtotal - totalDiscount + shipping + COD_FEE).toLocaleString()}</span>
                   </label>
                 </div>
               </div>
@@ -579,7 +596,7 @@ export default function CheckoutPage() {
               {/* Trust */}
               <div className="flex items-center justify-center gap-4 text-[10px] text-muted-foreground pt-2">
                 <span className="flex items-center gap-1"><Shield className="h-3 w-3" /> Secure</span>
-                <span className="flex items-center gap-1"><Truck className="h-3 w-3" /> 3-5 days delivery</span>
+                <span className="flex items-center gap-1"><Truck className="h-3 w-3" /> {DELIVERY_DAYS} days delivery</span>
               </div>
             </div>
           )}
@@ -673,9 +690,12 @@ export default function CheckoutPage() {
               </div>
               {codCharge > 0 && (
                 <div className="flex justify-between text-muted-foreground">
-                  <span>COD Charge</span>
+                  <span>COD Fee</span>
                   <span className="text-foreground">₹{codCharge}</span>
                 </div>
+              )}
+              {step === "details" && (
+                <p className="text-[10px] text-emerald-600 dark:text-emerald-400">Pay by UPI on the next step — no COD fee</p>
               )}
             </div>
 
@@ -685,7 +705,7 @@ export default function CheckoutPage() {
             </div>
 
             {shipping > 0 && (
-              <p className="text-[10px] text-muted-foreground mt-2">Add ₹{(1599 - subtotal).toLocaleString()} more for free shipping</p>
+              <p className="text-[10px] text-muted-foreground mt-2">Add ₹{(FREE_SHIPPING_THRESHOLD - subtotal).toLocaleString()} more for free shipping</p>
             )}
           </div>
 
@@ -697,7 +717,7 @@ export default function CheckoutPage() {
             </div>
             <div className="p-2 border border-border">
               <Truck className="h-3.5 w-3.5 mx-auto text-[#c4956a]" />
-              <p className="text-[9px] text-muted-foreground mt-1">3-5 Days</p>
+              <p className="text-[9px] text-muted-foreground mt-1">{DELIVERY_DAYS} Days</p>
             </div>
             <div className="p-2 border border-border">
               <Check className="h-3.5 w-3.5 mx-auto text-[#c4956a]" />

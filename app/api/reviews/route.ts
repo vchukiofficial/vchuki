@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import connectDB from "@/lib/mongodb"
 import Review from "@/models/Review"
+import { recomputeProductRating } from "@/lib/reviewStats"
 
 // Full list (including pending/hidden reviews) is for the admin panel only;
 // product pages load their approved reviews server-side.
@@ -27,6 +28,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "At least one photo is required for reviews" }, { status: 400 })
   }
 
-  const review = await Review.create({ ...body, user: session.user.id })
+  // Only accept the fields a customer may set — verification and moderation status are
+  // decided server-side, not by the request body.
+  const review = await Review.create({
+    product: body.product,
+    rating: body.rating,
+    comment: body.comment,
+    images: body.images,
+    user: session.user.id,
+  })
+  await recomputeProductRating(review.product)
   return NextResponse.json(review, { status: 201 })
 }
