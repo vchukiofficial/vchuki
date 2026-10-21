@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
+import { sessionFor } from "@/lib/mobileAuth"
 import connectDB from "@/lib/mongodb"
 import Order from "@/models/Order"
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions)
+  const session = await sessionFor(req)
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
   await connectDB()
@@ -16,7 +15,10 @@ export async function POST(req: NextRequest) {
   }
 
   const order = await Order.findById(orderId)
-  if (!order) return NextResponse.json({ error: "Order not found" }, { status: 404 })
+  // Only the customer who placed the order (or an admin) may request its return
+  if (!order || (String(order.user) !== session.user.id && session.user.role !== "admin")) {
+    return NextResponse.json({ error: "Order not found" }, { status: 404 })
+  }
 
   // Check if order is eligible for return (delivered within 7 days)
   if (order.shippingStatus !== "delivered") {

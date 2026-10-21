@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
+import { sessionFor } from "@/lib/mobileAuth"
 import connectDB from "@/lib/mongodb"
 import User from "@/models/User"
 
-export async function GET() {
-  const session = await getServerSession(authOptions)
+export async function GET(request: NextRequest) {
+  const session = await sessionFor(request)
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
   await connectDB()
@@ -14,7 +13,7 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-  const session = await getServerSession(authOptions)
+  const session = await sessionFor(request)
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
   await connectDB()
@@ -33,7 +32,7 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
-  const session = await getServerSession(authOptions)
+  const session = await sessionFor(request)
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
   const { addressId } = await request.json()
@@ -52,7 +51,7 @@ export async function PATCH(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-  const session = await getServerSession(authOptions)
+  const session = await sessionFor(request)
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
   const { searchParams } = new URL(request.url)

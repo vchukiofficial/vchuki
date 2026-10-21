@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
+import { sessionFor } from "@/lib/mobileAuth"
 import connectDB from "@/lib/mongodb"
 import EmailTemplate from "@/models/EmailTemplate"
 
-export async function GET() {
-  const session = await getServerSession(authOptions)
+export async function GET(request: NextRequest) {
+  const session = await sessionFor(request)
   if (!session || session.user.role !== "admin") return NextResponse.json({ error: "Forbidden" }, { status: 403 })
 
   await connectDB()
@@ -14,7 +13,7 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-  const session = await getServerSession(authOptions)
+  const session = await sessionFor(request)
   if (!session || session.user.role !== "admin") return NextResponse.json({ error: "Forbidden" }, { status: 403 })
 
   await connectDB()

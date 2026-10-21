@@ -1,20 +1,19 @@
 import { NextRequest, NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
+import { sessionFor } from "@/lib/mobileAuth"
 import connectDB from "@/lib/mongodb"
 import ProductVariant from "@/models/ProductVariant"
 import "@/models/Product"
 import { adjustStock, setStock, assignMissingBarcodes, toStockItem } from "@/lib/inventory"
 
-async function requireAdmin() {
-  const session = await getServerSession(authOptions)
+async function requireAdmin(request: NextRequest | Request) {
+  const session = await sessionFor(request)
   return session && session.user.role === "admin" ? session : null
 }
 
 // GET            → stats + every variant (the shop holds a few hundred at most)
 // GET ?code=XYZ  → the single variant with that barcode or SKU (scanner lookup)
 export async function GET(request: NextRequest) {
-  if (!(await requireAdmin())) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+  if (!(await requireAdmin(request))) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
   await connectDB()
 
   const code = request.nextUrl.searchParams.get("code")?.trim()
@@ -45,7 +44,7 @@ export async function GET(request: NextRequest) {
 
 // PATCH { variantId, mode: "add" | "remove" | "set", quantity, reason?, note? }
 export async function PATCH(request: NextRequest) {
-  const session = await requireAdmin()
+  const session = await requireAdmin(request)
   if (!session) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
   await connectDB()
 
@@ -64,8 +63,8 @@ export async function PATCH(request: NextRequest) {
 }
 
 // POST → assign barcodes to every variant that doesn't have one yet
-export async function POST() {
-  if (!(await requireAdmin())) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+export async function POST(request: NextRequest) {
+  if (!(await requireAdmin(request))) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
   await connectDB()
   const assigned = await assignMissingBarcodes()
   return NextResponse.json({ assigned })

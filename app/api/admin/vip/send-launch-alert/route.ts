@@ -1,6 +1,5 @@
-import { NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
+import { NextRequest, NextResponse } from "next/server"
+import { sessionFor } from "@/lib/mobileAuth"
 import connectDB from "@/lib/mongodb"
 import Waitlist from "@/models/Waitlist"
 import Coupon from "@/models/Coupon"
@@ -29,8 +28,8 @@ async function ensureLaunchCoupon() {
 // Admin-triggered replacement for the old Vercel Cron job — Hobby plan crons only run once a
 // day with ±59min precision, too imprecise for a fixed 9AM launch moment. The admin clicks this
 // button when they're ready; each waitlist entry is still only ever emailed once (launchEmailSentAt).
-export async function POST() {
-  const session = await getServerSession(authOptions)
+export async function POST(request: NextRequest) {
+  const session = await sessionFor(request)
   if (!session || session.user.role !== "admin") return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
   await connectDB()

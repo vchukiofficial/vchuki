@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
+import { sessionFor } from "@/lib/mobileAuth"
 import connectDB from "@/lib/mongodb"
 import Order from "@/models/Order"
 import { returnStock } from "@/lib/inventory"
 
 export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
-  const session = await getServerSession(authOptions)
+  const session = await sessionFor(request)
   if (!session || session.user.role !== "admin") {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 })
   }
@@ -101,7 +100,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
 }
 
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
-  const session = await getServerSession(authOptions)
+  const session = await sessionFor(request)
   if (!session || session.user.role !== "admin") {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 })
   }
@@ -119,12 +118,15 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
 }
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
-  const session = await getServerSession(authOptions)
+  const session = await sessionFor(request)
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
   await connectDB()
-  const order = await Order.findById(params.id).lean()
-  if (!order) return NextResponse.json({ error: "Not found" }, { status: 404 })
+  const order = (await Order.findById(params.id).lean()) as any
+  // Customers may only read their own orders
+  if (!order || (session.user.role !== "admin" && String(order.user) !== session.user.id)) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 })
+  }
 
   return NextResponse.json({ order })
 }

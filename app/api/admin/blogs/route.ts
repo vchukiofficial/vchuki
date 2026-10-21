@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { sessionFor } from "@/lib/mobileAuth"
 import connectDB from "@/lib/mongodb"
 import Blog from "@/models/Blog"
 
@@ -12,6 +13,8 @@ export async function GET(req: NextRequest) {
 
   const query: any = {}
   if (category) query.category = category
+  const viewer = await sessionFor(req)
+  if (viewer?.user.role !== "admin") query.isPublished = true
 
   const [blogs, total] = await Promise.all([
     Blog.find(query).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit).lean(),
@@ -23,6 +26,8 @@ export async function GET(req: NextRequest) {
 
 // POST create blog
 export async function POST(req: NextRequest) {
+  const session = await sessionFor(req)
+  if (!session || session.user.role !== "admin") return NextResponse.json({ error: "Forbidden" }, { status: 403 })
   await connectDB()
   const body = await req.json()
 

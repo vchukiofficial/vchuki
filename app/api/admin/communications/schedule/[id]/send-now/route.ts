@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
+import { sessionFor } from "@/lib/mobileAuth"
 import connectDB from "@/lib/mongodb"
 import ScheduledEmail from "@/models/ScheduledEmail"
 import { dispatchScheduledEmail } from "@/lib/email/scheduler"
 
 // POST — dispatch a pending scheduled campaign immediately, bypassing its scheduledAt
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
-  const session = await getServerSession(authOptions)
+  const session = await sessionFor(request)
   if (!session || session.user.role !== "admin") return NextResponse.json({ error: "Forbidden" }, { status: 403 })
 
   await connectDB()

@@ -1,17 +1,16 @@
 import { NextRequest, NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
+import { sessionFor } from "@/lib/mobileAuth"
 import connectDB from "@/lib/mongodb"
 import HeroVideo from "@/models/HeroVideo"
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   await connectDB()
   const videos = await HeroVideo.find().sort({ order: 1 }).lean()
   return NextResponse.json({ videos })
 }
 
 export async function POST(request: NextRequest) {
-  const session = await getServerSession(authOptions)
+  const session = await sessionFor(request)
   if (!session || session.user.role !== "admin") return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
   await connectDB()
@@ -21,7 +20,7 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
-  const session = await getServerSession(authOptions)
+  const session = await sessionFor(request)
   if (!session || session.user.role !== "admin") return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
   await connectDB()
@@ -32,7 +31,7 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-  const session = await getServerSession(authOptions)
+  const session = await sessionFor(request)
   if (!session || session.user.role !== "admin") return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
   await connectDB()

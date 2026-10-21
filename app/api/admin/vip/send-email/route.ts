@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
+import { sessionFor } from "@/lib/mobileAuth"
 import connectDB from "@/lib/mongodb"
 import Waitlist from "@/models/Waitlist"
 import { sendPromoEmail } from "@/lib/email/brevo"
@@ -8,7 +7,7 @@ import { buildProductCarouselHtml } from "@/lib/email/productCarousel"
 import { getRandomCarouselProducts } from "@/lib/email/carouselProducts"
 
 export async function POST(request: NextRequest) {
-  const session = await getServerSession(authOptions)
+  const session = await sessionFor(request)
   if (!session || session.user.role !== "admin") return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
   await connectDB()

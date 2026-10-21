@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
 import mongoose from "mongoose"
-import { authOptions } from "@/lib/auth"
+import { sessionFor } from "@/lib/mobileAuth"
 import connectDB from "@/lib/mongodb"
 import Order from "@/models/Order"
 import ProductVariant from "@/models/ProductVariant"
@@ -12,7 +11,7 @@ import { takeStock, returnStock, toStockItem } from "@/lib/inventory"
 // Records a walk-in sale as a paid, already-delivered "store" order and takes the stock.
 // Prices are always read from the database — the counter screen only says what was scanned.
 export async function POST(request: NextRequest) {
-  const session = await getServerSession(authOptions)
+  const session = await sessionFor(request)
   if (!session || session.user.role !== "admin") return NextResponse.json({ error: "Forbidden" }, { status: 403 })
   await connectDB()
 

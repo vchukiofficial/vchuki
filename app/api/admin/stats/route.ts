@@ -1,6 +1,5 @@
-import { NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
+import { NextRequest, NextResponse } from "next/server"
+import { sessionFor } from "@/lib/mobileAuth"
 import connectDB from "@/lib/mongodb"
 import Order from "@/models/Order"
 import Product from "@/models/Product"
@@ -22,8 +21,8 @@ function pct(n: number, d: number): number | null {
   return d ? Math.round((n / d) * 1000) / 10 : null
 }
 
-export async function GET() {
-  const session = await getServerSession(authOptions)
+export async function GET(request: NextRequest) {
+  const session = await sessionFor(request)
   if (!session || session.user.role !== "admin") {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 })
   }

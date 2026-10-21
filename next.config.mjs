@@ -36,6 +36,11 @@ const nextConfig = {
         ],
       },
       {
+        // App links: lets vchuki.com product/blog links open in the VCHUKI app
+        source: '/.well-known/apple-app-site-association',
+        headers: [{ key: 'Content-Type', value: 'application/json' }],
+      },
+      {
         source: '/product/:slug',
         headers: [
           { key: 'X-Robots-Tag', value: 'index, follow, noarchive' },

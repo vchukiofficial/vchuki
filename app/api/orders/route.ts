@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
+import { sessionFor, userFromBearer } from "@/lib/mobileAuth"
 import connectDB from "@/lib/mongodb"
 import Order from "@/models/Order"
 import mongoose from "mongoose"
@@ -13,8 +12,8 @@ function isSameAddress(a: any, b: any) {
   return norm(a.street) === norm(b.street) && norm(a.city) === norm(b.city) && norm(a.state) === norm(b.state) && norm(a.zip) === norm(b.zip)
 }
 
-export async function GET() {
-  const session = await getServerSession(authOptions)
+export async function GET(request: NextRequest) {
+  const session = await sessionFor(request)
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
   await connectDB()
@@ -34,14 +33,18 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
   }
 
-  // Bot protection — no-ops until RECAPTCHA_SECRET_KEY is configured
-  const recaptcha = await verifyRecaptcha(body.recaptchaToken, "checkout")
-  if (!recaptcha.valid) {
-    return NextResponse.json({ error: "Verification failed. Please refresh and try again." }, { status: 400 })
-  }
-
   // Check if user is logged in (optional for guest checkout)
-  const session = await getServerSession(authOptions)
+  const session = await sessionFor(request)
+
+  // Bot protection — no-ops until RECAPTCHA_SECRET_KEY is configured. The mobile app can't run
+  // reCAPTCHA v3, so app orders must come from an email-OTP-verified account (bearer token) instead.
+  const fromApp = !!(await userFromBearer(request))
+  if (!fromApp) {
+    const recaptcha = await verifyRecaptcha(body.recaptchaToken, "checkout")
+    if (!recaptcha.valid) {
+      return NextResponse.json({ error: "Verification failed. Please refresh and try again." }, { status: 400 })
+    }
+  }
 
   // Take stock up front, all-or-nothing, so the website can't sell a piece the shop already sold
   const orderId = new mongoose.Types.ObjectId()
