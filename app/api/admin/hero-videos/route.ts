@@ -3,6 +3,7 @@ import { sessionFor } from "@/lib/mobileAuth"
 import connectDB from "@/lib/mongodb"
 import HeroVideo from "@/models/HeroVideo"
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function GET(request: NextRequest) {
   await connectDB()
   const videos = await HeroVideo.find().sort({ order: 1 }).lean()

@@ -3,6 +3,7 @@ import { sessionFor } from "@/lib/mobileAuth"
 import connectDB from "@/lib/mongodb"
 import ComboOffer from "@/models/ComboOffer"
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function GET(request: NextRequest) {
   await connectDB()
   const offers = await ComboOffer.find({}).sort({ createdAt: -1 }).lean()
