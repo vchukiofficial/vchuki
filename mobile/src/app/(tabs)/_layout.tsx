@@ -12,7 +12,7 @@ import { colors, fonts } from '@/theme';
 const ICONS = { index: Home, shop: LayoutGrid, wishlist: Heart, bag: ShoppingBag, account: User } as const;
 const LABELS = { index: 'Home', shop: 'Shop', wishlist: 'Saved', bag: 'Bag', account: 'Account' } as const;
 
-function TabBar({ state, navigation }: any) {
+function TabBar({ state, emitter, navigateToTab }: any) {
   const insets = useSafeAreaInsets();
   const bag = useCartCount();
   const saved = useWishlist((s) => s.ids.length);
@@ -40,8 +40,8 @@ function TabBar({ state, navigation }: any) {
               accessibilityLabel={count ? `${LABELS[name]}, ${count} items` : LABELS[name]}
               onPress={() => {
                 Haptics.selectionAsync().catch(() => {});
-                const e = navigation.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
-                if (!focused && !e.defaultPrevented) navigation.navigate(route.name);
+                const e = emitter.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
+                if (!focused && !e.defaultPrevented) navigateToTab(route.key);
               }}
               style={st.tab}>
               <View>

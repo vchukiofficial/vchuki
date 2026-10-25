@@ -44,7 +44,8 @@ export async function api<T>(path: string, opts: Options = {}): Promise<T> {
   let res: Response;
   try {
     res = await fetch(`${API_URL}${path}`, { ...opts, headers, body });
-  } catch {
+  } catch (e) {
+    if (__DEV__) console.warn(`[api] ${opts.method || 'GET'} ${API_URL}${path} → network error`, e);
     throw new ApiError('No internet connection. Please try again.', 0);
   }
 
@@ -57,6 +58,7 @@ export async function api<T>(path: string, opts: Options = {}): Promise<T> {
   }
 
   if (!res.ok) {
+    if (__DEV__) console.warn(`[api] ${opts.method || 'GET'} ${API_URL}${path} → ${res.status}`, data ?? text.slice(0, 200));
     if (res.status === 401 && authToken) onUnauthorized?.();
     throw new ApiError(data?.error || data?.message || 'Something went wrong. Please try again.', res.status);
   }
