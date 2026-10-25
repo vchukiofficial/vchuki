@@ -20,7 +20,7 @@ function TabBar({ state, emitter, navigateToTab }: any) {
   return (
     <View style={[st.wrap, { paddingBottom: Math.max(insets.bottom, 10) }]}>
       {Platform.OS === 'ios' ? (
-        <BlurView intensity={50} tint="dark" style={StyleSheet.absoluteFill} />
+        <BlurView intensity={50} tint="light" style={StyleSheet.absoluteFill} />
       ) : (
         <View style={[StyleSheet.absoluteFill, { backgroundColor: colors.bar }]} />
       )}

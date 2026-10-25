@@ -22,7 +22,7 @@ export function AuthShell({ eyebrow, title, subtitle, children, back }: { eyebro
   const close = () => (router.canDismiss() ? router.dismissAll() : router.canGoBack() ? router.back() : router.replace('/'));
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: colors.bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: colors.night }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled" bounces={false}>
         <View style={[st.top, { paddingTop: insets.top + 10 }]}>
           <View style={st.bar}>

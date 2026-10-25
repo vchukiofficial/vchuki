@@ -221,7 +221,7 @@ export default function Security() {
 }
 
 const st = StyleSheet.create({
-  dark: { flex: 1, backgroundColor: colors.bg, alignItems: 'center', paddingHorizontal: 28 },
+  dark: { flex: 1, backgroundColor: colors.night, alignItems: 'center', paddingHorizontal: 28 },
   steps: { flexDirection: 'row', gap: 6, marginTop: 22 },
   stepBar: { width: 26, height: 3, borderRadius: 2, backgroundColor: 'rgba(245,230,211,0.15)' },
   h: { fontFamily: fonts.display, fontSize: 28, color: colors.nightText, marginTop: 18, textAlign: 'center' },

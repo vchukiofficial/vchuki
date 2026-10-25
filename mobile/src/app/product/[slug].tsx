@@ -183,7 +183,7 @@ export default function ProductScreen() {
               </Pressable>
             )}
           />
-          <LinearGradient pointerEvents="none" colors={['rgba(11,10,9,0)', colors.bg]} style={st.fade} />
+          <LinearGradient pointerEvents="none" colors={['rgba(250,248,245,0)', colors.bg]} style={st.fade} />
           {images.length > 1 && (
             <View style={st.dots}>
               {images.map((_, i) => (

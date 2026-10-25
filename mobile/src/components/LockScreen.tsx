@@ -103,6 +103,6 @@ export function LockScreen({ visible, title, subtitle, onUnlocked, onCancel }: {
 }
 
 const st = StyleSheet.create({
-  wrap: { flex: 1, backgroundColor: colors.bg, alignItems: 'center', paddingHorizontal: 24 },
+  wrap: { flex: 1, backgroundColor: colors.night, alignItems: 'center', paddingHorizontal: 24 },
   title: { fontFamily: fonts.display, fontSize: 26, color: colors.nightText, marginTop: 22, textAlign: 'center' },
 });

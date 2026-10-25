@@ -6,7 +6,7 @@
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "vchuki",
-    "userInterfaceStyle": "dark",
+    "userInterfaceStyle": "light",
     "ios": {
       "bundleIdentifier": "com.vchuki.app",
       "supportsTablet": false,
@@ -100,8 +100,8 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#0B0A09",
-          "image": "./assets/images/logo-mark-light.png",
+          "backgroundColor": "#FAF8F5",
+          "image": "./assets/images/logo-mark-dark.png",
           "imageWidth": 110
         }
       ],
@@ -124,7 +124,7 @@
       "typedRoutes": false,
       "reactCompiler": true
     },
-    "backgroundColor": "#0B0A09",
+    "backgroundColor": "#FAF8F5",
     "extra": {
       "apiUrl": "https://vchuki.com"
     }

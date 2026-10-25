@@ -40,7 +40,7 @@ export default function Home() {
   const products = useMemo(() => [...(data?.featured || []), ...(data?.latest || [])], [data]);
   const coverFor = (slug: string) => products.find((p) => p.category === slug)?.images?.[0];
 
-  const headerBg = solidAnim.interpolate({ inputRange: [0, 1], outputRange: ['rgba(11,10,9,0)', 'rgba(11,10,9,0.96)'] });
+  const headerBg = solidAnim.interpolate({ inputRange: [0, 1], outputRange: ['rgba(250,248,245,0)', 'rgba(250,248,245,0.96)'] });
   const headerInk = solidAnim;
 
   if (error && !data) {

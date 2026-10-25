@@ -1,34 +1,35 @@
 /**
- * VCHUKI design tokens — "Quiet Luxury" dark.
- * Obsidian ground, bone-white type, champagne-gold accents,
+ * VCHUKI design tokens — light linen, matching vchuki.com (app/globals.css :root).
+ * Warm off-white ground, near-black type, gold accent; heritage-brown "night" panels
+ * for editorial blocks (bundles, VIP, Studio, toasts) exactly like the website.
  * Playfair Display for editorial headlines, Inter for everything you read or tap.
  */
 export const colors = {
-  bg: '#0B0A09', // obsidian
-  surface: '#141210', // cards, sheets
-  sand: '#1B1815', // image wells, chips, skeletons
-  line: '#2A2621',
-  ink: '#EDE6DA', // bone — primary text
-  inkSoft: '#CFC6B8',
-  muted: '#8F867A',
-  faint: '#5F584F',
-  accent: '#C9A96E', // champagne gold
-  accentDeep: '#D9BE88', // gold for text on obsidian
-  accentWash: '#211B12',
-  night: '#17140F', // raised editorial panels
-  nightText: '#EDE6DA',
-  success: '#86BE98',
-  successWash: '#13231A',
-  warning: '#DDAA62',
-  warningWash: '#2A2114',
-  danger: '#E3806F',
-  dangerWash: '#2C1714',
+  bg: '#FAF8F5', // --background
+  surface: '#FDFDFC', // cards, sheets (--popover)
+  sand: '#EDE9E3', // image wells, chips, skeletons (--secondary)
+  line: '#E2DCD5', // --border
+  ink: '#1D1916', // --foreground — primary text
+  inkSoft: '#322D29', // --secondary-foreground
+  muted: '#7C716A', // --muted-foreground
+  faint: '#A49D98',
+  accent: '#BE8637', // --accent (gold)
+  accentDeep: '#8B5C23', // gold for text on light ground
+  accentWash: '#F5EDE0',
+  night: '#493527', // --heritage — dark editorial panels
+  nightText: '#F5E6D3',
+  success: '#2F7D4F',
+  successWash: '#E6F2EA',
+  warning: '#A86A12',
+  warningWash: '#FBF1DE',
+  danger: '#D93636', // --destructive
+  dangerWash: '#FDECEA',
   white: '#FFFFFF',
-  onInk: '#0B0A09', // text/icons on bone buttons
-  onAccent: '#0B0A09', // text/icons on gold
-  bar: 'rgba(11,10,9,0.96)', // sticky bars & tab bar
-  glass: 'rgba(20,18,16,0.72)', // floating icon buttons over photos
-  goldLine: 'rgba(201,169,110,0.28)',
+  onInk: '#FAF8F5', // text/icons on dark ink buttons
+  onAccent: '#FDFDFC', // --accent-foreground
+  bar: 'rgba(250,248,245,0.96)', // sticky bars & tab bar
+  glass: 'rgba(253,253,252,0.82)', // floating icon buttons over photos
+  goldLine: 'rgba(190,134,55,0.3)',
 } as const;
 
 export const fonts = {
@@ -49,15 +50,15 @@ export const TAB_SPACE = 104;
 
 export const shadow = {
   card: {
-    shadowColor: '#000000',
-    shadowOpacity: 0.35,
+    shadowColor: '#2A1C10',
+    shadowOpacity: 0.08,
     shadowRadius: 18,
     shadowOffset: { width: 0, height: 8 },
     elevation: 3,
   },
   float: {
     shadowColor: '#2A1C10',
-    shadowOpacity: 0.18,
+    shadowOpacity: 0.12,
     shadowRadius: 24,
     shadowOffset: { width: 0, height: 10 },
     elevation: 10,

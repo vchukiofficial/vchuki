@@ -56,7 +56,7 @@ export function AnimatedSplash({ ready, onDone }: { ready: boolean; onDone: () =
             { scale: mark.interpolate({ inputRange: [0, 1], outputRange: [1, 0.82] }) },
           ],
         }}>
-        <Image source={require('@/assets/images/logo-mark-light.png')} style={{ width: 110, height: 107 }} contentFit="contain" />
+        <Image source={require('@/assets/images/logo-mark-dark.png')} style={{ width: 110, height: 107 }} contentFit="contain" />
       </Animated.View>
       <View style={{ flexDirection: 'row', marginTop: 10 }}>
         {LETTERS.map((l, i) => (
@@ -78,7 +78,7 @@ export function AnimatedSplash({ ready, onDone }: { ready: boolean; onDone: () =
 
 const st = StyleSheet.create({
   wrap: { backgroundColor: colors.bg, alignItems: 'center', justifyContent: 'center', zIndex: 999 },
-  letter: { fontFamily: fonts.display, fontSize: 34, letterSpacing: 10, color: colors.nightText, marginRight: -2 },
+  letter: { fontFamily: fonts.display, fontSize: 34, letterSpacing: 10, color: colors.ink, marginRight: -2 },
   rule: { width: 64, height: 1.5, backgroundColor: colors.accent, marginTop: 18 },
   tag: { fontFamily: fonts.medium, fontSize: 11, letterSpacing: 3.5, color: 'rgba(245,230,211,0.65)', textTransform: 'uppercase', marginTop: 14 },
 });
