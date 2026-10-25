@@ -38,8 +38,21 @@ const variants: Record<Variant, TextStyle> = {
   button: { fontFamily: fonts.semibold, fontSize: 14, letterSpacing: 1.2, textTransform: 'uppercase' },
 };
 
+/**
+ * When a caller changes fontSize but not lineHeight, the variant's lineHeight no longer fits:
+ * bigger text gets its top/bottom clipped on Android (PIN digits, prices), smaller text gets
+ * extra empty space. Re-derive lineHeight from the size actually used.
+ */
+function fitLineHeight(base: TextStyle, override: TextStyle): TextStyle | null {
+  if (override.fontSize == null || override.lineHeight != null || base.lineHeight == null) return null;
+  const display = String(override.fontFamily ?? base.fontFamily ?? '').startsWith('PlayfairDisplay');
+  return { lineHeight: Math.ceil(override.fontSize * (display ? 1.25 : 1.4)) };
+}
+
 export function T({ v = 'body', style, ...p }: TextProps & { v?: Variant }) {
-  return <Text {...p} style={[variants[v], style]} maxFontSizeMultiplier={1.4} />;
+  const base = variants[v];
+  const fit = style ? fitLineHeight(base, (StyleSheet.flatten(style) || {}) as TextStyle) : null;
+  return <Text {...p} style={[base, style, fit]} maxFontSizeMultiplier={1.4} />;
 }
 
 /* ───────────────────────── Pressable with feedback ───────────────────────── */
